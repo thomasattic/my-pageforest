@@ -1,0 +1,29 @@
+{
+  "application": "my",
+  "cloneable": false,
+  "created": {
+    "__class__": "Date",
+    "isoformat": "2011-04-01T20:46:39.434459Z"
+  },
+  "modified": {
+    "__class__": "Date",
+    "isoformat": "2011-04-01T20:46:39.434580Z"
+  },
+  "owner": "beedesk",
+  "readers": [
+    "public"
+  ],
+  "referers": [],
+  "secureData": false,
+  "sha1": "203d9c19891cde3ef49e2e6b2deef641751a2745",
+  "size": 275,
+  "tags": [
+    "launcher"
+  ],
+  "title": "Welcome to Pageforest",
+  "url": "http://my.pageforest.com/",
+  "writers": [
+    "mckoss",
+    "beedesk"
+  ]
+}
