@@ -452,7 +452,7 @@ var Arrays = new function() {
     // intersect 2 arrays and return 3 (left, middle, right) where the middle is
     // the intersect, left is left-only, etc.
     var ai=0, bi=0;
-    var result = new Object();
+    var result = {left: [], middle: [], right: []};
     if (ths === undefined || ths === null) {
       ths = [];
     }
@@ -463,9 +463,6 @@ var Arrays = new function() {
       ths.sort();
       that.sort();
     }
-    result.left = new Array();
-    result.middle = new Array();
-    result.right = new Array();
 
     while(ai < ths.length || bi < that.length ) {
       if (bi >= that.length) {
