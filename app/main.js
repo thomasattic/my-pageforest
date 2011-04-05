@@ -12,17 +12,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         create: function(id, item) {
           //@TODO -- work to add it to the list
 
-          items.handler.added({entryId, id, entry: item});
+          items.handler.added({entryId: id, entry: item});
         },
         remove: function(id, olditem) {
-          //@TODO -- work to remove it from the lsit
+          //@TODO -- work to remove it from the list
 
-          items.handler.removed({entryId, id, entry: item});
+          items.handler.removed({entryId: id, entry: item});
         },
         update: function(id, item, olditem) {
           //@TODO -- work to update the item
 
-          items.handler.updated({entryId, id, entry: item});
+          items.handler.updated({entryId: id, entry: item});
         }
     };
 
