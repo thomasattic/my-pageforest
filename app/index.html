@@ -30,8 +30,6 @@
     }
 
     #jqt > #z-launcherpane ul.grid li .icon .mask {
-       height: 100%;
-       width: 100%;
        background-image: -webkit-gradient(radial, 50% -58%, 40, 50% -35%, 195, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
     }
   </style>
@@ -115,12 +113,11 @@
       }
     };
 
+    var emptyfn = function() {};
     $(document).ready(function() {
-      addapp('beedesk-test', function() {
-        console.warn('app added');
-      }, function() {
-        console.warn('adding app failed');
-      });
+      addapp('beedesk-test');
+      addapp('lift');
+      addapp('editor');
     });
   </script>
 
@@ -128,8 +125,8 @@
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-launcheritemid="${appid}" style="background-image: ${icon};">
-      <a href="${url}"><div class="icon"><div class="mask"></div></div>${title}</a>
+    <li data-launcheritemid="${appid}">
+      <a href="${url}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>${title}</a>
     </li>
   </script>
   </head>
@@ -147,9 +144,6 @@
             </li>
             <li>
               <a href="#z-listpane" title="project"><div class="icon d-project"><div class="mask"></div></div>Develop</a>
-            </li>
-            <li>
-              <a href="#z-listpane" title="project"><div class="icon d-project"><div class="mask"></div></div>Editor</a>
             </li>
           </ul>
         </div>
