@@ -12,17 +12,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         create: function(id, item) {
           //@TODO -- work to add it to the list
 
-          items.handler.added({entryId: id, entry: item});
+          items.handler.added({id: id, item: item});
         },
         remove: function(id, olditem) {
           //@TODO -- work to remove it from the list
 
-          items.handler.removed({entryId: id, entry: item});
+          items.handler.removed({id: id, olditem: olditem});
         },
         update: function(id, item, olditem) {
           //@TODO -- work to update the item
 
-          items.handler.updated({entryId: id, entry: item});
+          items.handler.updated({id: id, item: item, olditem: olditem});
         }
     };
 
@@ -61,6 +61,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
     // setDoc is called whenever your document is be reloaded.
     function setDoc(json) {
+        var i, len;
         // doc schema: {blob: {schema: 1, items: {<appid>: {icon: '', url: '', title: ''}, order: []}}}
 
         var hasitem = !!json && !!json.blog && !!json.blog.items;
@@ -73,18 +74,29 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         keys.sort();
 
         var diff = Arrays.intersect(displayedkeys, keys, false);
-        for (var i=0, len=left.length; i<len; i++) {
+        for (i=0, len=diff.left.length; i<len; i++) {
             // item removed
-          if (!!items.handler) {
-            items.handler.removed({entryId: left[i], entry: data[left[i]]});
-          }
+            var id = diff.left[i];
+            var olditem = displayeditems[id];
+            items.handler.removed({id: id, olditem: olditem});
         }
-        for (var i=0, len=right.length; i<len; i++) {
+        for (i=0, len=right.length; i<len; i++) {
             // item added
-            items.handler.added({entryId: right[i], entry: data[right[i]]});
+            var id = diff.right[i];
+            var item = data.items[id];
+            items.handler.added({id: id, item: olditem});
+        }
+        for (i=0, len=middle.length; i<len; i++) {
+            var id = diff.middle[i];
+            var item = data.items[id];
+            var olditem = displayeditems[id];
+            if (!Hashs.isEquals(item, olditem)) {
+              // item updated
+              items.handler.added({id: id, item: item, olditem: olditem});
+            }
         }
 
-        //@TODO -- determine if the order has changed
+        //@Feature -- determine if the order has changed
         // ...
 
         displayedkeys = keys;
