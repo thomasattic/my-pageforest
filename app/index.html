@@ -23,14 +23,24 @@
        background-repeat: repeat-x;
     }
 
-    #jqt > #z-launcherpane ul.grid li .icon {
-       height: 64px;
+    #jqt > #z-launcherpane ul.grid li {
+       margin: 30px;
        width: 64px;
-       background-color: #707070;
+    }
+    #jqt > #z-launcherpane ul.grid li > a {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #jqt > #z-launcherpane ul.grid li .icon {
+       width: 64px;
+       height: 64px;
+       background-color: #EEE;
     }
 
     #jqt > #z-launcherpane ul.grid li .icon .mask {
-       background-image: -webkit-gradient(radial, 50% -58%, 40, 50% -35%, 195, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
+       background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
     }
   </style>
 
@@ -67,7 +77,7 @@
 
     var my = namespace.lookup('com.pageforest.my');
 
-    function addapp(appid, fn, err) {
+    function addApp(appid, fn, err) {
       // ajax on that:
       var itemjson = {};
       var apppath = '/mirror/' + appid + '/app.json';
@@ -115,10 +125,12 @@
 
     var emptyfn = function() {};
     $(document).ready(function() {
-      addapp('beedesk-test');
-      addapp('lift');
-      addapp('editor');
+      addApp('beedesk-test');
+      addApp('lift');
+      addApp('editor');
+      addApp('pawnpwn');
     });
+
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -141,9 +153,6 @@
             </li>
             <li>
               <a href="#z-listpane" title="Due Soon"><div class="icon d-due"><div class="mask"></div></div>Documents</a>
-            </li>
-            <li>
-              <a href="#z-listpane" title="project"><div class="icon d-project"><div class="mask"></div></div>Develop</a>
             </li>
           </ul>
         </div>
