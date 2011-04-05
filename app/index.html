@@ -4,7 +4,7 @@
   <title>Welcome to Pageforest</title>
   <link rel="icon" type="image/png" href="/images/icon.png" />
   <link rel="apple-touch-icon" href="/images/touch.png" />
-  
+
   <link rel="stylesheet" type="text/css" href="/lib/beta/css/client.css" />
   <style type="text/css" media="screen">@import "./jslib/jqtouch/jqtouch/jqtouch.css";</style>
   <style type="text/css" media="screen">@import "./jslib/jqtouch/themes/apple/theme.css";</style>
@@ -22,13 +22,13 @@
        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
        background-repeat: repeat-x;
     }
-    
+
     #jqt > #z-launcherpane ul.grid li .icon {
        height: 64px;
        width: 64px;
        background-color: #707070;
     }
-    
+
     #jqt > #z-launcherpane ul.grid li .icon .mask {
        height: 100%;
        width: 100%;
@@ -40,21 +40,21 @@
      These scripts provide access to the standard Client library
      for Pageforest apps.  jQuery and JSON, are also required
      by the Client library.
-  
+
      Note that the "beta" versions of the library are used.  These
      are the most up to date versions.  You can change "beta" to
      "0.6" if you want the latest frozen version of the libraries.
-  
+
      API reference: http://code.google.com/p/pageforest/wiki/ClientLibrary
     -->
-    
+
   <script src="/lib/beta/js/pf-client.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/lib/date.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/lib/json2.js" type="text/javascript" charset="utf-8"></script>
   <script src="./jslib/lib/jquery.jsonp-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="./jslib/lib/jquery.tmpl.min.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/beedesk/utilities.js" type="application/x-javascript" charset="utf-8"></script>
-  
+
   <script src="./jslib/jqtouch/jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/jqtouch/extensions/iscroll/iscroll.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/beedesk/jqt.js" type="application/x-javascript" charset="utf-8"></script>
@@ -66,13 +66,61 @@
     // Call the onReady function of the application when the page is loaded.
     var scratch = namespace.lookup("com.pageforest.my");
     $(document).ready(scratch.onReady);
+
+    var my = namespace.lookup('com.pageforest.my');
+
+    function addapp(appid, fn, err) {
+      // ajax on that:
+      var apppath = '/mirror/' + appid + '/app.json';
+      $.ajax({
+        type: 'GET',
+        url: apppath,
+        dataType: 'json',
+        beforeSend: function(xhr) {},
+        success: function(appjson) {
+          var iconurl = '/static/images/icon.png';
+          if (appjson.icon) {
+              iconurl = '/mirror/' + appid + '/' + appjson.icon;
+          }
+
+          itemjson.iconurl = iconurl;
+          itemjson.url = appjson.url;
+          itemjson.appid = appid;
+
+          // itemjson: {<appid>: {icon: '', url: '', title: ''}
+          my.items.create(itemjson, function() {
+            console.write("item created.");
+            fn(appid, itemjson);
+          }, err);
+        },
+        error: function(request, textStatus, errorThrown) {
+          var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: url, method: "browse", kind: textStatus};
+          exception.nested = {request: request, status: textStatus, exception: errorThrown};
+          err(exception);
+        }
+      });
+    };
+
+    // client.appid
+    my.items.hander = {
+      added: function(event) {
+        var $newitem = $("#launcheritem-template").tmpl(event.entry);
+        $("#z-launcherpane").append($newitem);
+      },
+      removed: function(event) {
+      },
+      updated: function(event) {
+      }
+    };
   </script>
-  
+
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-launcheritemid="item/${id}" class=""></li>
+    <li id="" data-launcheritemid="${appid}" style="background-image: ${icon};">
+      <a href="${url}"><div class="icon"><div class="mask"></div></div>${title}</a>
+    </li>
   </script>
   </head>
   <body>
@@ -99,7 +147,7 @@
     </div>
     <div class="page">
       <h1><script>document.write(document.title);</script></h1>
-    
+
       <fieldset>
         <legend>Getting Started</legend>
         <div>
@@ -127,12 +175,12 @@
           </ol>
         </div>
       </fieldset>
-    
+
       <!--
          A simple form whose contains will be saved and loaded from the
          Pageforest data store.  See main.js.
         -->
-    
+
       <fieldset>
         <legend>Data Fields</legend>
         <ul>
@@ -142,12 +190,12 @@
           </li>
         </ul>
       </fieldset>
-    
+
       <!--
          These links are for informational purposes only - you should remove them
          from you application when you build your own app.
         -->
-    
+
       <fieldset>
         <legend>Explore</legend>
         <ol>
@@ -162,7 +210,7 @@
               Source code</a> - View the code for this application.</li>
         </ol>
       </fieldset>
-    
+
     <!--
        Standard Google Analytics tracking.  This can be removed from your own app,
        or replaced with your own account id.
@@ -172,7 +220,7 @@
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-2072869-7']);
       _gaq.push(['_trackPageview']);
-    
+
       (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') +
@@ -180,7 +228,7 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
-    </div> <!-- page -->    
+    </div> <!-- page -->
     </div>
   </body>
 </html>
