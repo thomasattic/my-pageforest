@@ -79,6 +79,7 @@
             defaultAnimation: 'slide',
             defaultModifier: '',
             updatehash: true,
+            hashquery: false,
             inputguard: true,
             inputtypes: ["input[type='text']", "input[type='password']", "input[type='tel']", "input[type='number']", "input[type='search']", "input[type='email']", "input[type='url']", "select", "textarea"],
             useFastTouch: false, // Experimental.
@@ -260,7 +261,7 @@
 
             // update hash
             if (jQTSettings.updatehash && section === defaultSection) {
-                location.hash = '#' + pageId + getSearchString(search);
+                location.hash = '#' + pageId + optPrefix('?', getSearchString(search));
             }
             startHashCheck();
         }
@@ -383,10 +384,17 @@
           result += "//";
           result += h.host;
           result += h.pathname;
-          result += h.hash;
           result += h.search;
+          result += h.hash;
 
           return result;
+        }
+
+        function optPrefix(leading, string) {
+          if (!string) {
+            return string;
+          }
+          return leading + string;
         }
 
         function getSearchString(search) {
@@ -396,9 +404,6 @@
                     result += '&';
                 }
                 result += item + '=' + encodeURIComponent(search[item]);
-            }
-            if (result.length > 0) {
-                result = '?' + result;
             }
             return result;
         };
@@ -650,7 +655,7 @@
                     }
                 }
             } else {
-                location.hash = '#' + hist[0].id + getSearchString(param.search);
+                location.hash = '#' + hist[0].id + optPrefix('?', getSearchString(param.search));
             }
             return publicObj;
         }
@@ -912,7 +917,7 @@
               return true;
             }
 
-            var action = $form.attr('action'); 
+            var action = $form.attr('action');
             if (action) {
                 if (action === '#') {
                     goBack({returns: $form.serializeArray()});
@@ -1113,7 +1118,7 @@
                     if ($el.is(jQTSettings.dialogSelector) || $el.find(jQTSettings.dialogSelector).length > 0) {
                       pageback = function(returns) {
                         console.warn("pageback is called. returns: " + JSON.stringify(returns));
-                        
+
                         var $page = $(this);
                         if (returns) {
                           for (var i=0, len=returns.length; i<len; i++) {
@@ -1131,12 +1136,12 @@
                           }
                         } // (!returns) indicates dialog was cancelled
                       };
-                      
+
                       $el.find('input[data-sourcename]').each(function(i, input) {
                         var $input = $(input);
                         var name = $input.attr('data-sourcename');
                         if (name) {
-                          search[name] = $input.val(); 
+                          search[name] = $input.val();
                         }
                       });
                     }
@@ -1185,7 +1190,7 @@
             var mySelectors = allSelectors.join(', ');
             if (!$el.is(mySelectors)) {
                 var $link = $(e.target).closest(mySelectors);
-  
+
                 if ($link.length) {
                     $el = $link;
                 } else {
@@ -1230,7 +1235,7 @@
               return;
             }
 
-            $oel = $(e.target); 
+            $oel = $(e.target);
             $el = $oel;
             var mySelectors = allSelectors.join(', ');
             if (!$el.is(mySelectors)) {
@@ -1563,9 +1568,11 @@
             }
 
             var loc = window.location;
+            var search = jQTSettings.hashquery?
+                  parseSearch(loc.hash.substring(1)):
+                  parseSearch(loc.search.substring(1));
 
-            //allow override of splitscreen mode in the url
-            var search = parseSearch(loc.search.substring(1));
+            // allow override of splitscreen mode in the url
             var usersplitmode = search.jqtsplitmode;
             if (usersplitmode !== undefined) {
               delete search.jqtsplitmode;
@@ -1576,6 +1583,13 @@
               }
             } else {
               usersplitmode = true;
+            }
+
+            // allow start page to be specified
+            var startpage = null;
+            if (!!search.jqtpage) {
+              startpage = "#" + search.jqtpage;
+              delete search.jqtpage;
             }
 
             // handling split screen for wider device (such as iPad)
@@ -1592,9 +1606,9 @@
                     } else {
                       currentAside = $($aside.filter(':first')[0]);
                     }
-                    
+
                     addPageToHistory(currentAside);
-                    currentAside.trigger('pagein', {hash: '#' + currentAside[0].id, search: {}});
+                    currentAside.trigger('pagein', {hash: '#' + currentAside[0].id, search: {}, referrer: document.referrer});
                 }
                 defaultSection = "main";
                 $('#jqt > [section!="aside"]').attr("section", defaultSection);
@@ -1619,7 +1633,7 @@
             }
             currentPage.addClass('current alphapage');
             addPageToHistory(currentPage);
-            currentPage.trigger('pagein', {hash: '#' + currentPage[0].id, search: search});
+            currentPage.trigger('pagein', {hash: '#' + currentPage[0].id, search: search, referrer: document.referrer});
 
             // adjust visibiliy of elements
             $.each(['full', 'main', 'aside'], function(i, section) {
@@ -1629,16 +1643,15 @@
             });
 
             // move to init page be specified in querystring
-            if (!!search.jqtpage) {
-              var page = "#" + search.jqtpage;
-              delete search.jqtpage;
-
-              var $page = $("#jqt > " + page);
+            if (startpage) {
+              var $page = $("#jqt > " + startpage);
               var section = $page.attr("section");
               if ($page.length === 1) {
                 if (section === defaultSection) {
                   $("#jqt > .current").removeClass("current alphapage");
                   $page.addClass("current alphapage");
+                  addPageToHistory($page);
+                  $page.trigger('pagein', {hash: '#' + startpage, search: search, referrer: document.referrer});
                 } else {
                   console.warn("Init page must be displayed in the default section.");
                 }
@@ -1646,12 +1659,14 @@
                 console.warn("Unexpected number of page.");
               }
             }
-            var pageid = $("#jqt > .current").attr("id");
-            $("#jqt > .current").trigger("pagein", {hash: "#" + pageid, search: search});
 
             // update browser url
-            var newloc = replaceHrefPart(window.location, {search: getSearchString(search)});
-            window.history.replaceState({}, "page", newloc);
+            var searchString = getSearchString(search);
+            var hrefPart = jQTSettings.hashquery? {hash: optPrefix('#', '')}: {search: optPrefix('?', searchString)};
+            var newloc = replaceHrefPart(window.location, hrefPart);
+            if (!!window.history && !!window.history.replaceState) {
+               window.history.replaceState({}, "page", newloc);
+            }
 
             // guard input for proper scroll behaviour
             if (jQTSettings.inputguard) {

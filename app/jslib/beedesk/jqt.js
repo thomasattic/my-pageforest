@@ -22,7 +22,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 (function() {
-  jqt = $.jQTouch({updatehash: false});
+  jqt = $.jQTouch({
+    updatehash: false,
+    hashquery: true
+  });
 
   $(document).ready(function(){
     // initialize iscroll

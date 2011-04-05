@@ -2,6 +2,7 @@
 // Modified copy of Scratch's main.js
 //
 namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
+    var appid;
     var displayedkeys = [];
     var displayedorder = [];
     var displayeditems = {};
@@ -28,6 +29,12 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
     var clientLib = namespace.lookup('com.pageforest.client');
 
+    // Client library for Pageforest
+    ns.client = new clientLib.Client(ns);
+
+    // Expose appid
+    appid = ns.client.appid;
+
     // Set to a large number to save battery on mobile phone,
     // we will use setDirty() & save() explicitly
     // clientLib.pollInterval = 10000000;
@@ -36,8 +43,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // is loaded.  Use it to initialize your application and
     // set up the Pageforest Client Library App Bar user interface.
     function onReady() {
-        // Client library for Pageforest
-        ns.client = new clientLib.Client(ns);
 
         // Use the standard Pageforest UI widget.
         ns.client.addAppBar();
@@ -49,7 +54,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         // Quick call to poll - don't wait a whole second to try loading
         // the doc and logging in the user.
         ns.client.poll();
-
     }
 
     function getDocid() {
@@ -123,6 +127,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         'setDoc': setDoc,
         'getDocid': getDocid,
         'setDocid': setDocid,
-        'items': items
+        'items': items,
+        'appid': appid
     });
 });

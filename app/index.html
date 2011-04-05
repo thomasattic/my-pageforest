@@ -72,10 +72,11 @@
 
   <script type="text/javascript">
     // Call the onReady function of the application when the page is loaded.
-    var scratch = namespace.lookup("com.pageforest.my");
-    $(document).ready(scratch.onReady);
+    var my = namespace.lookup("com.pageforest.my");
 
-    var my = namespace.lookup('com.pageforest.my');
+    $(document).ready(my.onReady);
+
+    var referrers;
 
     function addApp(appid, fn, err) {
       // ajax on that:
@@ -100,16 +101,42 @@
           // itemjson: {<appid>: {icon: '', url: '', title: ''}
           my.items.create(appid, itemjson, function() {
             console.write("item created.");
-            fn(appid, itemjson);
+            if (fn) {
+              fn(appid, itemjson);
+            }
           }, err);
         },
         error: function(request, textStatus, errorThrown) {
-          var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: url, method: "browse", kind: textStatus};
+          var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
           exception.nested = {request: request, status: textStatus, exception: errorThrown};
-          err(exception);
+          if (err) {
+            err(exception);
+          }
         }
       });
     };
+
+    function initReferrers() {
+      var appid = my.appid;
+
+      // ajax on that:
+      var apppath = '/mirror/' + appid + '/app.json';
+      $.ajax({
+        type: 'GET',
+        url: apppath,
+        dataType: 'json',
+        beforeSend: function(xhr) {},
+        success: function(appjson) {
+          referrers = appjson.referers;
+          console.warn("referrers: " + JSON.stringify(referrers));
+        },
+        error: function(request, textStatus, errorThrown) {
+          var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
+          exception.nested = {request: request, status: textStatus, exception: errorThrown};
+        },
+        async: true
+      });
+    }
 
     // client.appid
     my.items.handler = {
@@ -131,6 +158,15 @@
       addApp('pawnpwn');
     });
 
+    initReferrers();
+    $("#z-launcherpane").live("pagein", function(event, info) {
+      setTimeout(function() {
+        console.warn("search: " + JSON.stringify(info));
+        if (info.search && info.search.installapp) {
+          addApp(info.search.installapp);
+        }
+      }, 500);
+    });
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -159,71 +195,6 @@
       </div>
     </div>
     <div class="page">
-      <h1><script>document.write(document.title);</script></h1>
-
-      <fieldset>
-        <legend>Getting Started</legend>
-        <div>
-          Follow these steps to get started building your own App.
-          <ol>
-            <li>Click on the Sign In link above, to create your Pageforest user account and
-              Allow Access for the Scratch application.</li>
-            <li>Change the contents of the Note field below.</li>
-            <li>Click on the Save link above to save your changes to your Pageforest document
-              library.  <i>Note that the URL address of this page has changed to indicate
-                the document id given to your saved document.</i></li>
-            <li>Reload the page (press F5) to confirm that Pageforest can reload your
-              document as you saved it.</li>
-            <li><a target="_blank" href="http://www.pageforest.com/apps/scratch/clone">Clone</a> this app, to make your
-              own modifiable copy of the source code.</li>
-            <li>Use the <a target="_blank" href="http://editor.pageforest.com">Pageforest Editor</a> to edit the
-              source code of your application.
-              <i>Alternatively, you can edit your application files on your desktop or laptop
-                computer - see more at
-                <a target="_blank" href="http://code.google.com/p/pageforest/wiki/PFPY">pf.py</a>.
-              </i>
-            </li>
-            <li>Read our in-depth <a target="_blank" href="http://code.google.com/p/pageforest/wiki/GettingStarted">
-                Getting Started</a> guide.</li>
-          </ol>
-        </div>
-      </fieldset>
-
-      <!--
-         A simple form whose contains will be saved and loaded from the
-         Pageforest data store.  See main.js.
-        -->
-
-      <fieldset>
-        <legend>Data Fields</legend>
-        <ul>
-          <li>
-            <label for="blob">Note:</label>
-            <textarea id="blob" name="blob">Type your message here.</textarea>
-          </li>
-        </ul>
-      </fieldset>
-
-      <!--
-         These links are for informational purposes only - you should remove them
-         from you application when you build your own app.
-        -->
-
-      <fieldset>
-        <legend>Explore</legend>
-        <ol>
-          <li><a id="document" target="_blank">JSON data for this document</a> - Each Pageforest
-            document is saved as a JSON-formatted file.  Once saved, you can click this link
-            to examine the document format directly in your browser.
-            <i>Note that all documents are stored in http://appid.pageforest.com/docs/docid</i>
-          </li>
-          <li><a id="mydocs" target="_blank" href="http://www.pageforest.com/docs/">My Pageforest documents</a> -
-            Pageforest collects all the documents that a user has saved in his own document library.</li>
-          <li><a target="_blank" href="http://code.google.com/p/pageforest/source/browse/#hg/examples/scratch">
-              Source code</a> - View the code for this application.</li>
-        </ol>
-      </fieldset>
-
     <!--
        Standard Google Analytics tracking.  This can be removed from your own app,
        or replaced with your own account id.
