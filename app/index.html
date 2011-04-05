@@ -71,6 +71,7 @@
 
     function addapp(appid, fn, err) {
       // ajax on that:
+      var itemjson = {};
       var apppath = '/mirror/' + appid + '/app.json';
       $.ajax({
         type: 'GET',
@@ -83,12 +84,13 @@
               iconurl = '/mirror/' + appid + '/' + appjson.icon;
           }
 
-          itemjson.iconurl = iconurl;
+          itemjson.icon = iconurl;
           itemjson.url = appjson.url;
           itemjson.appid = appid;
+          itemjson.title = appjson.title;
 
           // itemjson: {<appid>: {icon: '', url: '', title: ''}
-          my.items.create(itemjson, function() {
+          my.items.create(appid, itemjson, function() {
             console.write("item created.");
             fn(appid, itemjson);
           }, err);
@@ -102,23 +104,31 @@
     };
 
     // client.appid
-    my.items.hander = {
+    my.items.handler = {
       added: function(event) {
-        var $newitem = $("#launcheritem-template").tmpl(event.entry);
-        $("#z-launcherpane").append($newitem);
+        var $newitem = $("#launcheritem-template").tmpl(event.item);
+        $("#z-launcherpane ul").append($newitem);
       },
       removed: function(event) {
       },
       updated: function(event) {
       }
     };
+
+    $(document).ready(function() {
+      addapp('beedesk-test', function() {
+        console.warn('app added');
+      }, function() {
+        console.warn('adding app failed');
+      });
+    });
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li id="" data-launcheritemid="${appid}" style="background-image: ${icon};">
+    <li data-launcheritemid="${appid}" style="background-image: ${icon};">
       <a href="${url}"><div class="icon"><div class="mask"></div></div>${title}</a>
     </li>
   </script>
