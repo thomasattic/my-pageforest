@@ -165,11 +165,69 @@
       }
     }
 
+    var actions = {
+      addApp: function (event, info) {
+        var $target = $(this.el || this);
+        if (info.search && info.search.installapp) {
+          checkReferers(info.referer, function() {
+            addApp(info.search.installapp);
+          }, function() {
+            console.error("referer doesn't pass.");
+          });
+        }
+      },
+      removeApp: function (event) {
+        var $target = $(this.el || this);
+        var appid = $target.attr("data-launcheritemid");
+        console.warn("appid: " + appid);
+        if (appid) {
+          my.items.remove(appid, function() {
+            console.warn("item removed.");
+            if (fn) {
+              fn(appid, itemjson);
+            }
+          }, function() {
+            console.warn("error on item removed.");
+          });
+        }
+      },
+      enterEditMode: function (event) {
+        var $target = $(this.el || this); // support both gt() and $()
+        $target.parents("ul.grid").addClass("editmode");
+      },
+      exitEditMode: function (event) {
+        var $target = $(this.el || this); // support both gt() and $()
+        $target.find("ul.grid.editmode").removeClass("editmode");
+      }
+    }
+
+    // events
+    $("#jqt > #z-launcherpane").bind("pagein", actions.addApp);
+
+    $(document).ready(function() {
+
+      gt("#jqt > * ul.grid.editmode li").on("tap", actions.removeApp);
+
+      gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', actions.enterEditMode);
+
+      gt('#jqt > #z-launcherpane').on('doubletap', actions.exitEditMode);
+
+    });
+
     // client.appid
     my.items.handler = {
       added: function(event) {
         var $newitem = $("#launcheritem-template").tmpl(event.item);
         $("#z-launcherpane ul").append($newitem);
+
+        gt($newitem[0]).on('taphold', actions.enterEditMode);
+
+        gt($newitem[0]).on('tap', function(event) {
+          var $target = $(this.el || this); // support both gt() and $()
+          if ($target.parents("ul.grid.editmode").length > 0) {
+            actions.removeApp.apply(this, arguments);
+          }
+        });
       },
       removed: function(event) {
         var appid = event.id;
@@ -187,45 +245,6 @@
       addApp('pawnpwn');
     });
 
-    $("#z-launcherpane").live("pagein", function(event, info) {
-      if (info.search && info.search.installapp) {
-        checkReferers(info.referer, function() {
-          addApp(info.search.installapp);
-        }, function() {
-          console.error("referer doesn't pass.");
-        });
-      }
-    });
-
-    $("#jqt > * ul.grid.editmode li").live("click", function(event) {
-      console.warn("clicked");
-      var appid = $(this).attr("data-launcheritemid");
-      console.warn("appid: " + appid);
-      if (appid) {
-        my.items.remove(appid, function() {
-          console.warn("item removed.");
-          if (fn) {
-            fn(appid, itemjson);
-          }
-        }, function() {
-          console.warn("error on item removed.");
-        });
-      }
-    });
-
-    $(document).ready(function() {
-      gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', function(event) {
-        var target = this.el || this;
-        var $target = $(target); // support both gt() and $()
-        $target.parents("ul.grid").addClass("editmode");
-      });
-
-      gt('#jqt > #z-launcherpane').on('doubletap', function(event) {
-        var target = this.el || this;
-        var $target = $(target); // support both gt() and $()
-        $target.find("ul.grid.editmode").removeClass("editmode");
-      });
-    });
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -247,7 +266,7 @@
               <a href="#"><div class="icon d-schedule"><div class="mask"></div></div>App Store</a>
             </li>
             <li class="noedit">
-              <a href="http://editor.pageforest.com/" target="_webapp"><div class="icon d-due"><div class="mask"></div></div>Documents</a>
+              <a href="http://editor.pageforest.com/" target="_webapp"><div class="icon d-due" style="background-image: url(/mirror/editor/images/icon.png);"><div class="mask"></div></div>Documents</a>
             </li>
           </ul>
         </div>
