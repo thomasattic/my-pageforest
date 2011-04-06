@@ -910,7 +910,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt > * .sw-slots-wrapper .sw-frame {
     position:absolute; z-index:1000;
-    top: 0; bottom:0; left:0; right:0; 
+    top: 0; bottom:0; left:0; right:0;
     border-width:16px;
     -webkit-border-image:url(../../extensions/spinningwheel/sw-alpha.png) 16;
 }
@@ -931,7 +931,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     background-image: url(../../extensions/spinningwheel/sw-slot-border.png);
     background-position: 0 0, 100% 0;
     background-repeat: repeat-y;
-    list-style-type: none; 
+    list-style-type: none;
 }
 
 #jqt > * .sw-slots-wrapper ul, #jqt > * .sw-slots-wrapper ul li {
@@ -1011,6 +1011,47 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-align: center;
     color: #FFFFFF;
     text-shadow: 1pt 1pt 1.5pt #000, 0pt 0pt 1pt #808080;
+}
+
+#jqt > * ul.grid.editmode li:nth-child(even) {
+  -webkit-animation-name: shake;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: normal;
+}
+
+#jqt > * ul.grid.editmode li:nth-child(odd) {
+  -webkit-animation-name: shake;
+  -webkit-animation-duration: 0.85s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate;
+}
+
+@-webkit-keyframes shake {
+    0%   {
+        -webkit-transform: rotate(-2deg);
+        -webkit-animation-timing-function: ease;
+    }
+    25%   {
+        -webkit-transform: rotate(4.75deg);
+        -webkit-animation-timing-function: ease;
+    }
+    50%   {
+        -webkit-transform: rotate(-8.75deg);
+        -webkit-animation-timing-function: ease;
+    }
+    75%   {
+        -webkit-transform: rotate(12.5deg);
+        -webkit-animation-timing-function: ease;
+    }
+    87.5%   {
+        -webkit-transform: rotate(-6deg);
+        -webkit-animation-timing-function: ease;
+    }
+    100% {
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: ease;
+    }
 }
 
 #jqt ul.grid li {
@@ -1614,7 +1655,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 
 /* @group Forms */
-#jqt form ul li, #jqt ul.form li, 
+#jqt form ul li, #jqt ul.form li,
 #jqt form ul li > a:only-of-type, #jqt ul.form li > a:only-of-type,
 #jqt form ul li.multiline > div, #jqt ul.form li.multiline > div,
 #jqt form ul li > a.multiline > div, #jqt ul.form li > a.multiline > div {
@@ -1624,7 +1665,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     -webkit-box-align: stretch;
 }
 
-#jqt ul.metal li > a:only-of-type, 
+#jqt ul.metal li > a:only-of-type,
 #jqt ul.grid li > a:only-of-type,
 #jqt ul.individual li > a:only-of-type {
     /* backward compatiablity to existing metal */
