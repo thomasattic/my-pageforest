@@ -65,6 +65,7 @@
 
   <script src="./jslib/jqtouch/jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/jqtouch/extensions/iscroll/iscroll.js" type="application/x-javascript" charset="utf-8"></script>
+  <script src="./jslib/touchlayer/src/gestures.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/beedesk/jqt.js" type="application/x-javascript" charset="utf-8"></script>
 
   <!-- The scratch application code is in main.js -->
@@ -187,7 +188,6 @@
     });
 
     $("#z-launcherpane").live("pagein", function(event, info) {
-      console.warn("search: " + JSON.stringify(info));
       if (info.search && info.search.installapp) {
         checkReferers(info.referer, function() {
           addApp(info.search.installapp);
@@ -212,6 +212,20 @@
         });
       }
     });
+
+    $(document).ready(function() {
+      gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', function(event) {
+        var target = this.el || this;
+        var $target = $(target); // support both gt() and $()
+        $target.parents("ul.grid").addClass("editmode");
+      });
+
+      gt('#jqt > #z-launcherpane').on('doubletap', function(event) {
+        var target = this.el || this;
+        var $target = $(target); // support both gt() and $()
+        $target.find("ul.grid.editmode").removeClass("editmode");
+      });
+    });
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -228,9 +242,9 @@
     <div id="z-launcherpane" class="pane form" section="aside">
       <div class="s-scrollwrapper contentwrap">
         <div class="s-scrollpane" id="z-scopepane">
-          <ul class="grid editmode">
+          <ul class="grid">
             <li class="noedit">
-              <a href="#z-listpane"><div class="icon d-schedule"><div class="mask"></div></div>App Store</a>
+              <a href="#"><div class="icon d-schedule"><div class="mask"></div></div>App Store</a>
             </li>
             <li class="noedit">
               <a href="http://editor.pageforest.com/" target="_webapp"><div class="icon d-due"><div class="mask"></div></div>Documents</a>
