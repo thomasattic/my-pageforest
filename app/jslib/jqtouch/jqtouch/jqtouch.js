@@ -694,6 +694,9 @@
             if (!fromPage) {
                 console.error('Cannot find source page.');
                 return false;
+            } else if (toPage.length === 0) {
+              console.error('Cannot find source page: "' + toPage.selector + '".');
+              return false;
             } else if (toPage[0].id !== fromPage.id) {
                 var animationstarted = animatePages({
                     to: toPage,

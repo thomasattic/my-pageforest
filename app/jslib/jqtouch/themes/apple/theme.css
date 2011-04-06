@@ -1001,12 +1001,8 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-align:center;
     list-stype-type: none;
     min-height: none;
-    padding-left: 1px;
-    padding-right: 0px;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    border: 0px;
-    border-top: 0px none;
+    padding-top: 7px; padding-right: 0px; padding-left: 1px; padding-bottom: 7px;
+    border: 0px; border-top: 0px none;
     font-weight: bold;
     text-align: center;
     color: #FFFFFF;
@@ -1015,42 +1011,62 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt > * ul.grid.editmode li:nth-child(even) {
   -webkit-animation-name: shake;
-  -webkit-animation-duration: 1s;
+  -webkit-animation-duration: 0.3s;
   -webkit-animation-iteration-count: infinite;
   -webkit-animation-direction: normal;
 }
 
 #jqt > * ul.grid.editmode li:nth-child(odd) {
   -webkit-animation-name: shake;
-  -webkit-animation-duration: 0.85s;
+  -webkit-animation-duration: 0.4s;
   -webkit-animation-iteration-count: infinite;
-  -webkit-animation-direction: alternate;
+  -webkit-animation-direction: normal;
+}
+
+#jqt > * ul.grid.editmode li::before {
+    content: "X";
+    display: block;
+    position: absolute;
+    min-width: 14px; height: 14px; line-height: 14px;
+    font-size: 14px;
+    border-radius: 10px;
+    text-align: center;
+    top: 2px; left: -6px;
+    padding: 2px 2px 2px 2px;
+    background-color: black;
+    border: 2.5px solid white;
+    color: white;
+    font-weight: bold;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+}
+
+#jqt > * ul.grid.editmode li::after {
+    content: "";
+    display: block; position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: rgba(30, 0, 0, 0.5);
 }
 
 @-webkit-keyframes shake {
     0%   {
-        -webkit-transform: rotate(-2deg);
-        -webkit-animation-timing-function: ease;
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: linear;
     }
     25%   {
-        -webkit-transform: rotate(4.75deg);
-        -webkit-animation-timing-function: ease;
+        -webkit-transform: rotate(-3deg);
+        -webkit-animation-timing-function: linear;
     }
     50%   {
-        -webkit-transform: rotate(-8.75deg);
-        -webkit-animation-timing-function: ease;
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: linear;
     }
     75%   {
-        -webkit-transform: rotate(12.5deg);
-        -webkit-animation-timing-function: ease;
-    }
-    87.5%   {
-        -webkit-transform: rotate(-6deg);
-        -webkit-animation-timing-function: ease;
+        -webkit-transform: rotate(3deg);
+        -webkit-animation-timing-function: linear;
     }
     100% {
         -webkit-transform: rotate(0deg);
-        -webkit-animation-timing-function: ease;
+        -webkit-animation-timing-function: linear;
     }
 }
 

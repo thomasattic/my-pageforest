@@ -171,6 +171,8 @@
         $("#z-launcherpane ul").append($newitem);
       },
       removed: function(event) {
+        var appid = event.id;
+        $("#jqt > * ul.grid.editmode li[data-launcheritemid=" + appid + "]").remove();
       },
       updated: function(event) {
       }
@@ -194,6 +196,22 @@
         });
       }
     });
+
+    $("#jqt > * ul.grid.editmode li").live("click", function(event) {
+      console.warn("clicked");
+      var appid = $(this).attr("data-launcheritemid");
+      console.warn("appid: " + appid);
+      if (appid) {
+        my.items.remove(appid, function() {
+          console.warn("item removed.");
+          if (fn) {
+            fn(appid, itemjson);
+          }
+        }, function() {
+          console.warn("error on item removed.");
+        });
+      }
+    });
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -201,7 +219,7 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-launcheritemid="${appid}">
-      <a href="${url}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>${title}</a>
+      <a href="${url}" target="_webapp"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>${title}</a>
     </li>
   </script>
   </head>
@@ -210,12 +228,12 @@
     <div id="z-launcherpane" class="pane form" section="aside">
       <div class="s-scrollwrapper contentwrap">
         <div class="s-scrollpane" id="z-scopepane">
-          <ul class="grid">
+          <ul class="grid editmode">
             <li>
               <a href="#z-listpane" ><div class="icon d-schedule"><div class="mask"></div></div>App Store</a>
             </li>
             <li>
-              <a href="#z-listpane" title="Due Soon"><div class="icon d-due"><div class="mask"></div></div>Documents</a>
+              <a href="http://editor.pageforest.com/" target="_webapp"><div class="icon d-due"><div class="mask"></div></div>Documents</a>
             </li>
           </ul>
         </div>
