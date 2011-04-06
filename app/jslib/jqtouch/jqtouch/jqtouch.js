@@ -1608,7 +1608,7 @@
                     }
 
                     addPageToHistory(currentAside);
-                    currentAside.trigger('pagein', {hash: '#' + currentAside[0].id, search: {}, referrer: document.referrer});
+                    currentAside.trigger('pagein', {hash: '#' + currentAside[0].id, search: {}, referer: document.referrer});
                 }
                 defaultSection = "main";
                 $('#jqt > [section!="aside"]').attr("section", defaultSection);
@@ -1633,7 +1633,7 @@
             }
             currentPage.addClass('current alphapage');
             addPageToHistory(currentPage);
-            currentPage.trigger('pagein', {hash: '#' + currentPage[0].id, search: search, referrer: document.referrer});
+            currentPage.trigger('pagein', {hash: '#' + currentPage[0].id, search: search, referer: document.referrer});
 
             // adjust visibiliy of elements
             $.each(['full', 'main', 'aside'], function(i, section) {
@@ -1651,7 +1651,7 @@
                   $("#jqt > .current").removeClass("current alphapage");
                   $page.addClass("current alphapage");
                   addPageToHistory($page);
-                  $page.trigger('pagein', {hash: '#' + startpage, search: search, referrer: document.referrer});
+                  $page.trigger('pagein', {hash: '#' + startpage, search: search, referer: document.referrer});
                 } else {
                   console.warn("Init page must be displayed in the default section.");
                 }

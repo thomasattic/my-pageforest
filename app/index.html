@@ -76,7 +76,7 @@
 
     $(document).ready(my.onReady);
 
-    var referrers;
+    var referers;
 
     function addApp(appid, fn, err) {
       // ajax on that:
@@ -116,26 +116,52 @@
       });
     };
 
-    function initReferrers() {
+    // reference: http://code.google.com/p/pageforest/source/browse/appengine/auth/middleware.py::referer_is_trusted
+    function check(allowed, referer) {
+      var i, len;
+      for (i=0, len=allowed.length; i<len; i++) {
+         var prefix = allowed[i];
+         if (Strings.startsWith(referer, prefix)
+             || Strings.startsWith(referer.replace('http://', 'https://'), prefix)) {
+           return true;
+         }
+      }
+      return false;
+    }
+
+    function checkReferers(referer, fn, err) {
       var appid = my.appid;
 
-      // ajax on that:
-      var apppath = '/mirror/' + appid + '/app.json';
-      $.ajax({
-        type: 'GET',
-        url: apppath,
-        dataType: 'json',
-        beforeSend: function(xhr) {},
-        success: function(appjson) {
-          referrers = appjson.referers;
-          console.warn("referrers: " + JSON.stringify(referrers));
-        },
-        error: function(request, textStatus, errorThrown) {
-          var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
-          exception.nested = {request: request, status: textStatus, exception: errorThrown};
-        },
-        async: true
-      });
+      if (!referers) {
+        // ajax on that:
+        var apppath = '/mirror/' + appid + '/app.json';
+        $.ajax({
+          type: 'GET',
+          url: apppath,
+          dataType: 'json',
+          beforeSend: function(xhr) {},
+          success: function(appjson) {
+            referers = appjson.referers;
+            if (check(referers, referer)) {
+              fn();
+            } else {
+              err();
+            }
+          },
+          error: function(request, textStatus, errorThrown) {
+            var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
+            exception.nested = {request: request, status: textStatus, exception: errorThrown};
+            err();
+          },
+          async: false
+        });
+      } else {
+        if (check(referers, referer)) {
+          fn();
+        } else {
+          err();
+        }
+      }
     }
 
     // client.appid
@@ -158,14 +184,15 @@
       addApp('pawnpwn');
     });
 
-    initReferrers();
     $("#z-launcherpane").live("pagein", function(event, info) {
-      setTimeout(function() {
-        console.warn("search: " + JSON.stringify(info));
-        if (info.search && info.search.installapp) {
+      console.warn("search: " + JSON.stringify(info));
+      if (info.search && info.search.installapp) {
+        checkReferers(info.referer, function() {
           addApp(info.search.installapp);
-        }
-      }, 500);
+        }, function() {
+          console.error("referer doesn't pass.");
+        });
+      }
     });
   </script>
 

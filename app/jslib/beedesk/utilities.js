@@ -357,6 +357,9 @@ var Strings = new function() {
   this.trim = function(str) {
     return str.replace(/^\s+|\s+$/, '');
   };
+  this.startsWith = function(str, prefix) {
+    return str.indexOf(prefix) === 0;
+  }
   return this;
 };
 
