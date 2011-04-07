@@ -171,7 +171,7 @@ var Dates = new function() {
       return dt;
   };
   // </Mike Koss>
-  
+
   this.isPast = function(datetime) {
     var result = false;
     var date = new Date(datetime);
@@ -203,13 +203,13 @@ var Dates = new function() {
 
 var Threads = new function() {
   /**
-   * A utility to make it easy to perform an action conditioning 
+   * A utility to make it easy to perform an action conditioning
    * on all async calls' results ready
    *
-   * Usage:   
+   * Usage:
    * var river = Thread.river();
    * river.join(
-   *   async1(param1, trunk.branch("entry")), 
+   *   async1(param1, trunk.branch("entry")),
    *   async1(param2, trunk.branch("group")),
    *   function(joined) {
    *     var entry = joined.entry[1];
@@ -225,7 +225,7 @@ var Threads = new function() {
       var size = 0;
       var count = 0;
       var fun;
-  
+
       this.branch = function(name) {
         if (names[name] !== undefined) {
           throw "Duplicated name";
@@ -396,10 +396,95 @@ var Hashs = new function() {
   this.simplify = function(formarray) {
     var result = {};
     for (var i=0, len=formarray.length; i<len; i++) {
-      result[formarray[i].name] = formarray[i].value; 
+      result[formarray[i].name] = formarray[i].value;
     }
     return result;
   };
+
+  // <isEquals>
+  // http://www.pageforest.com/lib/beta/js/pf-client.js : namespace.lookup('org.startpad.base')
+  function generalType(o) {
+    var t = typeof(o);
+    if (t != 'object') {
+        return t;
+    }
+    if (o instanceof String) {
+        return 'string';
+    }
+    if (o instanceof Number) {
+        return 'number';
+    }
+    return t;
+  }
+
+  function keys(map) {
+    var list = [];
+
+    for (var prop in map) {
+        if (map.hasOwnProperty(prop)) {
+            list.push(prop);
+        }
+    }
+    return list;
+  }
+
+  /* Sort elements and remove duplicates from array (modified in place) */
+  function uniqueArray(a) {
+    if (!(a instanceof Array)) {
+        return;
+    }
+    a.sort();
+    for (var i = 1; i < a.length; i++) {
+      if (a[i - 1] == a[i]) {
+          a.splice(i, 1);
+      }
+    }
+  }
+
+  //Perform a deep comparison to check if two objects are equal.
+  //Inspired by Underscore.js 1.1.0 - some semantics modifed.
+  //Undefined properties are treated the same as un-set properties
+  //in both Arrays and Objects.
+  //Note that two objects with the same OWN properties can be equal
+  //if they have different prototype chains (and inherited values).
+  this.isEquals = function isEqual(a, b) {
+    if (a === b) {
+        return true;
+    }
+    if (generalType(a) != generalType(b)) {
+        return false;
+    }
+    if (a == b) {
+        return true;
+    }
+    if (typeof a != 'object') {
+        return false;
+    }
+    // null != {}
+    if (a instanceof Object != b instanceof Object) {
+        return false;
+    }
+
+    if (a instanceof Date || b instanceof Date) {
+        if (a instanceof Date != b instanceof Date ||
+            a.getTime() != b.getTime()) {
+            return false;
+        }
+    }
+
+    var allKeys = [].concat(keys(a), keys(b));
+    uniqueArray(allKeys);
+
+    for (var i = 0; i < allKeys.length; i++) {
+        var prop = allKeys[i];
+        if (!isEqual(a[prop], b[prop])) {
+            return false;
+        }
+    }
+    return true;
+  }
+  // </isEquals>
+
   return this;
 };
 
