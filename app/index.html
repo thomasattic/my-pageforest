@@ -224,7 +224,6 @@
     // client.appid
     my.items.handler = {
       added: function(event) {
-        console.warn("handling added: " + event.id + " item: " + JSON.stringify(event.item));
         var $newitem = $("#launcheritem-template").tmpl(event.item);
         $("#z-launcherpane ul").append($newitem);
 

@@ -25,9 +25,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         remove: function(id, olditem) {
           if (displayeditems[id]) {
             delete displayeditems[id];
-            console.warn("order: " + JSON.stringify(displayedorder) + " index: " + displayedorder.indexOf(id));
             Arrays.remove(displayedorder, displayedorder.indexOf(id));
-            console.warn("after remove: " + JSON.stringify(displayedorder));
 
             ns.client.setDirty();
             ns.client.save();
@@ -83,8 +81,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // setDoc is called whenever your document is be reloaded.
     function setDoc(json) {
         // doc schema: {blob: {schema: 1, items: {<appid>: {icon: '', url: '', title: ''}, order: []}}}
-
-        console.warn("setDoc: " + JSON.stringify(json.blob));
         var i, len;
 
         var hasitem = !!json && !!json.blob && !!json.blob.items;
@@ -139,7 +135,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
     // getDoc is called to read the state of the current document.
     function getDoc() {
-        console.warn("getDoc: " + JSON.stringify(displayedorder));
         return {
           title: 'User workspace',
           blob: {
