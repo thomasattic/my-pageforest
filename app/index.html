@@ -182,10 +182,8 @@
       removeApp: function (event) {
         var $target = $(this.el || this);
         var appid = $target.attr("data-launcheritemid");
-        console.warn("appid: " + appid);
         if (appid) {
           my.items.remove(appid, function() {
-            console.warn("item removed.");
             if (fn) {
               fn(appid, itemjson);
             }
@@ -205,7 +203,13 @@
     }
 
     // events
-    $("#z-launcherpane").bind("pagein", actions.addApp);
+    $("#z-launcherpane").live("pagein", function() {
+      var args = arguments;
+      var instance = this;
+      setTimeout(function() {
+        actions.addApp.apply(instance, args);
+      }, 1000);
+    });
 
     $(document).ready(function() {
 
@@ -220,6 +224,7 @@
     // client.appid
     my.items.handler = {
       added: function(event) {
+        console.warn("handling added: " + event.id + " item: " + JSON.stringify(event.item));
         var $newitem = $("#launcheritem-template").tmpl(event.item);
         $("#z-launcherpane ul").append($newitem);
 
@@ -254,10 +259,12 @@
     var emptyfn = function() {};
     $(document).ready(function() {
       addApp('editor', {staple: true});
+      /*
       addApp('beedesk-test');
       addApp('lift');
       addApp('pawnpwn');
       addApp('wiki');
+       */
     });
 
   </script>

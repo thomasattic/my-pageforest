@@ -3,7 +3,6 @@
 //
 namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     var appid;
-    var displayedkeys = [];
     var displayedorder = [];
     var displayeditems = {};
 
@@ -11,9 +10,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     var items = {
         handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
         create: function(id, item) {
-          //@TODO -- work to add it to the list
+          if (!displayeditems[id]) {
+            displayeditems[id] = item;
+            displayedorder.push(id);
 
-          items.handler.added({id: id, item: item});
+            ns.client.setDirty();
+            ns.client.save();
+
+            items.handler.added({id: id, item: item});
+          } else {
+            console.warn("app already added!");
+          }
         },
         remove: function(id, olditem) {
           //@TODO -- work to remove it from the list
@@ -65,50 +72,64 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
     // setDoc is called whenever your document is be reloaded.
     function setDoc(json) {
-        var i, len;
         // doc schema: {blob: {schema: 1, items: {<appid>: {icon: '', url: '', title: ''}, order: []}}}
 
-        var hasitem = !!json && !!json.blog && !!json.blog.items;
+        console.warn("setDoc: " + JSON.stringify(json.blob));
+        var i, len;
+
+        var hasitem = !!json && !!json.blob && !!json.blob.items;
         if (!hasitem) {
             return;
         }
 
-        var data = json.blog;
-        var keys = Arrays.keys(data.order);
-        keys.sort();
+        var data = json.blob;
+        var theirs = data.order.sort();
+        var mine = displayedorder.sort();
 
-        var diff = Arrays.intersect(displayedkeys, keys, false);
+        var combinedorder = [];
+        var combineditems = {};
+
+        var diff = Arrays.intersect(mine, theirs, false);
+        for (i=0, len=diff.middle.length; i<len; i++) {
+          var id = diff.middle[i];
+          var item = data.items[id];
+          var olditem = displayeditems[id];
+
+          combinedorder.push(id);
+          combineditems[id] = item;
+
+          if (!Hashs.isEquals(item, olditem)) {
+            // item updated
+            items.handler.updated({id: id, item: item, olditem: olditem});
+          }
+        }
         for (i=0, len=diff.left.length; i<len; i++) {
             // item removed
             var id = diff.left[i];
             var olditem = displayeditems[id];
             items.handler.removed({id: id, olditem: olditem});
         }
-        for (i=0, len=right.length; i<len; i++) {
+        for (i=0, len=diff.right.length; i<len; i++) {
             // item added
             var id = diff.right[i];
             var item = data.items[id];
-            items.handler.added({id: id, item: olditem});
-        }
-        for (i=0, len=middle.length; i<len; i++) {
-            var id = diff.middle[i];
-            var item = data.items[id];
-            var olditem = displayeditems[id];
-            if (!Hashs.isEquals(item, olditem)) {
-              // item updated
-              items.handler.added({id: id, item: item, olditem: olditem});
-            }
+
+            combinedorder.push(id);
+            combineditems[id] = item;
+
+            items.handler.added({id: id, item: item});
         }
 
-        //@Feature -- determine if the order has changed
+        //@TODO -- Feature -- determine if the order has changed
         // ...
 
-        displayedkeys = keys;
-        displayeditem = json.blog.items;
+        displayedorder = combinedorder;
+        displayeditems = combineditems;
     }
 
     // getDoc is called to read the state of the current document.
     function getDoc() {
+        console.warn("getDoc: " + JSON.stringify(displayedorder));
         return {
           title: 'User workspace',
           blob: {
