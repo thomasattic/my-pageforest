@@ -510,6 +510,7 @@ var NameArrays = new function() {
 };
 
 var Arrays = new function() {
+  var instance = this;
   this.apply = function(fn, items) {
     var result = [];
     for (var i = 0; i < items.length; ++i) {
@@ -582,13 +583,13 @@ var Arrays = new function() {
   this.clone = function(array) {
     return array.slice(0);
   };
-  this.arrayremove = function(from, to) {
+  this.remove = function(array, from, to) {
     //Array Remove - By John Resig (MIT Licensed)
-    var rest = this.slice((to || from) + 1 || this.length);
-    this.length = from < 0 ? this.length + from : from;
-    return this.push.apply(this, rest);
+    var rest = array.slice((to || from) + 1 || array.length);
+    array.length = from < 0 ? array.length + from : from;
+    return array.push.apply(array, rest);
   };
-  return this;
+  return instance;
 };
 
 var Arguments = new function() {
