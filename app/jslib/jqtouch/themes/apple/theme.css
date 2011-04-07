@@ -994,14 +994,12 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.grid li, #jqt ul.smallgrid li {
-    display: block;
-    display: -webkit-box;
-    display: -moz-box;
+    display: block; display: -webkit-box; display: -moz-box;
     position: relative;
     text-align:center;
     list-stype-type: none;
     min-height: none;
-    padding-top: 7px; padding-right: 0px; padding-left: 1px; padding-bottom: 7px;
+    padding: 7px 0px 7px 0px;
     border: 0px; border-top: 0px none;
     font-weight: bold;
     text-align: center;
@@ -1011,6 +1009,10 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul.grid li.active .icon, #jqt ul.smallgrid.active li.active .icon {
     opacity: 0.8;
+}
+
+#jqt ul.grid li.active a, #jqt ul.smallgrid.active li.active a {
+    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.7), 0pt 0pt 1pt #808080 !important; /* should get rid of !important usage */
 }
 
 #jqt > * ul.grid.editmode li:nth-child(even) {
@@ -1192,6 +1194,11 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt;
+}
+
+#jqt ul.grid li.active .icon,
+#jqt ul.smallgrid li.active .icon {
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt;
 }
 
 #jqt ul.grid li .icon:active,
@@ -1533,7 +1540,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul li.active *, #jqt ul li.forward *, #jqt ul li.arrow > a.active * {
-    color: inherit !important;
+    color: inherit !important; /* should get rid of !important usage */
     text-shadow: none !important;
 }
 
