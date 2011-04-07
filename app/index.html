@@ -197,20 +197,20 @@
       },
       exitEditMode: function (event) {
         var $target = $(this.el || this); // support both gt() and $()
-        $target.find("ul.grid.editmode").removeClass("editmode");
+        $("#z-launcherpane ul.grid.editmode").removeClass("editmode");
       }
     }
 
     // events
-    $("#jqt > #z-launcherpane").bind("pagein", actions.addApp);
+    $("#z-launcherpane").bind("pagein", actions.addApp);
 
     $(document).ready(function() {
 
-      gt("#jqt > * ul.grid.editmode li").on("tap", actions.removeApp);
+      gt("#jqt > * ul.grid.editmode li").on("tap", actions.removeApp, {expire: 750});
 
       gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', actions.enterEditMode);
 
-      gt('#jqt > #z-launcherpane').on('doubletap', actions.exitEditMode);
+      gt('#z-launcherpane').on('doubletap', actions.exitEditMode);
 
     });
 
@@ -226,6 +226,8 @@
           var $target = $(this.el || this); // support both gt() and $()
           if ($target.parents("ul.grid.editmode").length > 0) {
             actions.removeApp.apply(this, arguments);
+          } else {
+            console.warn("tapped on non-editmode");
           }
         });
       },
