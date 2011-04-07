@@ -23,9 +23,19 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
           }
         },
         remove: function(id, olditem) {
-          //@TODO -- work to remove it from the list
+          if (displayeditems[id]) {
+            delete displayeditems[id];
+            console.warn("order: " + JSON.stringify(displayedorder) + " index: " + displayedorder.indexOf(id));
+            Arrays.remove(displayedorder, displayedorder.indexOf(id));
+            console.warn("after remove: " + JSON.stringify(displayedorder));
 
-          items.handler.removed({id: id, olditem: olditem});
+            ns.client.setDirty();
+            ns.client.save();
+
+            items.handler.removed({id: id, olditem: olditem});
+          } else {
+            console.warn("app is not known!");
+          }
         },
         update: function(id, item, olditem) {
           //@TODO -- work to update the item
