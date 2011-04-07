@@ -79,7 +79,7 @@
 
     var referers;
 
-    function addApp(appid, fn, err) {
+    function addApp(appid, options, fn, err) {
       // ajax on that:
       var itemjson = {};
       var apppath = '/mirror/' + appid + '/app.json';
@@ -98,6 +98,9 @@
           itemjson.url = appjson.url;
           itemjson.appid = appid;
           itemjson.title = appjson.title;
+          if (options && options.staple) {
+            itemjson.staple = true;
+          }
 
           // itemjson: {<appid>: {icon: '', url: '', title: ''}
           my.items.create(appid, itemjson, function() {
@@ -225,7 +228,9 @@
         gt($newitem[0]).on('tap', function(event) {
           var $target = $(this.el || this); // support both gt() and $()
           if ($target.parents("ul.grid.editmode").length > 0) {
-            actions.removeApp.apply(this, arguments);
+            if (!$target.hasClass("noedit")) {
+              actions.removeApp.apply(this, arguments);
+            }
           } else {
             var href = $target.find("a").attr("href");
             if (href) {
@@ -248,10 +253,11 @@
 
     var emptyfn = function() {};
     $(document).ready(function() {
+      addApp('editor', {staple: true});
       addApp('beedesk-test');
       addApp('lift');
-      addApp('editor');
       addApp('pawnpwn');
+      addApp('wiki');
     });
 
   </script>
@@ -260,7 +266,7 @@
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-launcheritemid="${appid}">
+    <li data-launcheritemid="${appid}" class="{{if staple}}noedit{{/if}}">
       <a href="${url}" target="_webapp"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>${title}</a>
     </li>
   </script>
@@ -271,12 +277,6 @@
       <div class="s-scrollwrapper contentwrap">
         <div class="s-scrollpane" id="z-scopepane">
           <ul class="grid">
-            <li class="noedit">
-              <a href="#"><div class="icon d-schedule"><div class="mask"></div></div>App Store</a>
-            </li>
-            <li class="noedit">
-              <a href="http://editor.pageforest.com/" target="_webapp"><div class="icon d-due" style="background-image: url(/mirror/editor/images/icon.png);"><div class="mask"></div></div>Documents</a>
-            </li>
           </ul>
         </div>
       </div>
