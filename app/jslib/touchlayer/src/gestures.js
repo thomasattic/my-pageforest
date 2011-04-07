@@ -228,12 +228,25 @@ NL.prototype = {
 eventFn.tap = function (el, type, fn, options) {
 	options = options || {};
 
+	function isRightClick(e) {
+		var rightclick = false;
+
+		if (!$.isTouch) {
+			// http://www.quirksmode.org/js/events_properties.html
+			if (!e) var e = window.event;
+			if (e.which) rightclick = (e.which == 3);
+			else if (e.button) rightclick = (e.button == 2);
+		}
+		return rightclick;
+	}
+
 	eventList.push(new TouchLayer(el, type, fn, {
 		onInit: function () {
 			var me = this;
 
 			me.ns = {
 				tapCount: 0,
+				anybutton: false,
 				neededTaps: options.neededTaps || 1,
 				interval: options.interval || 400,
 				expire: options.expire || 0,
@@ -245,6 +258,10 @@ eventFn.tap = function (el, type, fn, options) {
 
 		onStart: function (e) {
 			var me = this;
+
+			if (!me.ns.anybutton && isRightClick(e)) {
+				me.expired = true;
+			}
 
 			e.preventDefault();
 

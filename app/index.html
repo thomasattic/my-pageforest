@@ -227,9 +227,16 @@
           if ($target.parents("ul.grid.editmode").length > 0) {
             actions.removeApp.apply(this, arguments);
           } else {
-            console.warn("tapped on non-editmode");
+            var href = $target.find("a").attr("href");
+            if (href) {
+              window.location = href;
+            } else {
+              console.warn("Cannot located href.");
+            }
           }
-        });
+        }, {expire: 750});
+
+        $newitem.bind("tap", false);
       },
       removed: function(event) {
         var appid = event.id;
