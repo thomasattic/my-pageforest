@@ -25,9 +25,10 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                 displayeditems[id] = item;
                 displayedorder.push(id);
 
-                ns.client.setDirty();
-                ns.client.save();
-
+                if (!item.staple) {
+                  ns.client.setDirty();
+                  ns.client.save();
+                }
                 items.handler.added({id: id, item: item});
             } else {
                 console.warn("app already added!");
@@ -43,7 +44,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
                 items.handler.removed({id: id, olditem: olditem});
             } else {
-                console.warn("app is not known!");
+                console.warn("app is not known! known app: " + JSON.stringify(displayeditems));
             }
         },
         update: function(id, item, olditem, fn, err) {
