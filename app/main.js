@@ -1,41 +1,52 @@
 //
-// Modified copy of Scratch's main.js
+//
 //
 namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     var appid;
+    var firstpoll;
+    var docready;
     var displayedorder = [];
     var displayeditems = {};
 
     var emptyfn = function() {};
     var items = {
+        name: "my.pageforest",
         handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
-        create: function(id, item) {
-          if (!displayeditems[id]) {
-            displayeditems[id] = item;
-            displayedorder.push(id);
+        create: function(id, item, fn, err) {
+            if (!firstpoll) {
+                ns.client.poll();
+            }
+            if (!ns.client.username) {
+                if (err) {
+                  var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
+                  err(excepion);
+                }
+            } else if (!displayeditems[id]) {
+                displayeditems[id] = item;
+                displayedorder.push(id);
 
-            ns.client.setDirty();
-            ns.client.save();
+                ns.client.setDirty();
+                ns.client.save();
 
-            items.handler.added({id: id, item: item});
-          } else {
-            console.warn("app already added!");
-          }
+                items.handler.added({id: id, item: item});
+            } else {
+                console.warn("app already added!");
+            }
         },
-        remove: function(id, olditem) {
-          if (displayeditems[id]) {
-            delete displayeditems[id];
-            Arrays.remove(displayedorder, displayedorder.indexOf(id));
+        remove: function(id, olditem, fn, err) {
+            if (displayeditems[id]) {
+                delete displayeditems[id];
+                Arrays.remove(displayedorder, displayedorder.indexOf(id));
 
-            ns.client.setDirty();
-            ns.client.save();
+                ns.client.setDirty();
+                ns.client.save();
 
-            items.handler.removed({id: id, olditem: olditem});
-          } else {
-            console.warn("app is not known!");
-          }
+                items.handler.removed({id: id, olditem: olditem});
+            } else {
+                console.warn("app is not known!");
+            }
         },
-        update: function(id, item, olditem) {
+        update: function(id, item, olditem, fn, err) {
           //@TODO -- work to update the item
 
           items.handler.updated({id: id, item: item, olditem: olditem});
@@ -50,9 +61,11 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // Expose appid
     appid = ns.client.appid;
 
-    // Set to a large number to save battery on mobile phone,
-    // we will use setDirty() & save() explicitly
-    // clientLib.pollInterval = 10000000;
+    // This function is called when pageforest client code polled for
+    // the first time.
+    function onUserChange(newname) {
+        username = newname;
+    }
 
     // This function is called when the index.html home page
     // is loaded.  Use it to initialize your application and
@@ -69,6 +82,9 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         // Quick call to poll - don't wait a whole second to try loading
         // the doc and logging in the user.
         ns.client.poll();
+
+        //
+        firstpoll = true;
     }
 
     function getDocid() {
@@ -144,11 +160,16 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         };
     }
 
+    $(document).bind("ready", function() {
+        docready = true;
+    });
+
     // Namespace exported properties
     // TODO: Add any additional functions that you need to access
     // from your index.html page.
     ns.extend({
         'onReady': onReady,
+        'onUserChange': onUserChange,
         'getDoc': getDoc,
         'setDoc': setDoc,
         'getDocid': getDocid,

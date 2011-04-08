@@ -206,6 +206,9 @@
     $("#z-launcherpane").live("pagein", function() {
       var args = arguments;
       var instance = this;
+
+      // @TODO -- call, but expect to let user knwo if error occurs
+      // (supplies an err() that prompt user)
       setTimeout(function() {
         actions.addApp.apply(instance, args);
       }, 1000);
