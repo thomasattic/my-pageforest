@@ -2,65 +2,79 @@
 //
 //
 namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
+    // Namespace exported properties
+    // TODO: Add any additional functions that you need to access
+    // from your index.html page.
+
     var appid;
-    var firstpoll;
-    var docready;
     var displayedorder = [];
     var displayeditems = {};
+    var signal = Threads.latchbinder();
 
     var emptyfn = function() {};
     var items = {
         name: "my.pageforest",
         handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
+        appid: undefined,
         create: function(id, item, fn, err) {
-            if (!firstpoll) {
-                ns.client.poll();
-            }
-            if (!ns.client.username) {
-                if (err) {
-                  var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
-                  err(excepion);
-                }
-            } else if (!displayeditems[id]) {
-                displayeditems[id] = item;
-                displayedorder.push(id);
+            signal.bind(function() {
+                if (!ns.client.username) {
+                    if (err) {
+                      var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
+                      err(excepion);
+                    }
+                } else if (!displayeditems[id]) {
+                    displayeditems[id] = item;
+                    displayedorder.push(id);
 
-                if (!item.staple) {
-                  ns.client.setDirty();
-                  ns.client.save();
+                    ns.client.setDirty();
+                    ns.client.save();
+
+                    items.handler.added({id: id, item: item});
+                } else {
+                    console.warn("app '" + id + "' already added!");
                 }
-                items.handler.added({id: id, item: item});
-            } else {
-                console.warn("app already added!");
-            }
+            });
         },
         remove: function(id, olditem, fn, err) {
-            if (displayeditems[id]) {
-                delete displayeditems[id];
-                Arrays.remove(displayedorder, displayedorder.indexOf(id));
+            signal.bind(function() {
+                if (displayeditems[id]) {
+                    delete displayeditems[id];
+                    Arrays.remove(displayedorder, displayedorder.indexOf(id));
 
-                ns.client.setDirty();
-                ns.client.save();
+                    ns.client.setDirty();
+                    ns.client.save();
 
-                items.handler.removed({id: id, olditem: olditem});
-            } else {
-                console.warn("app is not known! known app: " + JSON.stringify(displayeditems));
-            }
+                    items.handler.removed({id: id, olditem: olditem});
+                } else {
+                    console.warn("app is not known! known app: " + JSON.stringify(displayeditems));
+                }
+            });
         },
         update: function(id, item, olditem, fn, err) {
-          //@TODO -- work to update the item
+            signal.bind(function() {
+                //@TODO -- work to update the item
 
-          items.handler.updated({id: id, item: item, olditem: olditem});
+                items.handler.updated({id: id, item: item, olditem: olditem});
+            });
         }
     };
 
-    var clientLib = namespace.lookup('com.pageforest.client');
+    var documentready = [];
 
-    // Client library for Pageforest
-    ns.client = new clientLib.Client(ns);
-
-    // Expose appid
-    appid = ns.client.appid;
+    ns.extend({
+        'onReady': onReady,
+        'onUserChange': onUserChange,
+        'getDoc': getDoc,
+        'setDoc': setDoc,
+        'getDocid': getDocid,
+        'setDocid': setDocid,
+        'items': items,
+        'documentready': documentready,
+        'appid': appid,
+        'confirmDiscard': confirmDiscard,
+        'onError': onError
+    });
 
     // This function is called when pageforest client code polled for
     // the first time.
@@ -73,6 +87,11 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // set up the Pageforest Client Library App Bar user interface.
     function onReady() {
 
+        var clientLib = namespace.lookup('com.pageforest.client');
+
+        // Client library for Pageforest
+        ns.client = new clientLib.Client(ns);
+
         // Use the standard Pageforest UI widget.
         ns.client.addAppBar();
 
@@ -84,8 +103,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         // the doc and logging in the user.
         ns.client.poll();
 
-        //
-        firstpoll = true;
     }
 
     function getDocid() {
@@ -148,6 +165,15 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
         displayedorder = combinedorder;
         displayeditems = combineditems;
+
+        signal.latch();
+
+        // Expose appid
+        items.appid = ns.client.appid;
+
+        for (i=0, len=documentready.length; i<len; i++) {
+          documentready[i]();
+        }
     }
 
     // getDoc is called to read the state of the current document.
@@ -161,21 +187,9 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         };
     }
 
-    $(document).bind("ready", function() {
-        docready = true;
-    });
+    function confirmDiscard() {
+    }
 
-    // Namespace exported properties
-    // TODO: Add any additional functions that you need to access
-    // from your index.html page.
-    ns.extend({
-        'onReady': onReady,
-        'onUserChange': onUserChange,
-        'getDoc': getDoc,
-        'setDoc': setDoc,
-        'getDocid': getDocid,
-        'setDocid': setDocid,
-        'items': items,
-        'appid': appid
-    });
+    function onError() {
+    }
 });

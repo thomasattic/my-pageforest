@@ -79,6 +79,9 @@
 
     var referers;
 
+    var signal = Threads.latchbinder();
+    my.documentready.push(signal.latch);
+
     function addApp(appid, options, fn, err) {
       // ajax on that:
       var itemjson = {};
@@ -104,7 +107,6 @@
 
           // itemjson: {<appid>: {icon: '', url: '', title: ''}
           my.items.create(appid, itemjson, function() {
-            console.write("item created.");
             if (fn) {
               fn(appid, itemjson);
             }
@@ -134,8 +136,7 @@
     }
 
     function checkReferers(referer, fn, err) {
-      var appid = my.appid;
-
+      var appid = my.items.appid;
       if (!referers) {
         // ajax on that:
         var apppath = '/mirror/' + appid + '/app.json';
@@ -169,7 +170,7 @@
     }
 
     var actions = {
-      addApp: function (event, info) {
+      addApp: function(event, info) {
         var $target = $(this.el || this);
         if (info.search && info.search.installapp) {
           checkReferers(info.referer, function() {
@@ -179,7 +180,7 @@
           });
         }
       },
-      removeApp: function (event) {
+      removeApp: function(event) {
         var $target = $(this.el || this);
         var appid = $target.attr("data-launcheritemid");
         if (appid) {
@@ -192,11 +193,11 @@
           });
         }
       },
-      enterEditMode: function (event) {
+      enterEditMode: function(event) {
         var $target = $(this.el || this); // support both gt() and $()
         $target.parents("ul.grid").addClass("editmode");
       },
-      exitEditMode: function (event) {
+      exitEditMode: function(event) {
         var $target = $(this.el || this); // support both gt() and $()
         $("#z-launcherpane ul.grid.editmode").removeClass("editmode");
       }
@@ -204,14 +205,11 @@
 
     // events
     $("#z-launcherpane").live("pagein", function() {
-      var args = arguments;
-      var instance = this;
-
-      // @TODO -- call, but expect to let user knwo if error occurs
-      // (supplies an err() that prompt user)
-      setTimeout(function() {
-        actions.addApp.apply(instance, args);
-      }, 1000);
+      caller = this;
+      args = Array.prototype.slice.call(arguments);
+      signal.bind(function() {
+        actions.addApp.apply(caller, args);
+      });
     });
 
     $(document).ready(function() {
@@ -258,15 +256,8 @@
       }
     };
 
-    var emptyfn = function() {};
     $(document).ready(function() {
       addApp('editor', {staple: true});
-      /*
-      addApp('beedesk-test');
-      addApp('lift');
-      addApp('pawnpwn');
-      addApp('wiki');
-       */
     });
 
   </script>
