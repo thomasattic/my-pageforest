@@ -262,6 +262,32 @@ var Threads = new function() {
     };
     return result;
   };
+
+  this.latchbinder = function() {
+    var result = new function() {
+      var instance = this;
+      var caller, args;
+      var queue = [];
+      this.latch = function() {
+        if (!caller) {
+          caller = this;
+          args = Array.prototype.slice.call(arguments);
+          for (var i=0,len=queue.length; i<len; i++) {
+            queue[i].apply(caller, args);
+          }
+          queue = null;
+        }
+      };
+      this.bind = function(fn) {
+        if (caller) {
+          fn.apply(caller, args);
+        } else {
+          queue.push(fn);
+        }
+      };
+    }
+    return result;
+  };
 };
 
 var Finds = new function() {
