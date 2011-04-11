@@ -62,6 +62,10 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
 
     var documentready = [];
 
+    var loggedin = [];
+
+    var loggedout = [];
+
     ns.extend({
         'onReady': onReady,
         'onUserChange': onUserChange,
@@ -71,6 +75,8 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         'setDocid': setDocid,
         'items': items,
         'documentready': documentready,
+        'loggedin': loggedin,
+        'loggedout': loggedout,
         'appid': appid,
         'confirmDiscard': confirmDiscard,
         'onError': onError
@@ -80,6 +86,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // the first time.
     function onUserChange(newname) {
         username = newname;
+
+        var fn = !!username? loggedin: loggedout;
+        for (i=0, len=fn.length; i<len; i++) {
+          fn[i]();
+        }
+
+        if (!username) {
+          for (var id in displayeditems) {
+            items.handler.removed({id: id, olditem: displayeditems[id]});
+          }
+        }
     }
 
     // This function is called when the index.html home page

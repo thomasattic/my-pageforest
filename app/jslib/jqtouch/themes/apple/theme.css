@@ -22,9 +22,8 @@ body {
     background-color: rgb(197,204,211);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAABCAIAAACdaSOZAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABdJREFUeNpiPHrmCgMC/GNjYwNSAAEGADdNA3dnzPlQAAAAAElFTkSuQmCC);
     -webkit-user-select: ignore;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-orient: vertical;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     -webkit-box-pack: start;
     -webkit-box-align: stretch;
     min-height: 100%;
@@ -42,12 +41,11 @@ body {
 }
 
 #jqt > * > * {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
 }
 
 #jqt > * .contentwrap {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
     position: relative;
     box-flex: 10;
     -webkit-box-flex: 10;
@@ -63,7 +61,7 @@ body {
 #jqt > * .content[title]::before {
     /* position: absolute; */
     display: block; position: relative;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     height: 22px; width: 100%;
     top: 0px;
     border-top: 1px solid #CDD5DF; border-bottom: 1px solid #6d84a2;
@@ -118,7 +116,7 @@ body {
 }
 
 #jqt > * > .content {
-    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     -webkit-box-pack: start;
     -webkit-box-align: stretch;
 }
@@ -130,10 +128,10 @@ body {
 /* @group Toolbar & Navibar */
 
 #jqt > * .toolbar, #jqt > * .navibar, #jqt > * .bar {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-box-pack: justify;
     -webkit-box-align: center;
-    -webkit-box-orient: horizontal;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
     -webkit-box-flex: 0;
     -moz-box-flex: 0;
     border: none;
@@ -144,8 +142,7 @@ body {
 }
 
 #jqt > * .navibar, #jqt > * .bar {
-    display: -webkit-box;
-    display: -moz-box;
+    display: -webkit-box; display: -moz-box; display: box;
 }
 
 #jqt > * .toolbar {
@@ -186,13 +183,12 @@ body {
 #jqt > * .toolbar > *, #jqt > * .navibar > *, #jqt > * .bar > * {
     display: block;
     position: relative;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-box-flex: 0;
 }
 
 #jqt > * > * .buttonset {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
 }
 
 #jqt .toolbar > h1, #jqt .navibar > h1 {
@@ -200,8 +196,7 @@ body {
     position: absolute;
     -webkit-box-pack: center;
     -webkit-box-align: center;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     top: auto;
     overflow: hidden;
     width: 100%;
@@ -235,8 +230,7 @@ body {
 #jqt .toolbar input[type="submit"], #jqt .toolbar input[type="reset"],
 #jqt .toolbar .back, #jqt .toolbar .cancel {
     display: block;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     height: 29px; min-height: 29px; line-height: 28px;
     min-width: 30px;
     padding: 0;
@@ -255,7 +249,7 @@ body {
 
 #jqt > * > .navibar .icon, #jqt > * > .toolbar .icon, #jqt > * .bar .icon {
     display: block;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     height: auto; line-height: 14px; min-height: 30px;
     width: auto; min-width: 30px;
     vertical-align: middle;
@@ -613,7 +607,7 @@ body {
 
 #jqt .searchbox input[type="search"] {
     -webkit-appearance: none;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-border-radius: 15px;
     -webkit-box-flex: 1;
     padding: 1px 10px 1px 30px;
@@ -717,7 +711,7 @@ body {
 
 #jqt > div.choicepane > div.spinnerfloat {
     position: relative;
-    -webkit-box-sizing: content-box;
+    -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 10px;
     margin: auto;
@@ -766,7 +760,7 @@ body {
 /* based on: https://github.com/cubiq/iscroll */
 .iScrollPullDown,
 .iScrollPullUp {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     background:#fff;
     border-bottom:1px solid #aaa;
     height:50px;
@@ -884,7 +878,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 .sw-pressed { opacity:0.4; }
 
 #jqt > * .sw-slots-wrapper {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     position: absolute; z-index:999;
     display: block;
     height: 216px;
@@ -955,7 +949,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt > * .sw-slots-wrapper .sw-slots .sw-readonly { background:#ddd; }
 
 #jqt > * .sw-slots-wrapper .sw-slots ul li {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     padding:0 8px;
     height:44px;
     overflow:hidden;
@@ -970,17 +964,10 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 /* @group Gridview */
 
 #jqt ul.grid, #jqt ul.smallgrid {
-    display: block;
-    display: -webkit-box;
-    display: -moz-box;
-    margin: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 3px;
-    padding-right: 4px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-orient: horizontal;
+    display: -webkit-box; display: -moz-box; display: box;
+    margin: 0; padding: 0 4px 0 3px;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
     -webkit-box-align: stretch;
     -webkit-box-pack: center;
 }
@@ -994,9 +981,11 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.grid li, #jqt ul.smallgrid li {
-    display: block; display: -webkit-box; display: -moz-box;
+    /* display: -webkit-box; display: -moz-box; display: box; */
+    display: block;
+    -webkit-box-flex: 0;
     position: relative;
-    text-align:center;
+    text-align: center;
     list-stype-type: none;
     min-height: none;
     padding: 7px 0px 7px 0px;
@@ -1005,6 +994,10 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-align: center;
     color: #FFFFFF;
     text-shadow: 1pt 1pt 1.5pt #000, 0pt 0pt 1pt #808080;
+}
+
+#jqt ul.grid li > a:only-of-type, #jqt ul.smallgrid li > a:only-of-type {
+    width: auto;
 }
 
 #jqt ul.grid li.active .icon, #jqt ul.smallgrid.active li.active .icon {
@@ -1083,8 +1076,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.smallgrid li {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     font-size: 6.5pt;
     margin: 9px 1px 0px;
     padding: 0px 0px;
@@ -1218,12 +1210,15 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     color: #385487;
     font-size: 17px;
     -webkit-padding-start: 0px;
+    /* moz specific */
+    display: -moz-box;
+    -moz-box-orient: vertical;
+    -moz-box-sizing: border-box;
 }
 
 #jqt ul.row {
     position: absolute;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     z-index: 99;
     height: 78px;
     width: 100%;
@@ -1359,11 +1354,11 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt fieldset.rounded input[type="radio"] {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
     -webkit-appearance: none;
     -webkit-box-pack: justify;
     -webkit-box-align: center;
-    -webkit-box-orient: horizontal;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
     width: 100%;
     line-height: 28px;
     font-size: 28px;
@@ -1395,8 +1390,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul li, #jqt fieldset.rounded > * {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     font-size: inherit;
     color: #222;
     border-top: 1px solid #E0E0E0;
@@ -1470,7 +1464,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     line-height: 15.5px;
     height: 31px;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     padding-right: 5px;
     text-overflow: ellipsis;
     white-space: normal;
@@ -1488,16 +1482,29 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul li > a:only-of-type {
     /* universal links on list */
+    display: block; position: relative;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: -10px; padding: 10px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#jqt ul li > a[title]:only-of-type::after {
+    display: block; position: absolute;
+    top: auto; bottom: -5px; left: 0; right: 0;
+    content: attr(title);
+
+    margin: -10px;
+    /* universal links on list */
     color: inherit;
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    display: block;
-    width: 100%;
-    margin: -10px;
-    padding: 10px;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 #jqt > * ul.mail li .icon.arrow::before {
@@ -1522,7 +1529,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul li.centeredicon,
 #jqt ul li a.centeredicon {
-    min-width: 60px; height: 29px;
+    min-width: 60px;
     -webkit-box-flex: 1;
     background-position: 50% 50%;
     background-repeat: no-repeat;
@@ -1531,7 +1538,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt ul.edgetoedge li.icon,
 #jqt ul.edgetoedge li a.icon {
     -webkit-background-origin: border-box;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
 }
 
 #jqt ul li.active, #jqt ul li.arrow > a.active, #jqt fieldset.rounded > *.active {
@@ -1687,10 +1694,11 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt form ul li > a:only-of-type, #jqt ul.form li > a:only-of-type,
 #jqt form ul li.multiline > div, #jqt ul.form li.multiline > div,
 #jqt form ul li > a.multiline > div, #jqt ul.form li > a.multiline > div {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
+    display: -webkit-box; display: -moz-box; display: box;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
     -webkit-box-pack: justify;
     -webkit-box-align: stretch;
+    -webkit-box-flex: 2; -moz-box-flex: 2; box-flex: 2;
 }
 
 #jqt ul.metal li > a:only-of-type,
@@ -1702,16 +1710,16 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt form ul li.multiline, #jqt ul.form li.multiline,
 #jqt form ul li > a.multiline, #jqt ul.form li > a.multiline {
-    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     -webkit-box-lines: multiple;
     box-lines: multiple;
 }
 
 #jqt form ul li.multiline > div, #jqt ul.form li.multiline > div,
 #jqt form ul li > a.multiline > div, #jqt ul.form li > a.multiline > div {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
     -webkit-box-flex: 10;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
 }
 
 #jqt form ul li.noflex, #jqt ul.form li.noflex,
@@ -1762,15 +1770,13 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt ul li input[type="url"],
 #jqt ul li textarea,
 #jqt ul li select {
-    display: -webkit-box;
-    display: -moz-box;
+    display: -webkit-box; display: -moz-box; display: box;
     position: relative;
     /* background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, white), color-stop(1, white)); */
     background-color: transparent;
     border: 0; border: 1px solid transparent;
     padding: 0;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-text-size-adjust: none;
     -webkit-appearance: none;
     -webkit-user-select: text;
@@ -1852,8 +1858,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt form ul li input:focus + small {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     position: relative;
     font-size: 10pt;
     min-width: 19pt;
@@ -2013,7 +2018,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul li h4 {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     position: absolute;
     padding-left: 10px;
     padding-right: 5px;
@@ -2028,8 +2033,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul li input[type="checkbox"].onoff {
     display: block;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-appearance: none;
     position: relative;
     width: 94px;
@@ -2063,8 +2067,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.edgetoedge li.sep, #jqt ul.mail li.sep {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(139, 159, 171, 1)), to(rgba(181, 193, 201, 1.0)));
     border-bottom: 1px solid #b5c1c9;
     border-top: 1px solid #b5c1c9;
@@ -2086,8 +2089,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.edgetoedge.stacked::before, #jqt ul.mail.stacked::before {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     display: block;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(139, 159, 171, 1)), to(rgba(181, 193, 201, 1.0)));
     border-bottom: 1px solid #b5c1c9;
@@ -2176,10 +2178,10 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt > * > .contentwrap ul.message.content {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
     position: relative;
     width: 100%;
-    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     -webkit-box-pack: start;
     -webkit-box-align: stretch;
 }
@@ -2200,13 +2202,13 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul.message li.title {
-    display: -webkit-box;
+    display: -webkit-box; display: -moz-box; display: box;
     font-size: 9pt;
     font-weight: normal;
     line-height: 16px;
     height: 26pt;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
     text-overflow: ellipsis;
     white-space: normal;
     overflow: hidden;
@@ -2458,8 +2460,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-align: center;
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     width: 48%;
     float: left;
     display: block;
@@ -2493,7 +2494,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt .info {
     display: block;
     position: relative;
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     width: 100%;
     background: #dce1eb;
     font-size: 12px;

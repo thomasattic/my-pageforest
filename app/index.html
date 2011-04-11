@@ -12,6 +12,7 @@
     html, body {
        height: 100%;
     }
+
     #jqt > #z-launcherpane, #jqt > form {
        background-image: none;
        background-colo: transparent;
@@ -20,16 +21,22 @@
     body, #jqt > #z-launcherpane, #jqt > form {
        -webkit-box-shadow: inset 1px 1px 10px rgba(127, 127, 127, 0.75);
        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
+       background-image: -moz-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
        background-repeat: repeat-x;
     }
 
+    #jqt > #z-launcherpane ul.grid {
+       display: block;
+    }
+
     #jqt > #z-launcherpane ul.grid li {
+       display: block;
+       float: left;
        margin: 30px;
        width: 64px;
     }
     #jqt > #z-launcherpane ul.grid li > a {
       display: block;
-      overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -42,6 +49,30 @@
     #jqt > #z-launcherpane ul.grid li .icon .mask {
        background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
     }
+
+    #jqt:not(.initstate) .showoninit {
+       display: none;
+    }
+
+    #jqt:not(.nouserstate) .showonnouser {
+       display: none;
+    }
+
+    #pfSave {
+       display: none;
+    }
+
+    #jqt .emboss {
+      display: block; position: relative;
+      -webkit-box-sizing: border-box;
+      width: 100%; line-height: 20px;
+      padding: 15px; padding-top: 20% !important;
+      border-top: 1px solid rgba(76, 86, 108, .3);
+      color: rgb(76, 76, 76);
+      font-size: 16px; font-weight: bold; text-shadow: rgba(255,255,255,.8) 0 1px 0;
+      text-align: center;
+    }
+
   </style>
 
   <!--
@@ -79,8 +110,11 @@
 
     var referers;
 
-    var signal = Threads.latchbinder();
-    my.documentready.push(signal.latch);
+    var documentreadysignal = Threads.latchbinder();
+    my.documentready.push(documentreadysignal.latch);
+
+    var loggedoutsignal = Threads.latchbinder();
+    my.loggedout.push(loggedoutsignal.latch);
 
     function addApp(appid, options, fn, err) {
       // ajax on that:
@@ -207,9 +241,18 @@
     $("#z-launcherpane").live("pagein", function() {
       caller = this;
       args = Array.prototype.slice.call(arguments);
-      signal.bind(function() {
+      documentreadysignal.bind(function() {
         actions.addApp.apply(caller, args);
       });
+    });
+
+    documentreadysignal.bind(function() {
+      $("#jqt").removeClass("initstate");
+      $("#jqt").removeClass("nouserstate");
+    });
+    loggedoutsignal.bind(function() {
+      $("#jqt").removeClass("initstate");
+      $("#jqt").addClass("nouserstate");
     });
 
     $(document).ready(function() {
@@ -267,19 +310,22 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-launcheritemid="${appid}" class="{{if staple}}noedit{{/if}}">
-      <a href="${url}" target="_webapp"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>${title}</a>
+      <a href="${url}" target="_webapp" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
     </li>
   </script>
   </head>
   <body>
-    <div id="jqt">
+    <div id="jqt" class="initstate">
     <div id="z-launcherpane" class="pane form" section="aside">
-      <div class="s-scrollwrapper contentwrap">
-        <div class="s-scrollpane" id="z-scopepane">
-          <ul class="grid">
-          </ul>
-        </div>
-      </div>
+      <ul class="grid">
+      </ul>
+      <div class="showoninit emboss">
+          <div class="spinner animate" style="width: 26px; height: 26px; margin: -8px 0;">
+              <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div>
+              <div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div>
+              <div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div>
+          </div>Loading</div>
+      <div class="showonnouser emboss">Please sign in</div>
     </div>
     <div class="page">
     <!--
