@@ -928,7 +928,7 @@
                     showPageByHref($form.attr('action'), {
                         data: $form.serialize(),
                         method: $form.attr('method') || "POST",
-                        animation: animations[0] || null,
+                        animation: animations[0].name || null,
                         callback: callback
                     });
                 }

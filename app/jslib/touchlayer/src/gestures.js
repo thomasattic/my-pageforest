@@ -512,20 +512,12 @@ TouchLayer.prototype = {
 		var that = this,
 			point = $.isTouch ? e.touches[0] : e;
 
-		that.fingers = $.isTouch ? e.touches.length : 1;
+		that.fingers = $.isTouch ? e.touches.length : e.ctrlKey ? 2 : 1;
 
 		that.options.onBeforeStart.call(that, e);
 
-		if ($.isTouch) {
-			if (that.fingers != that.neededTouches) {
-				return;
-			}
-		} else {
-			if (!e.ctrlKey && that.neededTouches !== 1) {
-				return;
-			} else if (e.ctrlKey && that.neededTouches !== 2) {
-				return;
-			}
+		if (that.fingers != that.neededTouches) {
+			return;
 		}
 
 /*		that.target = e.target;
@@ -585,25 +577,14 @@ TouchLayer.prototype = {
 			point = $.isTouch ? e.changedTouches[0] : e,
 			oldDirX, oldDirY;
 
-		that.fingers = $.isTouch ? e.touches.length : 1;
+		// Number of finger used
+		that.fingers = $.isTouch ? e.touches.length : e.ctrlKey ? 2 : 1;
 
 		that.options.onBeforeMove.call(that, e);
 
-		if ($.isTouch) {
-			if (that.fingers != that.neededTouches) {
-				return;
-			}
-		} else {
-			if (!e.ctrlKey && that.neededTouches !== 1) {
-				return;
-			} else if (e.ctrlKey && that.neededTouches !== 2) {
-				return;
-			}
+		if (that.fingers != that.neededTouches) {
+			return;
 		}
-
-		// Number of finger used
-		//that.fingers = $.isTouch ? e.changedTouches.length : 1;
-		//that.touches = $.isTouch ? e.touches.length : 1;
 
 		// Distance from previous interpolation
 		that.deltaX = that.x - point.pageX;
@@ -781,3 +762,4 @@ TouchLayer.prototype = {
 
 window.gt = $;
 })();
+
