@@ -32,22 +32,26 @@
     #jqt > #z-launcherpane ul.grid li {
        display: block;
        float: left;
-       margin: 30px;
-       width: 64px;
     }
     #jqt > #z-launcherpane ul.grid li > a {
       display: block;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
+
     #jqt > #z-launcherpane ul.grid li .icon {
-       width: 64px;
-       height: 64px;
        background-color: #EEE;
     }
 
-    #jqt > #z-launcherpane ul.grid li .icon .mask {
-       background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
+    @media only screen and (min-device-width: 768px) {
+      #jqt > #z-launcherpane ul.grid li .icon {
+         width: 64px;
+         height: 64px;
+      }
+      #jqt > #z-launcherpane ul.grid li {
+         margin: 30px;
+      }
+      #jqt > #z-launcherpane ul.grid li .icon .mask {
+         background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
+      }
     }
 
     #jqt:not(.initstate) .showoninit {

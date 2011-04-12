@@ -532,12 +532,12 @@ body {
 }
 
 #jqt > * .toolbar.progress .spinner {
-  position: absolute;
-  margin-left: 30px;
-  margin-right: 5px;
-  margin-top: 2px;
-  width: 20px;
-  height: 20px;
+    position: absolute;
+    margin-left: 30px;
+    margin-right: 5px;
+    margin-top: 2px;
+    width: 20px;
+    height: 20px;
 }
 
 
@@ -965,7 +965,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul.grid, #jqt ul.smallgrid {
     display: -webkit-box; display: -moz-box; display: box;
-    margin: 0; padding: 0 4px 0 3px;
+    margin: 0 auto; padding: 0 4px 0 4px;
     -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
     -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
     -webkit-box-align: stretch;
@@ -982,18 +982,26 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul.grid li, #jqt ul.smallgrid li {
     /* display: -webkit-box; display: -moz-box; display: box; */
-    display: block;
+    display: block; position: relative;
     -webkit-box-flex: 0;
-    position: relative;
-    text-align: center;
-    list-stype-type: none;
     min-height: none;
-    padding: 7px 0px 7px 0px;
+    margin-bottom: 15px;
     border: 0px; border-top: 0px none;
     font-weight: bold;
-    text-align: center;
     color: #FFFFFF;
-    text-shadow: 1pt 1pt 1.5pt #000, 0pt 0pt 1pt #808080;
+    text-align: center; text-shadow: 1pt 1pt 1.5pt #000, 0pt 0pt 1pt #808080;
+}
+
+#jqt ul.grid li > a[title]:only-of-type::after {
+    display: block; position: absolute;
+    top: auto; bottom: -12px; left: 0; right: 0;
+    content: attr(title);
+    padding: 0px 5px;
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #jqt ul.grid li > a:only-of-type, #jqt ul.smallgrid li > a:only-of-type {
@@ -1072,7 +1080,6 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 
 #jqt ul.grid li {
     font-size: 8pt;
-    margin: 7px 9px;
 }
 
 #jqt ul.smallgrid li {
@@ -1091,14 +1098,6 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     vertical-align: bottom;
 
-}
-
-#jqt ul.grid li a {
-    padding-top: 3pt;
-}
-
-#jqt ul.smallgrid li a {
-    padding-top: 2pt;
 }
 
 #jqt h4 {
@@ -1476,8 +1475,8 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 }
 
 #jqt ul li.arrow > a:only-of-type, #jqt ul li.forward > a:only-of-type, #jqt ul li.check > a {
-    margin-right: -35px;
-    padding-right: 35px;
+    margin-right: -30px;
+    padding-right: 30px;
 }
 
 #jqt ul li > a:only-of-type {
@@ -1489,22 +1488,8 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin: -10px; padding: 10px;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-
-#jqt ul li > a[title]:only-of-type::after {
-    display: block; position: absolute;
-    top: auto; bottom: -5px; left: 0; right: 0;
-    content: attr(title);
-
     margin: -10px;
-    /* universal links on list */
-    color: inherit;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 #jqt > * ul.mail li .icon.arrow::before {
