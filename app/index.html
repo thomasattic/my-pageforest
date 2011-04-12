@@ -281,12 +281,14 @@
           var $target = $(this.el || this); // support both gt() and $()
           if ($target.parents("ul.grid.editmode").length > 0) {
             if (!$target.hasClass("noedit")) {
-              actions.removeApp.apply(this, arguments);
+              if (confirm("Are you surey you want to delete \"" + $target.find("a").attr("title") +"\"")) {
+                actions.removeApp.apply(this, arguments);
+              }
             }
           } else {
             var href = $target.find("a").attr("href");
             if (href) {
-              window.location = href;
+              window.open(href);
             } else {
               console.warn("Cannot located href.");
             }
