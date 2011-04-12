@@ -220,7 +220,7 @@
       },
       removeApp: function(event) {
         var $target = $(this.el || this);
-        var appid = $target.attr("data-launcheritemid");
+        var appid = $target.parents("li").attr("data-launcheritemid");
         if (appid) {
           my.items.remove(appid, function() {
             if (fn) {
@@ -262,8 +262,6 @@
 
     $(document).ready(function() {
 
-      gt("#jqt > * ul.grid.editmode li").on("tap", actions.removeApp, {expire: 750});
-
       gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', actions.enterEditMode);
 
       gt('#z-launcherpane').on('doubletap', actions.exitEditMode);
@@ -278,15 +276,26 @@
 
         gt($newitem[0]).on('taphold', actions.enterEditMode);
 
-        gt($newitem[0]).on('tap', function(event) {
+        console.warn("before bind: " + $newitem.find(".deleteicon").length);
+        var $deleteicon = $newitem.find(".deleteicon");
+        gt($newitem.find(".deleteicon")[0]).on('tap', function(event) {
+          console.warn("delete tapped 1");
           var $target = $(this.el || this); // support both gt() and $()
-          if ($target.parents("ul.grid.editmode").length > 0) {
+          var $parent = $target.parents("ul.grid.editmode");
+          if ($parent.length > 0) {
+            console.warn("delete tapped 2");
             if (!$target.hasClass("noedit")) {
-              if (confirm("Are you surey you want to delete \"" + $target.find("a").attr("title") +"\"")) {
+              if (confirm("Are you surey you want to delete \"" + $parent.find("a").attr("title") +"\"")) {
                 actions.removeApp.apply(this, arguments);
               }
             }
-          } else {
+          }
+        }, false);
+        $deleteicon.bind("tap", false);
+
+        gt($newitem[0]).on('tap', function(event) {
+          var $target = $(this.el || this); // support both gt() and $()
+          if ($target.parents("ul.grid.editmode").length === 0) {
             var href = $target.find("a").attr("href");
             if (href) {
               window.open(href);
@@ -295,7 +304,6 @@
             }
           }
         }, {expire: 750});
-
         $newitem.bind("tap", false);
       },
       removed: function(event) {
@@ -318,6 +326,7 @@
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-launcheritemid="${appid}" class="{{if staple}}noedit{{/if}}">
       <a href="${url}" target="_webapp" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
+      <div class="deleteicon">X</div>
     </li>
   </script>
   </head>
