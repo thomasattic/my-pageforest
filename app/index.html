@@ -117,8 +117,10 @@
     var documentreadysignal = Threads.latchbinder();
     my.documentready.push(documentreadysignal.latch);
 
-    var loggedoutsignal = Threads.latchbinder();
-    my.loggedout.push(loggedoutsignal.latch);
+    var loggedin;
+    my.loggedin.push(function() {
+      loggedin = true;
+    });
 
     function addApp(appid, options, fn, err) {
       // ajax on that:
@@ -257,10 +259,15 @@
       $("#jqt").removeClass("initstate");
       $("#jqt").removeClass("nouserstate");
     });
-    loggedoutsignal.bind(function() {
-      $("#jqt").removeClass("initstate");
-      $("#jqt").addClass("nouserstate");
-      my.signin();
+    my.loggedout.push(function() {
+      if (!loggedin) {
+        $("#jqt").removeClass("initstate");
+        $("#jqt").addClass("nouserstate");
+        my.signin();
+      } else {
+        // refresh
+        window.location.reload();
+      }
     });
 
     $(document).ready(function() {
