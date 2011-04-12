@@ -77,10 +77,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         'documentready': documentready,
         'loggedin': loggedin,
         'loggedout': loggedout,
+        'signin': signin,
         'appid': appid,
         'confirmDiscard': confirmDiscard,
         'onError': onError
     });
+
+    function signin() {
+      if (!username) {
+        ns.client.signIn();
+      }
+    }
 
     // This function is called when pageforest client code polled for
     // the first time.
