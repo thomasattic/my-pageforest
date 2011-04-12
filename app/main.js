@@ -14,6 +14,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     var emptyfn = function() {};
     var items = {
         name: "my.pageforest",
+        username: undefined,
         handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
         appid: undefined,
         create: function(id, item, fn, err) {
@@ -93,6 +94,8 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     // the first time.
     function onUserChange(newname) {
         username = newname;
+
+        items.username = username;
 
         var fn = !!username? loggedin: loggedout;
         for (i=0, len=fn.length; i<len; i++) {

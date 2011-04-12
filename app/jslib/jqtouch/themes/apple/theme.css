@@ -1047,8 +1047,30 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     z-index: 2;
 }
 
+#jqt > * ul.grid.editmode li .editoricon {
+    display: block;
+    position: absolute;
+    min-width: 14px; height: 14px; line-height: 14px;
+    font-size: 14px;
+    border-radius: 10px;
+    text-align: center;
+    bottom: 4px; right: 0px;
+    padding: 2px 2px 2px 2px;
+    background-color: darkblue;
+    border: 2.5px solid white;
+    color: white;
+    font-weight: bold;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+    z-index: 2;
+}
+
 #jqt > * ul.grid:not(.editmode) li .deleteicon,
-#jqt > * ul.grid.editmode li.noedit .deleteicon {
+#jqt > * ul.grid.editmode li.nodelete .deleteicon {
+    display: none;
+}
+
+#jqt > * ul.grid:not(.editmode) li .editoricon,
+#jqt > * ul.grid.editmode li.noeditor .editoricon {
     display: none;
 }
 

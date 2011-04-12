@@ -139,6 +139,9 @@
           itemjson.url = appjson.url;
           itemjson.appid = appid;
           itemjson.title = appjson.title;
+          itemjson.editable = (appjson.owner === my.items.username || appjson.writers.indexOf(my.items.username) >= 0);
+          itemjson.app = appjson;
+          itemjson.editorurl = "http://editor.pageforest.com/#" + appid;
           if (options && options.staple) {
             itemjson.staple = true;
           }
@@ -276,15 +279,12 @@
 
         gt($newitem[0]).on('taphold', actions.enterEditMode);
 
-        console.warn("before bind: " + $newitem.find(".deleteicon").length);
         var $deleteicon = $newitem.find(".deleteicon");
-        gt($newitem.find(".deleteicon")[0]).on('tap', function(event) {
-          console.warn("delete tapped 1");
+        gt($deleteicon[0]).on('tap', function(event) {
           var $target = $(this.el || this); // support both gt() and $()
           var $parent = $target.parents("ul.grid.editmode");
           if ($parent.length > 0) {
-            console.warn("delete tapped 2");
-            if (!$target.hasClass("noedit")) {
+            if (!$target.hasClass("nodelete")) {
               if (confirm("Are you surey you want to delete \"" + $parent.find("a").attr("title") +"\"")) {
                 actions.removeApp.apply(this, arguments);
               }
@@ -292,6 +292,20 @@
           }
         }, false);
         $deleteicon.bind("tap", false);
+
+        var $editoricon = $newitem.find(".editoricon");
+        gt($editoricon[0]).on('tap', function(event) {
+          var $target = $(this.el || this); // support both gt() and $()
+          var $parent = $target.parents("ul.grid.editmode");
+          var href = $target.attr("href");
+          if (href) {
+            window.open(href);
+            setTimeout(function() {
+              $parent.removeClass("editmode");
+            }, 500);
+          }
+        }, false);
+        $editoricon.bind("tap", false);
 
         gt($newitem[0]).on('tap', function(event) {
           var $target = $(this.el || this); // support both gt() and $()
@@ -324,9 +338,9 @@
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-launcheritemid="${appid}" class="{{if staple}}noedit{{/if}}">
+    <li data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
       <a href="${url}" target="_webapp" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
-      <div class="deleteicon">X</div>
+      <div class="deleteicon">X</div><div class="editoricon" href="${editorurl}">E</div>
     </li>
   </script>
   </head>
