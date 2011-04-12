@@ -10,23 +10,26 @@
   <style type="text/css" media="screen">@import "./jslib/jqtouch/themes/apple/theme.css";</style>
   <style type="text/css" media="screen">
     html, body {
-       height: 100%;
+       min-height: 100%;
     }
 
-    #jqt > #z-launcherpane, #jqt > form {
-       background-image: none;
-       background-colo: transparent;
-    }
-
-    body, #jqt > #z-launcherpane, #jqt > form {
+    body {
        -webkit-box-shadow: inset 1px 1px 10px rgba(127, 127, 127, 0.75);
        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
        background-image: -moz-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
        background-repeat: repeat-x;
+       background-color: darkgrey;
+    }
+
+    #jqt > div#z-launcherpane, #jqt > form, #jqt > div {
+       background-image: none;
+       background-color: transparent;
     }
 
     #jqt > #z-launcherpane ul.grid {
        display: block;
+       background-image: none;
+       background-colo: transparent;
     }
 
     #jqt > #z-launcherpane ul.grid li {
@@ -263,7 +266,6 @@
       if (!loggedin) {
         $("#jqt").removeClass("initstate");
         $("#jqt").addClass("nouserstate");
-        my.signin();
       } else {
         // refresh
         window.location.reload();
@@ -274,7 +276,7 @@
 
       gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', actions.enterEditMode);
 
-      gt('#z-launcherpane').on('doubletap', actions.exitEditMode);
+      gt(document).on('doubletap', actions.exitEditMode);
 
     });
 
@@ -292,7 +294,7 @@
           var $parent = $target.parents("ul.grid.editmode");
           if ($parent.length > 0) {
             if (!$target.hasClass("nodelete")) {
-              if (confirm("Are you surey you want to delete \"" + $parent.find("a").attr("title") +"\"")) {
+              if (confirm("Are you surey you want to delete \"" + $target.parents("li").find("a").attr("title") +"\"?")) {
                 actions.removeApp.apply(this, arguments);
               }
             }
@@ -352,7 +354,7 @@
   </script>
   </head>
   <body>
-    <div id="jqt" class="initstate">
+    <div id="jqt" class="initstate unfixed">
     <div id="z-launcherpane" class="pane form" section="aside">
       <ul class="grid">
       </ul>
