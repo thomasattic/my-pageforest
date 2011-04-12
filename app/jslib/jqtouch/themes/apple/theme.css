@@ -1043,7 +1043,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     border: 2.5px solid white;
     color: white;
     font-weight: bold;
-    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; -moz-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
     z-index: 2;
 }
 
@@ -1060,7 +1060,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     border: 2.5px solid white;
     color: white;
     font-weight: bold;
-    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; -moz-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
     z-index: 2;
 }
 
@@ -1184,14 +1184,14 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt ul.smallgrid li .icon .mask {
     width: 100%;
     height: 100%;
-    -webkit-border-radius: 8.5px;
-    -moz-border-radius: 8.5px;
+    -webkit-border-radius: 8.5px; -moz-border-radius: 8.5px;
     background-image: -webkit-gradient(radial, 50% -58%, 40, 50% -35%, 135, from(rgba(255,255,255,0.35)), to(rgba(255,255,255,0)),
       color-stop(3%, rgba(255,255,255,0.3)),
       color-stop(22%, rgba(239,239,239,0)),
       color-stop(22%, rgba(31,31,31,0.2)),
       color-stop(35%, rgba(127,127,127,0.1)),
       color-stop(38%, rgba(239,239,239,0.1)));
+    background-image: -moz-radial-gradient(50% -80%, circle contain, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5) 200%, rgba(255, 255, 255, 0.2) 265%, rgba(255, 255, 255, 0.05));
 }
 
 #jqt ul.smallgrid li .icon38 .mask {
@@ -1208,14 +1208,13 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     background-position: 50% 50%;
     -webkit-background-origin: content-box;
     background-color: white;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    -webkit-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt; -moz-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt; box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt;
 }
 
 #jqt ul.grid li.active .icon,
 #jqt ul.smallgrid li.active .icon {
-    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt; -moz-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt; box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt;
 }
 
 #jqt ul.grid li .icon:active,
