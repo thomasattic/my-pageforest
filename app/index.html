@@ -93,15 +93,26 @@
       font-size: 14px;
       margin-left: 16px;
       padding: 0 5px;
+      z-index: 2;
     }
 
     .buttonbar span {
-      padding: 0 4px;
-      line-height: 35px;
+      box-sizing: border-box;
+      margin: 4px;
+      line-height: 27px;
       float: left;
       color: #464646;
     }
 
+    .buttonbar span:hover, .buttonbar span:active {
+      color: #000;
+      background-color: #D2E6B3;
+      cursor: pointer;
+    }
+
+    body:not(.editmode) .buttonbar {
+      display: none;
+    }
   </style>
 
   <!--
@@ -261,13 +272,13 @@
           });
         }
       },
-      enterEditMode: function(event) {
-        var $target = $(this.el || this); // support both gt() and $()
-        $target.parents("ul.grid").addClass("editmode");
+      enterEditMode: function() {
+        $("#z-launcherpane ul.grid").addClass("editmode");
+        $('body').addClass("editmode");
       },
-      exitEditMode: function(event) {
-        var $target = $(this.el || this); // support both gt() and $()
+      exitEditMode: function() {
         $("#z-launcherpane ul.grid.editmode").removeClass("editmode");
+        $('body').removeClass("editmode");
       }
     }
 
@@ -295,11 +306,8 @@
     });
 
     $(document).ready(function() {
-
-      gt('#jqt > * ul.grid:not(.editmode) li').on('taphold', actions.enterEditMode);
-
       gt(document).on('doubletap', actions.exitEditMode);
-
+      $("#exitedit").live("click", actions.exitEditMode, false);
     });
 
     // client.appid
@@ -332,7 +340,7 @@
           if (href) {
             window.open(href);
             setTimeout(function() {
-              $parent.removeClass("editmode");
+              actions.exitEditMode();
             }, 500);
           }
         }, false);
@@ -408,7 +416,7 @@
       </script>
     </div> <!-- page -->
     <div class="buttonbar">
-      <span class="">Done</span>
+      <span id="exitedit">Done</span>
     </div>
   </body>
 </html>
