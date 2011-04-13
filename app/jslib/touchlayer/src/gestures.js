@@ -263,7 +263,7 @@ eventFn.tap = function (el, type, fn, options) {
 				me.expired = true;
 			}
 
-			e.preventDefault();
+			// e.preventDefault();
 
 			me.el.addClass('active');
 
