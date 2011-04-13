@@ -337,8 +337,9 @@
           var $target = $(this.el || this); // support both gt() and $()
           var $parent = $target.parents("ul.grid.editmode");
           var href = $target.attr("href");
+          var target = $target.attr("target");
           if (href) {
-            window.open(href);
+            window.open(href, target);
             setTimeout(function() {
               actions.exitEditMode();
             }, 500);
@@ -350,8 +351,9 @@
           var $target = $(this.el || this); // support both gt() and $()
           if ($target.parents("ul.grid.editmode").length === 0) {
             var href = $target.find("a").attr("href");
+            var target = $target.attr("target");
             if (href) {
-              window.open(href);
+              window.open(href, "_blank");
             } else {
               console.warn("Cannot located href.");
             }
@@ -378,7 +380,7 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
-      <a href="${url}" target="_webapp" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
+      <a href="${url}" target="_blank" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
       <div class="deleteicon">X</div><div class="editoricon" href="${editorurl}">E</div>
     </li>
   </script>
