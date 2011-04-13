@@ -65,7 +65,8 @@
        display: none;
     }
 
-    #pfSave {
+    #pfSave,
+    .nonpage {
        display: none;
     }
 
@@ -78,6 +79,27 @@
       color: rgb(76, 76, 76);
       font-size: 16px; font-weight: bold; text-shadow: rgba(255,255,255,.8) 0 1px 0;
       text-align: center;
+    }
+
+    .buttonbar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 35px;
+      -webkit-border-radius: 0 0 6px 6px; -moz-border-radius: 0 0 6px 6px;
+      background-image: -webkit-gradient(linear, left top, left bottom,
+        from(#EEFDE9), color-stop(0.05, #EEFDE9), color-stop(0.5, #BAF2A8), color-stop(0.5, #B3E8A0), to(#AAEE95));
+      background-image: -moz-linear-gradient(top, #EEFDE9, #E4FBDD 5%, #BAF2A8 50%, #B3E8A0 50%, #AAEE95);
+      font-family: Verdana, Arial, san-serif;
+      font-size: 14px;
+      margin-left: 16px;
+      padding: 0 5px;
+    }
+
+    .buttonbar span {
+      padding: 0 4px;
+      line-height: 35px;
+      float: left;
+      color: #464646;
     }
 
   </style>
@@ -366,25 +388,27 @@
           </div>Loading</div>
       <div class="showonnouser emboss">Please sign in</div>
     </div>
-    <div class="page">
-    <!--
-       Standard Google Analytics tracking.  This can be removed from your own app,
-       or replaced with your own account id.
-      -->
+    </div>
+    <div class="nonpage">
+      <!--
+         Standard Google Analytics tracking.  This can be removed from your own app,
+         or replaced with your own account id.
+        -->
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-2072869-7']);
+        _gaq.push(['_trackPageview']);
 
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-2072869-7']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') +
-            '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') +
+              '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
     </div> <!-- page -->
+    <div class="buttonbar">
+      <span class="">Done</span>
     </div>
   </body>
 </html>
