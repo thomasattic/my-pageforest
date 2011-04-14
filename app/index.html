@@ -66,7 +66,9 @@
     }
 
     #pfSave,
-    .nonpage {
+    .nonpage,
+    .hidden,
+    .hidden > * {
        display: none;
     }
 
@@ -138,26 +140,31 @@
   <script src="./jslib/jqtouch/extensions/iscroll/iscroll.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/touchlayer/src/gestures.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/beedesk/jqt.js" type="application/x-javascript" charset="utf-8"></script>
+  <script src="./jslib/lib/jquery.quicksand.js" type="application/x-javascript" charset="utf-8"></script>
 
   <!-- The scratch application code is in main.js -->
   <script src="main.js" type="text/javascript"></script>
 
   <script type="text/javascript">
-    // Call the onReady function of the application when the page is loaded.
     var my = namespace.lookup("com.pageforest.my");
 
+    // Call the onReady function of the application when the page is loaded.
     $(document).ready(my.onReady);
 
-    var referers;
-
-    var documentreadysignal = Threads.latchbinder();
-    my.documentready.push(documentreadysignal.latch);
-
+    // If user has logged in and then logoff, we refresh the page to avoid any
+    // leftover data from previous session.
     var loggedin;
     my.loggedin.push(function() {
       loggedin = true;
     });
+    my.loggedout.push(function() {
+      if (loggedin) window.location.reload();
+    });
 
+    // -- Add Application Logic
+    // Add application should wait until setDoc() is first called
+    var documentreadysignal = Threads.latchbinder();
+    my.documentready.push(documentreadysignal.latch);
     function addApp(appid, options, fn, err) {
       // ajax on that:
       var itemjson = {};
@@ -202,6 +209,7 @@
     };
 
     // reference: http://code.google.com/p/pageforest/source/browse/appengine/auth/middleware.py::referer_is_trusted
+    var referers;
     function check(allowed, referer) {
       var i, len;
       for (i=0, len=allowed.length; i<len; i++) {
@@ -213,17 +221,13 @@
       }
       return false;
     }
-
     function checkReferers(referer, fn, err) {
       var appid = my.items.appid;
       if (!referers) {
         // ajax on that:
         var apppath = '/mirror/' + appid + '/app.json';
         $.ajax({
-          type: 'GET',
-          url: apppath,
-          dataType: 'json',
-          beforeSend: function(xhr) {},
+          type: 'GET', url: apppath, dataType: 'json', async: false,
           success: function(appjson) {
             referers = appjson.referers;
             if (check(referers, referer)) {
@@ -233,11 +237,8 @@
             }
           },
           error: function(request, textStatus, errorThrown) {
-            var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
-            exception.nested = {request: request, status: textStatus, exception: errorThrown};
             err();
-          },
-          async: false
+          }
         });
       } else {
         if (check(referers, referer)) {
@@ -245,9 +246,28 @@
         } else {
           err();
         }
-      }
+      } // these method can look much simpler if we use library such as "Promise".
     }
+    // --/Add Application Logic
 
+    // Manage display to indicate state
+    documentreadysignal.bind(function() {
+      $("#jqt").removeClass("initstate");
+      $("#jqt").removeClass("nouserstate");
+    });
+    my.loggedout.push(function() {
+      if (!loggedin) {
+        $("#jqt").removeClass("initstate");
+        $("#jqt").addClass("nouserstate");
+      }
+    });
+
+    // Optional: Use code to ensure user always has our icons
+    $(document).ready(function() {
+      addApp('editor', {staple: true});
+    });
+
+    // Actions
     var actions = {
       addApp: function(event, info) {
         var $target = $(this.el || this);
@@ -273,8 +293,14 @@
         }
       },
       enterEditMode: function() {
+        console.warn("entering edit mode.");
         $("#z-launcherpane ul.grid").addClass("editmode");
         $('body').addClass("editmode");
+        $("#appgrid").quicksand($("#replacement > li"), function() {
+          $("#z-launcherpane ul > li").each(function(i, item) {
+            prepItem(item);
+          });
+        });
       },
       exitEditMode: function() {
         $("#z-launcherpane ul.grid.editmode").removeClass("editmode");
@@ -282,7 +308,7 @@
       }
     }
 
-    // events
+    // Events
     $("#z-launcherpane").live("pagein", function() {
       caller = this;
       args = Array.prototype.slice.call(arguments);
@@ -291,75 +317,65 @@
       });
     });
 
-    documentreadysignal.bind(function() {
-      $("#jqt").removeClass("initstate");
-      $("#jqt").removeClass("nouserstate");
-    });
-    my.loggedout.push(function() {
-      if (!loggedin) {
-        $("#jqt").removeClass("initstate");
-        $("#jqt").addClass("nouserstate");
-      } else {
-        // refresh
-        window.location.reload();
-      }
-    });
-
     $(document).ready(function() {
       gt(document).on('doubletap', actions.exitEditMode);
       $("#exitedit").live("click", actions.exitEditMode, false);
     });
 
-    // client.appid
+    function prepItem(newitem) {
+      var $newitem = $(newitem);
+      gt(newitem).on('taphold', actions.enterEditMode);
+
+      var $deleteicon = $newitem.find(".deleteicon");
+      gt($deleteicon[0]).on('tap', function(event) {
+        var $target = $(this.el || this); // support both gt() and $()
+        var $parent = $target.parents("ul.grid.editmode");
+        if ($parent.length > 0) {
+          if (!$target.hasClass("nodelete")) {
+            if (confirm("Are you surey you want to delete \"" + $target.parents("li").find("a").attr("title") +"\"?")) {
+              actions.removeApp.apply(this, arguments);
+            }
+          }
+        }
+      }, false);
+      $deleteicon.bind("tap", false);
+
+      var $editoricon = $newitem.find(".editoricon");
+      gt($editoricon[0]).on('tap', function(event) {
+        var $target = $(this.el || this); // support both gt() and $()
+        var $parent = $target.parents("ul.grid.editmode");
+        var href = $target.attr("href");
+        var target = $target.attr("target");
+        if (href) {
+          window.open(href, target);
+          setTimeout(function() {
+            actions.exitEditMode();
+          }, 500);
+        }
+      }, false);
+      $editoricon.bind("tap", false);
+
+      gt(newitem).on('tap', function(event) {
+        var $target = $(this.el || this); // support both gt() and $()
+        if ($target.parents("ul.grid.editmode").length === 0) {
+          var href = $target.find("a").attr("href");
+          var target = $target.attr("target");
+          if (href) {
+            window.open(href, "_blank");
+          } else {
+            console.warn("Cannot located href.");
+          }
+        }
+      }, {expire: 750});
+      $newitem.bind("tap", false);
+    }
+
+    // Items handler listens to CRUD events from model
     my.items.handler = {
       added: function(event) {
         var $newitem = $("#launcheritem-template").tmpl(event.item);
         $("#z-launcherpane ul").append($newitem);
-
-        gt($newitem[0]).on('taphold', actions.enterEditMode);
-
-        var $deleteicon = $newitem.find(".deleteicon");
-        gt($deleteicon[0]).on('tap', function(event) {
-          var $target = $(this.el || this); // support both gt() and $()
-          var $parent = $target.parents("ul.grid.editmode");
-          if ($parent.length > 0) {
-            if (!$target.hasClass("nodelete")) {
-              if (confirm("Are you surey you want to delete \"" + $target.parents("li").find("a").attr("title") +"\"?")) {
-                actions.removeApp.apply(this, arguments);
-              }
-            }
-          }
-        }, false);
-        $deleteicon.bind("tap", false);
-
-        var $editoricon = $newitem.find(".editoricon");
-        gt($editoricon[0]).on('tap', function(event) {
-          var $target = $(this.el || this); // support both gt() and $()
-          var $parent = $target.parents("ul.grid.editmode");
-          var href = $target.attr("href");
-          var target = $target.attr("target");
-          if (href) {
-            window.open(href, target);
-            setTimeout(function() {
-              actions.exitEditMode();
-            }, 500);
-          }
-        }, false);
-        $editoricon.bind("tap", false);
-
-        gt($newitem[0]).on('tap', function(event) {
-          var $target = $(this.el || this); // support both gt() and $()
-          if ($target.parents("ul.grid.editmode").length === 0) {
-            var href = $target.find("a").attr("href");
-            var target = $target.attr("target");
-            if (href) {
-              window.open(href, "_blank");
-            } else {
-              console.warn("Cannot located href.");
-            }
-          }
-        }, {expire: 750});
-        $newitem.bind("tap", false);
+        prepItem($newitem[0]);
       },
       removed: function(event) {
         var appid = event.id;
@@ -368,18 +384,13 @@
       updated: function(event) {
       }
     };
-
-    $(document).ready(function() {
-      addApp('editor', {staple: true});
-    });
-
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
+    <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
       <a href="${url}" target="_blank" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
       <div class="deleteicon">X</div><div class="editoricon" href="${editorurl}">E</div>
     </li>
@@ -388,7 +399,7 @@
   <body>
     <div id="jqt" class="initstate unfixed">
     <div id="z-launcherpane" class="pane form" section="aside">
-      <ul class="grid">
+      <ul id="appgrid" class="grid">
       </ul>
       <div class="showoninit emboss">
           <div class="spinner animate" style="width: 26px; height: 26px; margin: -8px 0;">
@@ -398,6 +409,14 @@
           </div>Loading</div>
       <div class="showonnouser emboss">Please sign in</div>
     </div>
+    </div>
+    <div>
+      <ul class="hidden" id="replacement">
+        <li data-id="beedesk-test" data-launcheritemid="beedesk-test" class=" "><a href="http://beedesk-test.pageforest.com/" target="_blank" title="BeeDesk"><div class="icon" style="background-image: url(/mirror/beedesk-test/images/BeeDesk_final_72px.png);"><div class="mask"></div></div></a><div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#beedesk-test">E</div>     </li>
+        <li data-id="editor" data-launcheritemid="editor" class=" nodelete  noeditor">       <a href="http://editor.pageforest.com/" target="_blank" title="Pageforest Application Editor"><div class="icon" style="background-image: url(/mirror/editor/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#editor">E</div>     </li>
+        <li data-id="pawnpwn" data-launcheritemid="pawnpwn" class="  noeditor">       <a href="http://pawnpwn.pageforest.com/" target="_blank" title="Pawn Pwn"><div class="icon" style="background-image: url(/mirror/pawnpwn/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#pawnpwn">E</div>     </li>
+        <li data-id="wiki" data-launcheritemid="wiki" class="  noeditor"><a href="http://wiki.pageforest.com/" target="_blank" title="Pageforest Wiki"><div class="icon" style="background-image: url(/mirror/wiki/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#wiki">E</div></li>
+      </ul>
     </div>
     <div class="nonpage">
       <!--
