@@ -1035,7 +1035,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     position: absolute;
     min-width: 14px; height: 14px; line-height: 14px;
     font-size: 14px;
-    border-radius: 10px;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
     text-align: center;
     top: 4px; left: 0px;
     padding: 2px 2px 2px 2px;
@@ -1052,7 +1052,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     position: absolute;
     min-width: 14px; height: 14px; line-height: 14px;
     font-size: 14px;
-    border-radius: 10px;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
     text-align: center;
     bottom: 4px; right: 0px;
     padding: 2px 2px 2px 2px;
@@ -1184,7 +1184,7 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
 #jqt ul.smallgrid li .icon .mask {
     width: 100%;
     height: 100%;
-    -webkit-border-radius: 8.5px; -moz-border-radius: 8.5px;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
     background-image: -webkit-gradient(radial, 50% -58%, 40, 50% -35%, 135, from(rgba(255,255,255,0.35)), to(rgba(255,255,255,0)),
       color-stop(3%, rgba(255,255,255,0.3)),
       color-stop(22%, rgba(239,239,239,0)),
