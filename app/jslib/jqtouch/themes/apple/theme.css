@@ -791,10 +791,10 @@ body {
 .iScrollPullDown.loading .iScrollPullDownIcon,
 .iScrollPullUp.loading .iScrollPullUpIcon {
     background-position:0 100%;
-    -webkit-animation-name:loading;
-    -webkit-animation-duration:1.5s;
-    -webkit-animation-iteration-count:infinite;
-    -webkit-animation-timing-function:linear;
+    -webkit-animation-name:loading; -moz-animation-name:loading;
+    -webkit-animation-duration:1.5s; -moz-animation-duration:1.5s;
+    -webkit-animation-iteration-count:infinite; -moz-animation-iteration-count:infinite;
+    -webkit-animation-timing-function:linear; -moz-animation-timing-function:linear;
 }
 
 .iScrollPullUp {
@@ -843,10 +843,9 @@ div.spinner div {
 }
 
 div.spinner.animate div {
-  -webkit-animation: fade 1s linear infinite;
-  -webkit-border-radius: 50px;
-  -moz-border-radius: 50px;
-  -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  -webkit-animation: fade 1s linear infinite; -moz-animation: fade 1s linear infinite;
+  -webkit-border-radius: 50px; -moz-border-radius: 50px; border-radius: 50px;
+  -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2); -moz-box-shadow: 0 0 3px rgba(0,0,0,0.2); box-shadow: 0 0 3px rgba(0,0,0,0.2);
 }
 
 div.spinner div.bar1 {-webkit-transform:rotate(0deg) translate(0, -142%); -webkit-animation-delay: 0s;}
@@ -1016,18 +1015,17 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.7), 0pt 0pt 1pt #808080 !important; /* should get rid of !important usage */
 }
 
+#jqt > * ul.grid.editmode li {
+  -webkit-animation-name: shake; -moz-animation-name: shake;
+  -webkit-animation-iteration-count: infinite; -moz-animation-iteration-count: infinite;
+  -webkit-animation-direction: normal; -moz-animation-direction: normal;
+}
 #jqt > * ul.grid.editmode li:nth-child(even) {
-  -webkit-animation-name: shake;
-  -webkit-animation-duration: 0.3s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-direction: normal;
+  -webkit-animation-duration: 0.3s; -moz-animation-duration: 0.3s;
 }
 
 #jqt > * ul.grid.editmode li:nth-child(odd) {
-  -webkit-animation-name: shake;
-  -webkit-animation-duration: 0.4s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-direction: normal;
+  -webkit-animation-duration: 0.4s; -moz-animation-duration: 0.4s;
 }
 
 #jqt > * ul.grid.editmode li .deleteicon {
@@ -1101,6 +1099,29 @@ div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -we
     100% {
         -webkit-transform: rotate(0deg);
         -webkit-animation-timing-function: linear;
+    }
+}
+
+@-moz-keyframes shake {
+    0%   {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
+    }
+    25%   {
+        -moz-transform: rotate(-3deg);
+        -moz-animation-timing-function: linear;
+    }
+    50%   {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
+    }
+    75%   {
+        -moz-transform: rotate(3deg);
+        -moz-animation-timing-function: linear;
+    }
+    100% {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
     }
 }
 
