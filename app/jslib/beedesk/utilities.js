@@ -556,6 +556,13 @@ var Arrays = new function() {
     }
     return result;
   };
+  this.order = function(array) {
+    var result = {};
+    for (var i=array.length-1; i >= 0; i--) {
+      result[array] = i;
+    }
+    return result;
+  };
   this.keys = function(hash) {
     var result = [];
     for (var key in hash) {

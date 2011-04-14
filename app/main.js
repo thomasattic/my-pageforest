@@ -19,19 +19,26 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         appid: undefined,
         create: function(id, item, fn, err) {
             signal.bind(function() {
+                var after;
                 if (!ns.client.username) {
                     if (err) {
                       var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
                       err(excepion);
                     }
                 } else if (!displayeditems[id]) {
+                    after = item.after;
+                    if (after === undefined || displayedorder.indexOf(after) < 0) {
+                      after = displayedorder.length - 1;
+                    }
+                    delete item.after;
+
                     displayeditems[id] = item;
-                    displayedorder.push(id);
+                    displayedorder.splice(displayedorder.indexOf(after) + 1, 0, id);
 
                     ns.client.setDirty();
                     ns.client.save();
 
-                    items.handler.added({id: id, item: item});
+                    items.handler.added({id: id, item: item, after: after});
                 } else {
                     console.warn("app '" + id + "' already added!");
                 }
@@ -53,7 +60,11 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             });
         },
         update: function(id, item, olditem, fn, err) {
+            var after;
             signal.bind(function() {
+                after = item.after;
+                delete item.after;
+
                 //@TODO -- work to update the item
 
                 items.handler.updated({id: id, item: item, olditem: olditem});
@@ -150,48 +161,68 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         }
 
         var data = json.blob;
-        var theirs = data.order.sort();
-        var mine = displayedorder.sort();
 
-        var combinedorder = [];
+        var commonTheirOrder = Arrays.clone(data.order);
+        var theirs = Arrays.clone(data.order).sort();
+
+        var commonMyOrder = Arrays.clone(displayedorder);
+        var mine = Arrays.clone(displayedorder).sort();
+
         var combineditems = {};
 
         var diff = Arrays.intersect(mine, theirs, false);
+        for (i=0, len=diff.left.length; i<len; i++) {
+          // item removed
+          var id = diff.left[i];
+          var olditem = displayeditems[id];
+          items.handler.removed({id: id, olditem: olditem});
+          Arrays.remove(commonMyOrder, commonMyOrder.indexOf(id));
+        }
+        for (i=0, len=diff.right.length; i<len; i++) {
+          Arrays.remove(commonTheirOrder, commonTheirOrder.indexOf(id));
+        }
         for (i=0, len=diff.middle.length; i<len; i++) {
-          var id = diff.middle[i];
+          var id = commonTheirOrder[i];
           var item = data.items[id];
           var olditem = displayeditems[id];
 
-          combinedorder.push(id);
-          combineditems[id] = item;
-
+          var theirPrev, myPrev, cur;
+          var after;
+          if (i>0) {
+            theirPrev = commonTheirOrder[i-1];
+            cur = commonMyOrder.indexOf(id);
+            myPrev = commonMyOrder[cur-1];
+            if (myPrev !== theirPrev) {
+              after = theirPrev;
+            }
+          } else {
+            theirPrev = null;
+            cur = commonMyOrder.indexOf(id);
+            if (cur !== 0) {
+              after = undefined;
+            }
+          }
           if (!Hashs.isEquals(item, olditem)) {
             // item updated
-            items.handler.updated({id: id, item: item, olditem: olditem});
+            items.handler.updated({id: id, item: item, olditem: olditem, after: after});
           }
         }
-        for (i=0, len=diff.left.length; i<len; i++) {
-            // item removed
-            var id = diff.left[i];
-            var olditem = displayeditems[id];
-            items.handler.removed({id: id, olditem: olditem});
-        }
-        for (i=0, len=diff.right.length; i<len; i++) {
-            // item added
-            var id = diff.right[i];
-            var item = data.items[id];
-
-            combinedorder.push(id);
-            combineditems[id] = item;
-
-            items.handler.added({id: id, item: item});
+        for (i=0, len=data.order.length; i<len; i++) {
+          // item added
+          var id = data.order[i];
+          var item = data.items[id];
+          if (diff.right.indexOf(id) >= 0) {
+            if (i === 0) {
+              after = undefined;
+            } else {
+              after = data.order[i-1];
+            }
+            items.handler.added({id: id, item: item, after: after});
+          }
         }
 
-        //@TODO -- Feature -- determine if the order has changed
-        // ...
-
-        displayedorder = combinedorder;
-        displayeditems = combineditems;
+        displayedorder = data.order;
+        displayeditems = data.items;
 
         signal.latch();
 

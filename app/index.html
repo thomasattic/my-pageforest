@@ -187,6 +187,7 @@
           itemjson.editable = (appjson.owner === my.items.username || appjson.writers.indexOf(my.items.username) >= 0);
           itemjson.app = appjson;
           itemjson.editorurl = "http://editor.pageforest.com/#" + appid;
+
           if (options && options.staple) {
             itemjson.staple = true;
           }
@@ -415,13 +416,25 @@
     // Items handler listens to CRUD events from model
     my.items.handler = {
       added: function(event) {
+        console.warn("added (" + event.id + "): " + event.after);
         function addItem() {
           var $newitem = $("#launcheritem-template").tmpl(event.item);
-          $("ul#replacement").append($newitem);
+          if (event.after === undefined) {
+            $("ul#replacement").prepend($newitem);
+          } else {
+            var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
+            if ($leader.length > 0) {
+              $leader.after($newitem);
+            } else {
+              console.error("Could not find peer, '" + event.after + "'");
+              $("ul#replacement").append($newitem);
+            }
+          }
         };
         quicksandQueue.queue(addItem);
       },
       removed: function(event) {
+        console.warn("remvoed (" + event.id + "): " + event.after);
         function removeItem() {
           var appid = event.id;
           $("ul#replacement > li[data-launcheritemid=" + appid + "]").remove();
@@ -429,6 +442,7 @@
         quicksandQueue.queue(removeItem);
       },
       updated: function(event) {
+        console.warn("updated: (" + event.id + "): " + event.after);
       }
     };
   </script>
