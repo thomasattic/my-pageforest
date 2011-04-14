@@ -294,16 +294,11 @@
       },
       enterEditMode: function() {
         console.warn("entering edit mode.");
-        $("#z-launcherpane ul.grid").addClass("editmode");
+        $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
-        $("#appgrid").quicksand($("#replacement > li"), function() {
-          $("#z-launcherpane ul > li").each(function(i, item) {
-            prepItem(item);
-          });
-        });
       },
       exitEditMode: function() {
-        $("#z-launcherpane ul.grid.editmode").removeClass("editmode");
+        $("ul#appgrid.editmode").removeClass("editmode");
         $('body').removeClass("editmode");
       }
     }
@@ -370,16 +365,68 @@
       $newitem.bind("tap", false);
     }
 
+    // Special queue mechanism to handle add/remove animation.
+    // It queues up action if animation is in progress.
+    var quicksandQueue = new function() {
+      // @TODO generalize this function into generic utility
+      var list;
+      function launch(pre, fn) {
+        var i, len;
+        if (list.length > 0) {
+          pre();
+          for (var i=0, len=list.length; i<len; i++) {
+            list[i]();
+          }
+          list = [];
+          $("#appgrid").quicksand($("ul#replacement > li"), function() {
+            launch(pre, fn);
+          });
+        } else {
+          fn();
+          list = undefined;
+        }
+      };
+      function tickle() {
+        if (list === undefined) {
+          list = [];
+          setTimeout(function() {
+            // launch quicksand
+            launch(function() {
+              // prep a replacement section
+              $("ul#replacement").children().remove();
+              $("ul#appgrid > li").each(function(i, item) {
+                $(item).clone().appendTo($("ul#replacement"));
+              });
+            }, function() {
+              $("ul#appgrid > li").each(function(i, item) {
+                prepItem(item);
+              });
+            });
+          }, 100);
+        }
+      };
+      function queue(fn) {
+        tickle();
+        list.push(fn);
+      };
+      return {queue: queue};
+    }
+
     // Items handler listens to CRUD events from model
     my.items.handler = {
       added: function(event) {
-        var $newitem = $("#launcheritem-template").tmpl(event.item);
-        $("#z-launcherpane ul").append($newitem);
-        prepItem($newitem[0]);
+        function addItem() {
+          var $newitem = $("#launcheritem-template").tmpl(event.item);
+          $("ul#replacement").append($newitem);
+        };
+        quicksandQueue.queue(addItem);
       },
       removed: function(event) {
-        var appid = event.id;
-        $("#jqt > * ul.grid li[data-launcheritemid=" + appid + "]").remove();
+        function removeItem() {
+          var appid = event.id;
+          $("ul#replacement > li[data-launcheritemid=" + appid + "]").remove();
+        }
+        quicksandQueue.queue(removeItem);
       },
       updated: function(event) {
       }
