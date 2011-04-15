@@ -83,6 +83,30 @@
       text-align: center;
     }
 
+    body #phantom {
+      display: block; position: absolute;
+      width: 72px; height: 72px;
+      background-color: rgba(255, 255, 255, 0.5);
+      -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+      -webkit-user-drag: none;
+      cursor: pointer;
+      z-index: 5; opacity: 0.7;
+      background-repeat: no-repeat;
+      -webkit-background-size: contain;
+      background-size: contain;
+      background-position: 50% 50%;
+      -webkit-background-origin: content-box;
+    }
+
+    body:not(.editmode) #phantom, body:not(.dragmode) #phantom {
+      display: none;
+      z-index: 0;
+    }
+
+    .invisible {
+      visibility: hidden;
+    }
+
     .buttonbar {
       position: fixed;
       top: 0; left: 0;
@@ -101,6 +125,7 @@
     .buttonbar.shifted {
       left: 60px;
     }
+
     .buttonbar span {
       box-sizing: border-box;
       margin: 4px;
@@ -272,6 +297,62 @@
       addApp('editor', {staple: true});
     });
 
+    var picked;
+    var isTouch = 'ontouchstart' in window;
+    touchStart = function(e) {
+      e.preventDefault();
+      var $el = $(e.target);
+      if (!$el.is("ul#appgrid > li")) {
+        var $el = $(e.target).closest("ul#appgrid > li");
+      }
+      var appid = $el.attr("data-launcheritemid");
+      console.warn("touched on: " + appid);
+      picked = $el[0];
+
+      var $body = $("body");
+      if ($el.length > 0) {
+        $el.addClass("invisible");
+        $body.addClass("dragmode");
+
+        var touch = $.isTouch ? e.touches[0] : e;
+        var $body = $("body");
+        var offset = $body.offset();
+        var $phantom = $("#phantom");
+        var size = {height: $phantom.height(), width: $phantom.width()};
+        var top = touch.clientY - offset.top - Math.floor(size.height/2);
+        var left = touch.clientX - offset.left - Math.floor(size.width/2);
+        $phantom
+           .css('top', top + 'px')
+           .css("left", left + 'px');
+        $phantom.css('background-image', $el.find(".icon").css('background-image'));
+      }
+    };
+    touchEnd = function(e) {
+      e.preventDefault();
+      var $body = $("body");
+      $body.removeClass("dragmode");
+      $("ul#appgrid > li").removeClass("invisible");
+      picked = undefined;
+    };
+    touchMove = function(e) {
+      e.preventDefault();
+      if (!picked) {
+        return;
+      }
+
+      // @TODO -- copy and paste code (see, touchStart)
+      var touch = $.isTouch ? e.touches[0] : e;
+      var $body = $("body");
+      var offset = $body.offset();
+      var $phantom = $("#phantom");
+      var size = {height: $phantom.height(), width: $phantom.width()};
+      var top = touch.clientY - offset.top - Math.floor(size.height/2);
+      var left = touch.clientX - offset.left - Math.floor(size.width/2);
+      $phantom
+         .css('top', top + 'px')
+         .css("left", left + 'px');
+    };
+
     // Actions
     var actions = {
       addApp: function(event, info) {
@@ -301,10 +382,21 @@
         console.warn("entering edit mode.");
         $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
+
+        $(document).bind("touchstart mousedown", touchStart);
+        $(document).bind("touchend mouseup", touchEnd);
+        $(document).bind("touchmove mousemove", touchMove);
       },
       exitEditMode: function() {
         $("ul#appgrid.editmode").removeClass("editmode");
-        $('body').removeClass("editmode");
+        $('body').removeClass("editmode dragmode");
+        $("ul#appgrid > li").removeClass("invisible active");
+
+        $(document).unbind("touchstart mousedown", touchStart);
+        $(document).unbind("touchend mouseup", touchEnd);
+        $(document).unbind("touchmove mousemove", touchMove);
+
+        picked = undefined;
       },
       randomize: function() {
         console.warn("Randomizing....");
@@ -510,6 +602,7 @@
   </script>
   </head>
   <body>
+    <div id="phantom"></div>
     <div id="jqt" class="initstate unfixed">
     <div id="z-launcherpane" class="pane form" section="aside">
       <ul id="appgrid" class="grid">
