@@ -67,13 +67,16 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             });
         },
         update: function(id, item, olditem, fn, err) {
-            var after = undefined;
+            var event;
             signal.bind(function() {
-                var event = {id: id, item: item, olditem: olditem};
+                event = {id: id, item: item, olditem: olditem};
                 if ("after" in item) {
-                  after = item.after;
-                  if (after === undefined || displayedorder.indexOf(after) < 0) {
+                  var after = item.after;
+                  if (after !== undefined && displayedorder.indexOf(after) < 0) {
                     after = displayedorder[displayedorder.length - 1];
+                    if (after === id) {
+                      after = undefined;
+                    }
                   }
                   delete item.after;
 
