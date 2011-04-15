@@ -80,11 +80,11 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                   }
                   delete item.after;
 
-                  console.warn("== instruction   : item: " + id + " .after: " + after);
-                  console.warn("== order (before): " + JSON.stringify(displayedorder));
+                  //console.warn("== instruction   : item: " + id + " .after: " + after);
+                  //console.warn("== order (before): " + JSON.stringify(displayedorder));
                   Arrays.remove(displayedorder, displayedorder.indexOf(id));
                   displayedorder.splice(displayedorder.indexOf(after) + 1, 0, id);
-                  console.warn("== order (after) : " + JSON.stringify(displayedorder));
+                  //console.warn("== order (after) : " + JSON.stringify(displayedorder));
 
                   event.after = after;
                 }

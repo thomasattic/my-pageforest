@@ -297,80 +297,90 @@
       addApp('editor', {staple: true});
     });
 
-    var picked;
-    var isTouch = 'ontouchstart' in window;
-    var moveTimer;
-    var lastClientX, lastClientY;
-    var clientX, clientY;
-    var bounds;
-    function findElement(x, y) {
-      var result;
-      var i, len;
-      var matchX, matchY, item;
-      console.warn("finding x: " + x + " y: " + y + " bounds.length " + bounds.length);
-      for (i=0, len=bounds.length; i<len; i++) {
-        b = bounds[i];
-        matchX = x >= b.left && x < b.right;
-        matchY = y >= b.top && y < b.bottom;
-        if (matchX && matchY) {
-          console.warn("found...");
-          result = b.appid;
-          break;
-        }
-      }
-      return result;
-    }
-    function updatePoint(e, $el) {
-      var touch = $.isTouch ? e.touches[0] : e;
-      var $body = $("body");
-      var offset = $body.offset();
-      var $phantom = $("#phantom");
-      var size = {height: $phantom.height(), width: $phantom.width()};
+    var dragAndDropHandler = new function() {
+      var picked;
+      var isTouch = 'ontouchstart' in window;
+      var moveTimer;
+      var lastClientX, lastClientY;
+      var clientX, clientY;
+      var startX, startY;
+      var bounds;
+      var active;
+      function findElement(x, y) {
+        var result;
+        var i, len;
+        var matchX, matchY, item;
+        var before = false;
+        console.warn("finding x: " + x + " y: " + y + " bounds.length " + bounds.length);
 
-      var top = touch.clientY - offset.top - Math.floor(size.height/2);
-      var left = touch.clientX - offset.left - Math.floor(size.width/2);
+        for (i=0, len=bounds.length; i<len; i++) {
+          b = bounds[i];
+          matchX = startX >= b.left && startX < b.right;
+          matchY = startY >= b.top && startY < b.bottom;
 
-      $phantom
-         .css('top', top + 'px')
-         .css("left", left + 'px');
-      if ($el !== undefined) {
-        $phantom.css('background-image', $el.find(".icon").css('background-image'));
-      }
-
-      clientX = touch.clientX;
-      clientY = touch.clientY;
-      clearTimeout(moveTimer);
-      moveTimer = setTimeout(function() {
-        console.warn("move timer hit: " + picked + " cond: " + (lastClientX !== clientX || lastClientY !== clientY));
-        if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
-          var id = $(picked).attr("data-launcheritemid");
-          my.items.read(id, function(id, item) {
-            var after = findElement(clientX, clientY);
-            if (after !== id) {
-              item.after = after;
+          if (matchX && matchY) {
+            if (x < b.right && y > b.bottom) {
+              before = true;
             }
-            my.items.update(id, item);
-            lastClientX = clientX;
-            lastClientY = clientY;
-          });
+            console.warn("... before...");
+            break;
+          }
         }
-      }, 250);
-    }
-    function touchStart(e) {
-      var $el = $(e.target);
-      if (!$el.is("ul#appgrid > li")) {
-        var $el = $(e.target).closest("ul#appgrid > li");
+
+        if (!before) {
+          x = x - 124;
+        }
+        for (i=0, len=bounds.length; i<len; i++) {
+          b = bounds[i];
+          matchX = x >= b.left && x < b.right;
+          matchY = y >= b.top && y < b.bottom;
+          if (matchX && matchY) {
+            console.warn("found...");
+            result = b.appid;
+            break;
+          }
+        }
+        return result;
       }
-      var appid = $el.attr("data-launcheritemid");
-      picked = "ul#appgrid > li[data-launcheritemid='" + appid + "']";
+      function updatePoint(e, $el) {
+        var touch = $.isTouch ? e.touches[0] : e;
+        var $body = $("body");
+        var offset = $body.offset();
+        var $phantom = $("#phantom");
+        var size = {height: $phantom.height(), width: $phantom.width()};
 
-      var $body = $("body");
-      if ($el.length > 0) {
-        e.preventDefault();
-        $el.addClass("invisible");
-        $body.addClass("dragmode");
-        updatePoint(e, $el);
+        var top = touch.clientY - offset.top - Math.floor(size.height/2);
+        var left = touch.clientX - offset.left - Math.floor(size.width/2);
 
+        $phantom
+           .css('top', top + 'px')
+           .css("left", left + 'px');
+        if ($el !== undefined) {
+          $phantom.css('background-image', $el.find(".icon").css('background-image'));
+        }
+
+        clientX = touch.clientX;
+        clientY = touch.clientY;
+        clearTimeout(moveTimer);
+        moveTimer = setTimeout(function() {
+          if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
+            var id = $(picked).attr("data-launcheritemid");
+            my.items.read(id, function(id, item) {
+              var after = findElement(clientX, clientY);
+              if (after !== id) {
+                item.after = after;
+              }
+              my.items.update(id, item);
+              lastClientX = clientX;
+              lastClientY = clientY;
+              startX = clientX;
+              startY = clientY;
+              tickleBounds();
+            });
+          }
+        }, 250);
+      }
+      function tickleBounds() {
         bounds = [];
         $("ul#appgrid > li").each(function(i, li) {
 
@@ -381,26 +391,71 @@
           var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
               bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
           bounds.push(item);
+          console.warn("bounds: " + JSON.stringify(item));
         });
       }
-    };
-    function touchEnd(e) {
-      var $body = $("body");
-      $body.removeClass("dragmode");
-      $(picked).removeClass("invisible");
-      $("ul#appgrid > li").removeClass("invisible");
-      if (picked) {
+      function touchStart(e) {
+        var $el = $(e.target);
+        if (!$el.is("ul#appgrid > li")) {
+          var $el = $(e.target).closest("ul#appgrid > li");
+        }
+        var appid = $el.attr("data-launcheritemid");
+        picked = "ul#appgrid > li[data-launcheritemid='" + appid + "']";
+
+        var $body = $("body");
+        if ($el.length > 0) {
+          e.preventDefault();
+          $el.addClass("invisible");
+          $body.addClass("dragmode");
+
+          var touch = $.isTouch ? e.touches[0] : e;
+          clientX = touch.clientX;
+          clientY = touch.clientY;
+
+          updatePoint(e, $el);
+
+          tickleBounds();
+        }
+      };
+      function touchEnd(e) {
+        var $body = $("body");
+        $body.removeClass("dragmode");
+        $(picked).removeClass("invisible");
+        $("ul#appgrid > li").removeClass("invisible");
+        if (picked) {
+          e.preventDefault();
+        }
+        clearTimeout(moveTimer);
+        picked = undefined;
+      };
+      function touchMove(e) {
+        if (!picked) {
+          return;
+        }
         e.preventDefault();
+        updatePoint(e);
+      };
+
+      var pub = {};
+      pub.start = function() {
+        if (!active) {
+          active = true;
+          $(document).bind("touchstart mousedown", touchStart);
+          $(document).bind("touchend mouseup", touchEnd);
+          $(document).bind("touchmove mousemove", touchMove);
+        }
       }
-      clearTimeout(moveTimer);
-      picked = undefined;
-    };
-    function touchMove(e) {
-      if (!picked) {
-        return;
+      pub.stop = function() {
+        if (active) {
+          active = undefined;
+          $(document).unbind("touchstart mousedown", touchStart);
+          $(document).unbind("touchend mouseup", touchEnd);
+          $(document).unbind("touchmove mousemove", touchMove);
+        }
+
+        picked = undefined;
       }
-      e.preventDefault();
-      updatePoint(e);
+      return pub;
     };
 
     // Actions
@@ -433,9 +488,7 @@
         $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
 
-        $(document).bind("touchstart mousedown", touchStart);
-        $(document).bind("touchend mouseup", touchEnd);
-        $(document).bind("touchmove mousemove", touchMove);
+        dragAndDropHandler.start();
 
         clearTimeout(editmodeTimer);
         editmodeTimer = setTimeout(function() {
@@ -447,16 +500,11 @@
         $('body').removeClass("editmode dragmode");
         $("ul#appgrid > li").removeClass("invisible active");
 
-        $(document).unbind("touchstart mousedown", touchStart);
-        $(document).unbind("touchend mouseup", touchEnd);
-        $(document).unbind("touchmove mousemove", touchMove);
+        dragAndDropHandler.stop();
 
         clearTimeout(editmodeTimer);
-
-        picked = undefined;
       },
       randomize: function() {
-        console.warn("Randomizing....");
         var list = [];
         $("ul#appgrid > li").each(function(i, item) {
           list.push($(item).attr("data-launcheritemid"));
