@@ -298,8 +298,9 @@
     });
 
     var dragAndDropHandler = new function() {
-      var picked;
       var isTouch = 'ontouchstart' in window;
+
+      var picked;
       var moveTimer;
       var lastClientX, lastClientY;
       var clientX, clientY;
@@ -322,7 +323,6 @@
             if (x < b.right && y > b.bottom) {
               before = true;
             }
-            console.warn("... before...");
             break;
           }
         }
@@ -335,7 +335,6 @@
           matchX = x >= b.left && x < b.right;
           matchY = y >= b.top && y < b.bottom;
           if (matchX && matchY) {
-            console.warn("found...");
             result = b.appid;
             break;
           }
@@ -391,7 +390,6 @@
           var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
               bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
           bounds.push(item);
-          console.warn("bounds: " + JSON.stringify(item));
         });
       }
       function touchStart(e) {

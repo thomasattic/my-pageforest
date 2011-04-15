@@ -145,6 +145,9 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         }
     }
 
+    function onSaveSuccess(result) {
+    }
+
     // This function is called when the index.html home page
     // is loaded.  Use it to initialize your application and
     // set up the Pageforest Client Library App Bar user interface.
