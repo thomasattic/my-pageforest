@@ -2,31 +2,33 @@
 //
 //
 namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
-    // Namespace exported properties
-    // TODO: Add any additional functions that you need to access
-    // from your index.html page.
 
+    // state callbacks
+    var modelReadyCallbacks = [], loggedin = [], loggedout = [];
+
+    // model items
     var appid;
     var displayedorder = [];
     var displayeditems = {};
-    var signal = Threads.latchbinder();
 
-    var emptyfn = function() {};
+    // internal state helper
+    var modelReadyLatch = Threads.latchbinder();
+
     var items = {
         name: "my.pageforest",
         username: undefined,
-        handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
+        handler: {added: function() {}, removed: function() {}, updated: function() {}},
         appid: undefined,
         read: function(id, fn, err) {
           fn(id, displayeditems[id]);
         },
         create: function(id, item, fn, err) {
-            signal.bind(function() {
-                var after = undefined;
+            modelReadyLatch.bind(function() {
+                var after;
                 if (!ns.client.username) {
                     if (err) {
                       var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
-                      err(excepion);
+                      err(exception);
                     }
                 } else if (!displayeditems[id]) {
                     if ("after" in item) {
@@ -52,7 +54,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             });
         },
         remove: function(id, olditem, fn, err) {
-            signal.bind(function() {
+            modelReadyLatch.bind(function() {
                 if (displayeditems[id]) {
                     delete displayeditems[id];
                     Arrays.remove(displayedorder, displayedorder.indexOf(id));
@@ -68,7 +70,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         },
         update: function(id, item, olditem, fn, err) {
             var event;
-            signal.bind(function() {
+            modelReadyLatch.bind(function() {
                 event = {id: id, item: item, olditem: olditem};
                 if ("after" in item) {
                   var after = item.after;
@@ -97,12 +99,6 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         }
     };
 
-    var documentready = [];
-
-    var loggedin = [];
-
-    var loggedout = [];
-
     ns.extend({
         'onReady': onReady,
         'onUserChange': onUserChange,
@@ -111,24 +107,19 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         'getDocid': getDocid,
         'setDocid': setDocid,
         'items': items,
-        'documentready': documentready,
+        'modelReady': modelReadyCallbacks,
         'loggedin': loggedin,
         'loggedout': loggedout,
-        'signin': signin,
         'appid': appid,
         'confirmDiscard': confirmDiscard,
         'onError': onError
     });
 
-    function signin() {
-      if (!username) {
-        ns.client.signIn();
-      }
-    }
-
     // This function is called when pageforest client code polled for
     // the first time.
     function onUserChange(newname) {
+        var id;
+
         username = newname;
 
         items.username = username;
@@ -139,7 +130,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         }
 
         if (!username) {
-          for (var id in displayeditems) {
+          for (id in displayeditems) {
             items.handler.removed({id: id, olditem: displayeditems[id]});
           }
         }
@@ -182,6 +173,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
     function setDoc(json) {
         // doc schema: {blob: {schema: 1, items: {<appid>: {icon: '', url: '', title: ''}, order: []}}}
         var i, len;
+        var id, item, olditem, event, after;
 
         var hasitem = !!json && !!json.blob && !!json.blob.items;
         if (!hasitem) {
@@ -196,28 +188,25 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         var commonMyOrder = Arrays.clone(displayedorder);
         var mine = Arrays.clone(displayedorder).sort();
 
-        var combineditems = {};
-
         var diff = Arrays.intersect(mine, theirs, false);
         for (i=0, len=diff.left.length; i<len; i++) {
           // item removed
-          var id = diff.left[i];
-          var olditem = displayeditems[id];
+          id = diff.left[i];
+          olditem = displayeditems[id];
           items.handler.removed({id: id, olditem: olditem});
           Arrays.remove(commonMyOrder, commonMyOrder.indexOf(id));
         }
         for (i=0, len=diff.right.length; i<len; i++) {
+          id = diff.right[i];
           Arrays.remove(commonTheirOrder, commonTheirOrder.indexOf(id));
         }
         for (i=0, len=diff.middle.length; i<len; i++) {
-          var event = {id: id, item: item, olditem: olditem};
-          var id = commonTheirOrder[i];
-          var item = data.items[id];
-          var olditem = displayeditems[id];
+          id = commonTheirOrder[i];
+          item = data.items[id];
+          olditem = displayeditems[id];
 
-          // @TODO -- some bug around here merging with new order
+          event = {id: id, item: item, olditem: olditem};
           var theirPrev, myPrev, cur;
-          var after;
           if (i>0) {
             theirPrev = commonTheirOrder[i-1];
             cur = commonMyOrder.indexOf(id);
@@ -234,14 +223,16 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
           }
           if (!Hashs.isEquals(item, olditem) || after === undefined) {
             // item updated
-            if (after === null) after = undefined;
+            if (after === null) {
+              after = undefined;
+            }
             items.handler.updated(event);
           }
         }
         for (i=0, len=data.order.length; i<len; i++) {
           // item added
-          var id = data.order[i];
-          var item = data.items[id];
+          id = data.order[i];
+          item = data.items[id];
           if (diff.right.indexOf(id) >= 0) {
             if (i === 0) {
               after = undefined;
@@ -255,13 +246,13 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         displayedorder = data.order;
         displayeditems = data.items;
 
-        signal.latch();
+        modelReadyLatch.latch();
 
         // Expose appid
         items.appid = ns.client.appid;
 
-        for (i=0, len=documentready.length; i<len; i++) {
-          documentready[i]();
+        for (i=0, len=modelReadyCallbacks.length; i<len; i++) {
+          modelReadyCallbacks[i]();
         }
     }
 

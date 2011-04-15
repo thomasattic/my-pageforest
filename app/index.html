@@ -192,8 +192,8 @@
 
     // -- Add Application Logic
     // Add application should wait until setDoc() is first called
-    var documentreadysignal = Threads.latchbinder();
-    my.documentready.push(documentreadysignal.latch);
+    var modelReadyLatch = Threads.latchbinder();
+    my.modelReady.push(modelReadyLatch.latch);
     function addApp(appid, options, fn, err) {
       // ajax on that:
       var itemjson = {};
@@ -281,7 +281,7 @@
     // --/Add Application Logic
 
     // Manage display to indicate state
-    documentreadysignal.bind(function() {
+    modelReadyLatch.bind(function() {
       $("#jqt").removeClass("initstate");
       $("#jqt").removeClass("nouserstate");
     });
@@ -526,7 +526,7 @@
     $("#z-launcherpane").live("pagein", function() {
       caller = this;
       args = Array.prototype.slice.call(arguments);
-      documentreadysignal.bind(function() {
+      modelReadyLatch.bind(function() {
         actions.addApp.apply(caller, args);
       });
     });
