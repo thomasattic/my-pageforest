@@ -72,7 +72,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                 var event = {id: id, item: item, olditem: olditem};
                 if ("after" in item) {
                   after = item.after;
-                  if (displayedorder.indexOf(after) < 0) {
+                  if (after === undefined || displayedorder.indexOf(after) < 0) {
                     after = displayedorder[displayedorder.length - 1];
                   }
                   delete item.after;

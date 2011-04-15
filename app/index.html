@@ -299,41 +299,101 @@
 
     var picked;
     var isTouch = 'ontouchstart' in window;
+    var moveTimer;
+    var lastClientX, lastClientY;
+    var clientX, clientY;
+    var bounds;
+    function findElement(x, y) {
+      var result;
+      var i, len;
+      var matchX, matchY, item;
+      console.warn("finding x: " + x + " y: " + y + " bounds.length " + bounds.length);
+      for (i=0, len=bounds.length; i<len; i++) {
+        b = bounds[i];
+        matchX = x >= b.left && x < b.right;
+        matchY = y >= b.top && y < b.bottom;
+        if (matchX && matchY) {
+          console.warn("found...");
+          result = b.appid;
+          break;
+        }
+      }
+      return result;
+    }
+    function updatePoint(e, $el) {
+      var touch = $.isTouch ? e.touches[0] : e;
+      var $body = $("body");
+      var offset = $body.offset();
+      var $phantom = $("#phantom");
+      var size = {height: $phantom.height(), width: $phantom.width()};
+
+      var top = touch.clientY - offset.top - Math.floor(size.height/2);
+      var left = touch.clientX - offset.left - Math.floor(size.width/2);
+
+      $phantom
+         .css('top', top + 'px')
+         .css("left", left + 'px');
+      if ($el !== undefined) {
+        $phantom.css('background-image', $el.find(".icon").css('background-image'));
+      }
+
+      clientX = touch.clientX;
+      clientY = touch.clientY;
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(function() {
+        console.warn("move timer hit: " + picked + " cond: " + (lastClientX !== clientX || lastClientY !== clientY));
+        if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
+          var id = $(picked).attr("data-launcheritemid");
+          my.items.read(id, function(id, item) {
+            var after = findElement(clientX, clientY);
+            if (after !== id) {
+              item.after = after;
+            }
+            my.items.update(id, item);
+            lastClientX = clientX;
+            lastClientY = clientY;
+          });
+        }
+      }, 250);
+    }
     function touchStart(e) {
       var $el = $(e.target);
       if (!$el.is("ul#appgrid > li")) {
         var $el = $(e.target).closest("ul#appgrid > li");
       }
       var appid = $el.attr("data-launcheritemid");
-      console.warn("touched on: " + appid);
-      picked = $el[0];
+      picked = "ul#appgrid > li[data-launcheritemid='" + appid + "']";
 
       var $body = $("body");
       if ($el.length > 0) {
         e.preventDefault();
         $el.addClass("invisible");
         $body.addClass("dragmode");
+        updatePoint(e, $el);
 
-        var touch = $.isTouch ? e.touches[0] : e;
-        var $body = $("body");
-        var offset = $body.offset();
-        var $phantom = $("#phantom");
-        var size = {height: $phantom.height(), width: $phantom.width()};
-        var top = touch.clientY - offset.top - Math.floor(size.height/2);
-        var left = touch.clientX - offset.left - Math.floor(size.width/2);
-        $phantom
-           .css('top', top + 'px')
-           .css("left", left + 'px');
-        $phantom.css('background-image', $el.find(".icon").css('background-image'));
+        bounds = [];
+        $("ul#appgrid > li").each(function(i, li) {
+
+          var $li = $(li);
+          var offset = $li.offset();
+          var appid = $li.attr("data-launcheritemid");
+          var margin = 30; //@TODO -- hardcode px!
+          var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
+              bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
+          bounds.push(item);
+          console.warn("bound (" + appid + "): " + JSON.stringify(item));
+        });
       }
     };
     function touchEnd(e) {
       var $body = $("body");
       $body.removeClass("dragmode");
+      $(picked).removeClass("invisible");
       $("ul#appgrid > li").removeClass("invisible");
       if (picked) {
         e.preventDefault();
       }
+      clearTimeout(moveTimer);
       picked = undefined;
     };
     function touchMove(e) {
@@ -341,21 +401,11 @@
         return;
       }
       e.preventDefault();
-
-      // @TODO -- copy and paste code (see, touchStart)
-      var touch = $.isTouch ? e.touches[0] : e;
-      var $body = $("body");
-      var offset = $body.offset();
-      var $phantom = $("#phantom");
-      var size = {height: $phantom.height(), width: $phantom.width()};
-      var top = touch.clientY - offset.top - Math.floor(size.height/2);
-      var left = touch.clientX - offset.left - Math.floor(size.width/2);
-      $phantom
-         .css('top', top + 'px')
-         .css("left", left + 'px');
+      updatePoint(e);
     };
 
     // Actions
+    var editmodeTimer;
     var actions = {
       addApp: function(event, info) {
         var $target = $(this.el || this);
@@ -381,13 +431,17 @@
         }
       },
       enterEditMode: function() {
-        console.warn("entering edit mode.");
         $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
 
         $(document).bind("touchstart mousedown", touchStart);
         $(document).bind("touchend mouseup", touchEnd);
         $(document).bind("touchmove mousemove", touchMove);
+
+        clearTimeout(editmodeTimer);
+        editmodeTimer = setTimeout(function() {
+          actions.exitEditMode();
+        }, 60000);
       },
       exitEditMode: function() {
         $("ul#appgrid.editmode").removeClass("editmode");
@@ -397,6 +451,8 @@
         $(document).unbind("touchstart mousedown", touchStart);
         $(document).unbind("touchend mouseup", touchEnd);
         $(document).unbind("touchmove mousemove", touchMove);
+
+        clearTimeout(editmodeTimer);
 
         picked = undefined;
       },
@@ -514,7 +570,9 @@
               // prep a replacement section
               $("ul#replacement").children().remove();
               $("ul#appgrid > li").each(function(i, item) {
-                $(item).clone().appendTo($("ul#replacement"));
+                var $cloneitem = $(item).clone();
+                $cloneitem.appendTo($("ul#replacement"));
+                //$cloneitem.removeClass("invisible");
               });
             }, function() {
               $("ul#appgrid > li").each(function(i, item) {
