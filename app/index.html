@@ -98,6 +98,9 @@
       z-index: 2;
     }
 
+    .buttonbar.shifted {
+      left: 60px;
+    }
     .buttonbar span {
       box-sizing: border-box;
       margin: 4px;
@@ -146,6 +149,7 @@
   <script src="main.js" type="text/javascript"></script>
 
   <script type="text/javascript">
+  namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     var my = namespace.lookup("com.pageforest.my");
 
     // Call the onReady function of the application when the page is loaded.
@@ -301,6 +305,25 @@
       exitEditMode: function() {
         $("ul#appgrid.editmode").removeClass("editmode");
         $('body').removeClass("editmode");
+      },
+      randomize: function() {
+        console.warn("Randomizing....");
+        var list = [];
+        $("ul#appgrid > li").each(function(i, item) {
+          list.push($(item).attr("data-launcheritemid"));
+        });
+        list.sort(function() {return 0.5 - Math.random()});
+
+        $("ul#appgrid > li").each(function(i, item) {
+          my.items.read($(item).attr("data-launcheritemid"), function(id, item) {
+            if (list[i] !== id) {
+              item.after = list[i];
+            } else {
+              item.after = undefined;
+            }
+            my.items.update(id, item);
+          });
+        });
       }
     }
 
@@ -316,6 +339,7 @@
     $(document).ready(function() {
       gt(document).on('doubletap', actions.exitEditMode);
       $("#exitedit").live("click", actions.exitEditMode, false);
+      $("#randomize").live("click", actions.randomize, false);
     });
 
     function prepItem(newitem) {
@@ -419,22 +443,26 @@
         console.warn("added (" + event.id + "): " + event.after);
         function addItem() {
           var $newitem = $("#launcheritem-template").tmpl(event.item);
-          if (event.after === undefined) {
-            $("ul#replacement").prepend($newitem);
-          } else {
-            var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
-            if ($leader.length > 0) {
-              $leader.after($newitem);
+          if ("after" in event) {
+            if (event.after !== undefined) {
+              var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
+              if ($leader.length > 0) {
+                $leader.after($newitem);
+              } else {
+                console.error("Could not find peer, '" + event.after + "'");
+                $("ul#replacement").append($newitem);
+              }
             } else {
-              console.error("Could not find peer, '" + event.after + "'");
-              $("ul#replacement").append($newitem);
+              $("ul#replacement").prepend($newitem);
             }
+          } else {
+            $("ul#replacement").append($newitem);
           }
         };
         quicksandQueue.queue(addItem);
       },
       removed: function(event) {
-        console.warn("remvoed (" + event.id + "): " + event.after);
+        console.warn("removed (" + event.id + ")");
         function removeItem() {
           var appid = event.id;
           $("ul#replacement > li[data-launcheritemid=" + appid + "]").remove();
@@ -442,9 +470,33 @@
         quicksandQueue.queue(removeItem);
       },
       updated: function(event) {
-        console.warn("updated: (" + event.id + "): " + event.after);
+        function updateItem() {
+          console.warn("updating: " + event.id + " hasAfter? " + ("after" in event) + " after: " + event.after);
+          var appid = event.id;
+          var $item = $("ul#replacement > li[data-launcheritemid=" + appid + "]");
+          if ("after" in event) {
+            if (event.after !== undefined) {
+              var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
+              if ($leader.length > 0) {
+                $leader.after($item);
+              } else {
+                console.error("Could not find peer, '" + event.after + "'");
+                $("ul#replacement").append($item);
+              }
+            } else {
+              $("ul#replacement").prepend($item);
+            }
+          } else {
+            console.warn("No change in position for '" + appid + "'");
+          }
+        }
+        quicksandQueue.queue(updateItem);
       }
     };
+  });
+  </script>
+  <script type="text/javascript">
+
   </script>
 
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
@@ -499,6 +551,9 @@
     </div> <!-- page -->
     <div class="buttonbar">
       <span id="exitedit">Done</span>
+    </div>
+    <div class="buttonbar shifted">
+      <span id="randomize">Randomize</span>
     </div>
   </body>
 </html>

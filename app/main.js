@@ -17,20 +17,27 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         username: undefined,
         handler: {added: emptyfn, removed: emptyfn, updated: emptyfn},
         appid: undefined,
+        read: function(id, fn, err) {
+          fn(id, displayeditems[id]);
+        },
         create: function(id, item, fn, err) {
             signal.bind(function() {
-                var after;
+                var after = undefined;
                 if (!ns.client.username) {
                     if (err) {
                       var exception = {datasetname: items.name, status: '401', message: 'Not signed in.', url: '', method: 'create', kind: ''};
                       err(excepion);
                     }
                 } else if (!displayeditems[id]) {
-                    after = item.after;
-                    if (after === undefined || displayedorder.indexOf(after) < 0) {
-                      after = displayedorder.length - 1;
+                    if ("after" in item) {
+                      after = item.after;
+                      if (displayedorder.indexOf(after) < 0) {
+                        after = displayedorder[displayedorder.length - 1];
+                      }
+                      delete item.after;
+                    } else {
+                      after = displayedorder[displayedorder.length - 1];
                     }
-                    delete item.after;
 
                     displayeditems[id] = item;
                     displayedorder.splice(displayedorder.indexOf(after) + 1, 0, id);
@@ -60,14 +67,29 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             });
         },
         update: function(id, item, olditem, fn, err) {
-            var after;
+            var after = undefined;
             signal.bind(function() {
-                after = item.after;
-                delete item.after;
+                var event = {id: id, item: item, olditem: olditem};
+                if ("after" in item) {
+                  after = item.after;
+                  if (displayedorder.indexOf(after) < 0) {
+                    after = displayedorder[displayedorder.length - 1];
+                  }
+                  delete item.after;
 
-                //@TODO -- work to update the item
+                  console.warn("== instruction   : item: " + id + " .after: " + after);
+                  console.warn("== order (before): " + JSON.stringify(displayedorder));
+                  Arrays.remove(displayedorder, displayedorder.indexOf(id));
+                  displayedorder.splice(displayedorder.indexOf(after) + 1, 0, id);
+                  console.warn("== order (after) : " + JSON.stringify(displayedorder));
 
-                items.handler.updated({id: id, item: item, olditem: olditem});
+                  event.after = after;
+                }
+
+                //ns.client.setDirty();
+                //ns.client.save();
+
+                items.handler.updated(event);
             });
         }
     };
@@ -182,10 +204,12 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
           Arrays.remove(commonTheirOrder, commonTheirOrder.indexOf(id));
         }
         for (i=0, len=diff.middle.length; i<len; i++) {
+          var event = {id: id, item: item, olditem: olditem};
           var id = commonTheirOrder[i];
           var item = data.items[id];
           var olditem = displayeditems[id];
 
+          // @TODO -- some bug around here merging with new order
           var theirPrev, myPrev, cur;
           var after;
           if (i>0) {
@@ -193,18 +217,19 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             cur = commonMyOrder.indexOf(id);
             myPrev = commonMyOrder[cur-1];
             if (myPrev !== theirPrev) {
-              after = theirPrev;
+              event.after = theirPrev;
             }
           } else {
             theirPrev = null;
             cur = commonMyOrder.indexOf(id);
             if (cur !== 0) {
-              after = undefined;
+              event.after = null;
             }
           }
-          if (!Hashs.isEquals(item, olditem)) {
+          if (!Hashs.isEquals(item, olditem) || after === undefined) {
             // item updated
-            items.handler.updated({id: id, item: item, olditem: olditem, after: after});
+            if (after === null) after = undefined;
+            items.handler.updated(event);
           }
         }
         for (i=0, len=data.order.length; i<len; i++) {
