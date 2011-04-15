@@ -973,7 +973,7 @@
             }
 
             // Prevent default if we found an internal link (relative or absolute)
-            if ($el && $el.attr('href') && !$el.isExternalLink()) {
+            if ($el && $el.attr('href') /* && !$el.isExternalLink()*/) {
                 _debug('Need to prevent default click behavior');
                 e.preventDefault();
             } else {

@@ -299,8 +299,7 @@
 
     var picked;
     var isTouch = 'ontouchstart' in window;
-    touchStart = function(e) {
-      e.preventDefault();
+    function touchStart(e) {
       var $el = $(e.target);
       if (!$el.is("ul#appgrid > li")) {
         var $el = $(e.target).closest("ul#appgrid > li");
@@ -311,6 +310,7 @@
 
       var $body = $("body");
       if ($el.length > 0) {
+        e.preventDefault();
         $el.addClass("invisible");
         $body.addClass("dragmode");
 
@@ -327,18 +327,20 @@
         $phantom.css('background-image', $el.find(".icon").css('background-image'));
       }
     };
-    touchEnd = function(e) {
-      e.preventDefault();
+    function touchEnd(e) {
       var $body = $("body");
       $body.removeClass("dragmode");
       $("ul#appgrid > li").removeClass("invisible");
+      if (picked) {
+        e.preventDefault();
+      }
       picked = undefined;
     };
-    touchMove = function(e) {
-      e.preventDefault();
+    function touchMove(e) {
       if (!picked) {
         return;
       }
+      e.preventDefault();
 
       // @TODO -- copy and paste code (see, touchStart)
       var touch = $.isTouch ? e.touches[0] : e;
