@@ -297,7 +297,7 @@
       addApp('editor', {staple: true});
     });
 
-    var dragAndDropHandler = new function() {
+    var dragAndDropHandler = (function() {
       var isTouch = 'ontouchstart' in window;
 
       var picked;
@@ -342,7 +342,7 @@
         return result;
       }
       function updatePoint(e, $el) {
-        var touch = $.isTouch ? e.touches[0] : e;
+        var touch = isTouch ? e.touches[0] : e;
         var $body = $("body");
         var offset = $body.offset();
         var $phantom = $("#phantom");
@@ -395,18 +395,18 @@
       function touchStart(e) {
         var $el = $(e.target);
         if (!$el.is("ul#appgrid > li")) {
-          var $el = $(e.target).closest("ul#appgrid > li");
+          $el = $(e.target).closest("ul#appgrid > li");
         }
         var appid = $el.attr("data-launcheritemid");
         picked = "ul#appgrid > li[data-launcheritemid='" + appid + "']";
 
         var $body = $("body");
         if ($el.length > 0) {
-          e.preventDefault();
+          //e.preventDefault();
           $el.addClass("invisible");
           $body.addClass("dragmode");
 
-          var touch = $.isTouch ? e.touches[0] : e;
+          var touch = isTouch ? e.touches[0] : e;
           clientX = touch.clientX;
           clientY = touch.clientY;
 
@@ -414,7 +414,7 @@
 
           tickleBounds();
         }
-      };
+      }
       function touchEnd(e) {
         var $body = $("body");
         $body.removeClass("dragmode");
@@ -425,14 +425,14 @@
         }
         clearTimeout(moveTimer);
         picked = undefined;
-      };
+      }
       function touchMove(e) {
         if (!picked) {
           return;
         }
         e.preventDefault();
         updatePoint(e);
-      };
+      }
 
       var pub = {};
       pub.start = function() {
@@ -442,7 +442,7 @@
           $(document).bind("touchend mouseup", touchEnd);
           $(document).bind("touchmove mousemove", touchMove);
         }
-      }
+      };
       pub.stop = function() {
         if (active) {
           active = undefined;
@@ -452,9 +452,9 @@
         }
 
         picked = undefined;
-      }
+      };
       return pub;
-    };
+    }());
 
     // Actions
     var editmodeTimer;
@@ -486,7 +486,7 @@
         $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
 
-        dragAndDropHandler.start();
+        //dragAndDropHandler.start();
 
         clearTimeout(editmodeTimer);
         editmodeTimer = setTimeout(function() {
@@ -507,7 +507,7 @@
         $("ul#appgrid > li").each(function(i, item) {
           list.push($(item).attr("data-launcheritemid"));
         });
-        list.sort(function() {return 0.5 - Math.random()});
+        list.sort(function() {return 0.5 - Math.random();});
 
         $("ul#appgrid > li").each(function(i, item) {
           my.items.read($(item).attr("data-launcheritemid"), function(id, item) {
@@ -520,7 +520,7 @@
           });
         });
       }
-    }
+    };
 
     // Events
     $("#z-launcherpane").live("pagein", function() {
@@ -587,14 +587,14 @@
 
     // Special queue mechanism to handle add/remove animation.
     // It queues up action if animation is in progress.
-    var quicksandQueue = new function() {
+    var quicksandQueue = (function() {
       // @TODO generalize this function into generic utility
-      var list;
+      var i, len, list;
       function launch(pre, fn) {
         var i, len;
         if (list.length > 0) {
           pre();
-          for (var i=0, len=list.length; i<len; i++) {
+          for (i=0, len=list.length; i<len; i++) {
             list[i]();
           }
           list = [];
@@ -632,7 +632,7 @@
         list.push(fn);
       };
       return {queue: queue};
-    }
+    }());
 
     // Items handler listens to CRUD events from model
     my.items.handler = {
@@ -692,10 +692,6 @@
     };
   });
   </script>
-  <script type="text/javascript">
-
-  </script>
-
   <script id="launcheritemgroup-template" type="text/x-jquery-tmpl">
     <ul id="${id}" class="grid"></ul>
   </script>
