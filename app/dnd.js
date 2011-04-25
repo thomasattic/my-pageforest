@@ -2,24 +2,25 @@
 function DragAndDropHandler(conf) {
   var IS_TOUCH = 'ontouchstart' in window;
 
-  var picked;
+  var active, picked;
   var moveTimer;
   var lastClientX, lastClientY, clientX, clientY, startX, startY;
   var bounds;
-  var active;
 
   // 'conf': {
   //      container: '<<jquery-selector>>',
+  //      phantom: 'optional <<jquery-selector for phantom dom>>'
   //      attrid: 'optional <<attribute name of the item id>>',
   //      child: 'optional <<jquery-selector>>'
   // }
   var myconf = $.extend({
     attrid: "data-id",
+    phantom: "#phantom",
     onMove: function() {}
   }, conf);
 
   $(document).ready(function() {
-    $("#phantom").hide();
+    $(myconf.phantom).hide();
   });
 
   function findElement(x, y) {
@@ -49,7 +50,7 @@ function DragAndDropHandler(conf) {
     }
     return result;
   }
-  function moveElement(e) {
+  function moveElement() {
     if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
       var after = findElement(clientX, clientY);
       if (after !== picked) {
@@ -62,31 +63,22 @@ function DragAndDropHandler(conf) {
       }
     }
   }
-  function updateMousePosition(e, $el) {
+  function updateMousePosition(e) {
     var touch = IS_TOUCH? e.touches[0]: e;
     var $body = $("body");
     var offset = $body.offset();
-    var $phantom = $("#phantom");
+    var $phantom = $(myconf.phantom);
     var size = {height: $phantom.height(), width: $phantom.width()};
 
     var top = touch.clientY - offset.top - Math.floor(size.height/2);
     var left = touch.clientX - offset.left - Math.floor(size.width/2);
 
     $phantom
-       .css('top', top + 'px')
-       .css("left", left + 'px');
-
-    if ($el !== undefined) {
-      $phantom.show();
-      $phantom.css('background-image', $el.find(".icon").css('background-image'));
-    }
+      .css('top', top + 'px')
+      .css("left", left + 'px');
 
     clientX = touch.clientX;
     clientY = touch.clientY;
-    clearTimeout(moveTimer);
-    moveTimer = setTimeout(function() {
-      moveElement(e);
-    }, 50);
   }
   function tickleBounds() {
     bounds = [];
@@ -113,16 +105,25 @@ function DragAndDropHandler(conf) {
       picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
 
-      updateMousePosition(e, $el);
+      updateMousePosition(e);
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(function() {
+        moveElement(e);
+      }, 50);
+
+      var $phantom = $(myconf.phantom);
+      $phantom.show();
+      $phantom.css('background-image', $el.find(".icon").css('background-image'));
     }
   }
   function touchEnd(e) {
     if (picked) {
-      //$(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
       e.preventDefault();
     }
+    updateMousePosition(e);
     clearTimeout(moveTimer);
-    moveElement(e);
+
+    moveElement();
     picked = undefined;
   }
   function touchMove(e) {
@@ -130,7 +131,11 @@ function DragAndDropHandler(conf) {
       return;
     }
     e.preventDefault();
-    updateMousePosition(e);
+    updateMousePosition(e.originalEvent);
+    clearTimeout(moveTimer);
+    moveTimer = setTimeout(function() {
+      moveElement(e);
+    }, 50);
   }
 
   var pub = {};
@@ -158,7 +163,7 @@ function DragAndDropHandler(conf) {
       tickleBounds();
     }
     if (!picked) {
-      $("#phantom").hide();
+      $(myconf.phantom).hide();
       $(myconf.container).children(myconf.child).removeClass("invisible");
     }
   };
