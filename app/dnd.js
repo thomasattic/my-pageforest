@@ -110,6 +110,7 @@ function DragAndDropHandler(conf) {
     console.warn("bounds: " + JSON.stringify(bounds));
   }
   function touchStart(e) {
+    e.preventDefault();
     var $el = $(e.target);
     var item = myconf.container + " > " + (myconf.child || "*");
     if (!$el.is(item)) {
