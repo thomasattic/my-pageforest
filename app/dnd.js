@@ -52,6 +52,20 @@ function DragAndDropHandler(conf) {
     }
     return result;
   }
+  function moveElement(e) {
+    if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
+      var after = findElement(clientX, clientY);
+      if (after !== picked) {
+        myconf.onMove(picked, after, function() {
+          lastClientX = clientX;
+          lastClientY = clientY;
+          startX = clientX;
+          startY = clientY;
+          //tickleBounds();
+        });
+      }
+    }
+  }
   function updateMousePosition(e, $el) {
     var touch = IS_TOUCH? e.touches[0]: e;
     var $body = $("body");
@@ -74,18 +88,7 @@ function DragAndDropHandler(conf) {
     clientY = touch.clientY;
     clearTimeout(moveTimer);
     moveTimer = setTimeout(function() {
-      if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
-        var after = findElement(clientX, clientY);
-        if (after !== picked) {
-          myconf.onMove(picked, after, function() {
-            lastClientX = clientX;
-            lastClientY = clientY;
-            startX = clientX;
-            startY = clientY;
-            //tickleBounds();
-          });
-        }
-      }
+      moveElement(e);
     }, 250);
   }
   function tickleBounds() {
@@ -126,6 +129,7 @@ function DragAndDropHandler(conf) {
       e.preventDefault();
     }
     clearTimeout(moveTimer);
+    moveElement(e);
     picked = undefined;
   }
   function touchMove(e) {
