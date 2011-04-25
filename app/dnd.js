@@ -18,6 +18,10 @@ function DragAndDropHandler(conf) {
     onMove: function() {}
   }, conf);
 
+  $(document).ready(function() {
+    $("#phantom").hide();
+  });
+
   function findElement(x, y) {
     var result;
     var i, len;
@@ -61,7 +65,6 @@ function DragAndDropHandler(conf) {
           lastClientY = clientY;
           startX = clientX;
           startY = clientY;
-          //tickleBounds();
         });
       }
     }
@@ -81,6 +84,7 @@ function DragAndDropHandler(conf) {
        .css("left", left + 'px');
 
     if ($el !== undefined) {
+      $phantom.show();
       $phantom.css('background-image', $el.find(".icon").css('background-image'));
     }
 
@@ -113,19 +117,15 @@ function DragAndDropHandler(conf) {
     }
 
     if ($el.length > 0) {
-      //e.preventDefault();
-
       picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
-      $("body").addClass("dragmode");
 
       updateMousePosition(e, $el);
     }
   }
   function touchEnd(e) {
-    $("body").removeClass("dragmode");
     if (picked) {
-      $(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
+      //$(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
       e.preventDefault();
     }
     clearTimeout(moveTimer);
@@ -148,7 +148,7 @@ function DragAndDropHandler(conf) {
       $(document).bind("touchstart mousedown", touchStart);
       $(document).bind("touchend mouseup", touchEnd);
       $(document).bind("touchmove mousemove", touchMove);
-      tickleBounds();
+      pub.refresh();
     }
   };
   pub.stop = function() {
@@ -166,6 +166,7 @@ function DragAndDropHandler(conf) {
       tickleBounds();
     }
     if (!picked) {
+      $("#phantom").hide();
       $(myconf.container).children(myconf.child).removeClass("invisible");
     }
   };

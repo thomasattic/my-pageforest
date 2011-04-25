@@ -98,11 +98,6 @@
       -webkit-background-origin: content-box;
     }
 
-    body:not(.editmode) #phantom, body:not(.dragmode) #phantom {
-      display: none;
-      z-index: 0;
-    }
-
     .invisible {
       visibility: hidden;
     }
@@ -337,7 +332,7 @@
       },
       exitEditMode: function() {
         $("ul#appgrid.editmode").removeClass("editmode");
-        $('body').removeClass("editmode dragmode");
+        $('body').removeClass("editmode");
         $("ul#appgrid > li").removeClass("invisible active");
 
         dnd.stop();
