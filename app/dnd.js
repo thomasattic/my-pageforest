@@ -93,7 +93,7 @@ function DragAndDropHandler(conf) {
     clearTimeout(moveTimer);
     moveTimer = setTimeout(function() {
       moveElement(e);
-    }, 250);
+    }, 50);
   }
   function tickleBounds() {
     bounds = [];
