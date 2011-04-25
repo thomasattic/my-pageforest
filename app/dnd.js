@@ -105,7 +105,7 @@ function DragAndDropHandler(conf) {
       picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
 
-      updateMousePosition(e);
+      updateMousePosition(e.originalEvent);
       clearTimeout(moveTimer);
       moveTimer = setTimeout(function() {
         moveElement(e);
@@ -120,10 +120,10 @@ function DragAndDropHandler(conf) {
     if (picked) {
       e.preventDefault();
     }
-    updateMousePosition(e);
-    clearTimeout(moveTimer);
 
+    clearTimeout(moveTimer);
     moveElement();
+
     picked = undefined;
   }
   function touchMove(e) {
