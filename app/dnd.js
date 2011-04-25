@@ -25,33 +25,26 @@ function DragAndDropHandler(conf) {
   function findElement(x, y) {
     var result;
     var i, len;
-    var matchX, matchY, item;
-    var before = false;
-    console.warn("finding x: " + x + " y: " + y + " bounds.length " + bounds.length);
+    var before, item;
 
+    // Assume layout that flow from
+    //   left to right and top to bottom, either row or column
+    before = true;
+    result = bounds[bounds.length-1].appid;
     for (i=0, len=bounds.length; i<len; i++) {
       b = bounds[i];
-      matchX = startX >= b.left && startX < b.right;
-      matchY = startY >= b.top && startY < b.bottom;
-
-      if (matchX && matchY) {
-        if (x < b.right && y > b.bottom) {
-          before = true;
+      if (x <= b.right && y <= b.bottom) {
+        if (!before) {
+          result = b.appid;
+        } else if (i > 0) {
+          result = bounds[i-1].appid;
+        } else {
+          result = undefined;
         }
         break;
       }
-    }
-
-    if (!before) {
-      x = x - 124;
-    }
-    for (i=0, len=bounds.length; i<len; i++) {
-      b = bounds[i];
-      matchX = x >= b.left && x < b.right;
-      matchY = y >= b.top && y < b.bottom;
-      if (matchX && matchY) {
-        result = b.appid;
-        break;
+      if (b.appid === picked) {
+        before = false;
       }
     }
     return result;
@@ -107,7 +100,6 @@ function DragAndDropHandler(conf) {
           bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
       bounds.push(item);
     });
-    console.warn("bounds: " + JSON.stringify(bounds));
   }
   function touchStart(e) {
     e.preventDefault();
@@ -143,7 +135,6 @@ function DragAndDropHandler(conf) {
 
   var pub = {};
   pub.start = function() {
-    console.warn("dnd started");
     if (!active) {
       active = true;
       $(document).bind("touchstart mousedown", touchStart);
