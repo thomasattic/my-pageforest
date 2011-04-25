@@ -1,6 +1,10 @@
 
 function DragAndDropHandler(conf) {
   var IS_TOUCH = 'ontouchstart' in window;
+  var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
+  var MOVE_EVENT = IS_TOUCH? 'touchmove' : 'mousemove';
+  var END_EVENT = IS_TOUCH? 'touchend' : 'mouseup';
+  var CANCEL_EVENT = IS_TOUCH? 'touchcancel' : 'mouseout'; // mouseout on document
 
   var active, picked;
   var moveTimer;
@@ -64,7 +68,7 @@ function DragAndDropHandler(conf) {
     }
   }
   function updateMousePosition(e) {
-    var touch = IS_TOUCH? e.touches[0]: e;
+    var touch = IS_TOUCH? e.changedTouches[0]: e;
     var $body = $("body");
     var offset = $body.offset();
     var $phantom = $(myconf.phantom);
@@ -142,18 +146,18 @@ function DragAndDropHandler(conf) {
   pub.start = function() {
     if (!active) {
       active = true;
-      $(document).bind("touchstart mousedown", touchStart);
-      $(document).bind("touchend mouseup", touchEnd);
-      $(document).bind("touchmove mousemove", touchMove);
+      $(document).bind(START_EVENT, touchStart);
+      $(document).bind(END_EVENT, touchEnd);
+      $(document).bind(MOVE_EVENT, touchMove);
       pub.refresh();
     }
   };
   pub.stop = function() {
     if (active) {
       active = undefined;
-      $(document).unbind("touchstart mousedown", touchStart);
-      $(document).unbind("touchend mouseup", touchEnd);
-      $(document).unbind("touchmove mousemove", touchMove);
+      $(document).unbind(START_EVENT, touchStart);
+      $(document).unbind(END_EVENT, touchEnd);
+      $(document).unbind(MOVE_EVENT, touchMove);
     }
 
     picked = undefined;
