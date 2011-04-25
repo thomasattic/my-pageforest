@@ -1,16 +1,22 @@
 
 function DragAndDropHandler(conf) {
-  var isTouch = 'ontouchstart' in window;
-
-  var myconf = $.extend({
-    onMove: function() {}
-  }, conf);
+  var IS_TOUCH = 'ontouchstart' in window;
 
   var picked;
   var moveTimer;
   var lastClientX, lastClientY, clientX, clientY, startX, startY;
   var bounds;
   var active;
+
+  // 'conf' requires {
+  //      container: '<<jquery-selector>>',
+  //      attrid: '<<attribute name of the item id>>',
+  //      child: 'optional <<jquery-selector>>'
+  // }
+  var myconf = $.extend({
+    onMove: function() {}
+  }, conf);
+
   function findElement(x, y) {
     var result;
     var i, len;
@@ -45,8 +51,8 @@ function DragAndDropHandler(conf) {
     }
     return result;
   }
-  function updatePoint(e, $el) {
-    var touch = isTouch ? e.touches[0] : e;
+  function updateMousePosition(e, $el) {
+    var touch = IS_TOUCH? e.touches[0]: e;
     var $body = $("body");
     var offset = $body.offset();
     var $phantom = $("#phantom");
@@ -58,6 +64,7 @@ function DragAndDropHandler(conf) {
     $phantom
        .css('top', top + 'px')
        .css("left", left + 'px');
+
     if ($el !== undefined) {
       $phantom.css('background-image', $el.find(".icon").css('background-image'));
     }
@@ -68,14 +75,13 @@ function DragAndDropHandler(conf) {
     moveTimer = setTimeout(function() {
       if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
         var after = findElement(clientX, clientY);
-        if (after !== id) {
-          var id = $(picked).attr(myconf.attrid);
-          myconf.onMove(id, after, function() {
+        if (after !== picked) {
+          myconf.onMove(picked, after, function() {
             lastClientX = clientX;
             lastClientY = clientY;
             startX = clientX;
             startY = clientY;
-            tickleBounds();
+            //tickleBounds();
           });
         }
       }
@@ -83,7 +89,7 @@ function DragAndDropHandler(conf) {
   }
   function tickleBounds() {
     bounds = [];
-    $(myconf.div).each(function(i, li) {
+    $(myconf.container).children(myconf.child).each(function(i, li) {
 
       var $li = $(li);
       var offset = $li.offset();
@@ -93,35 +99,30 @@ function DragAndDropHandler(conf) {
           bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
       bounds.push(item);
     });
+    console.warn("bounds: " + JSON.stringify(bounds));
   }
   function touchStart(e) {
     var $el = $(e.target);
-    if (!$el.is(myconf.div)) {
-      $el = $(e.target).closest(myconf.div);
+    var item = myconf.container + " > " + (myconf.child || "*");
+    if (!$el.is(item)) {
+      $el = $(e.target).closest(item);
     }
-    var appid = $el.attr(myconf.attrid);
-    picked = myconf.div + "[" + myconf.attrid + "='" + appid + "']";
 
-    var $body = $("body");
     if ($el.length > 0) {
       //e.preventDefault();
+
+      picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
-      $body.addClass("dragmode");
+      $("body").addClass("dragmode");
 
-      var touch = isTouch ? e.touches[0] : e;
-      clientX = touch.clientX;
-      clientY = touch.clientY;
-
-      updatePoint(e, $el);
-
-      tickleBounds();
+      updateMousePosition(e, $el);
     }
   }
   function touchEnd(e) {
     var $body = $("body");
     $body.removeClass("dragmode");
-    $(picked).removeClass("invisible");
-    $(myconf.div).removeClass("invisible");
+    $(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
+    $(myconf.container).removeClass("invisible");
     if (picked) {
       e.preventDefault();
     }
@@ -133,16 +134,18 @@ function DragAndDropHandler(conf) {
       return;
     }
     e.preventDefault();
-    updatePoint(e);
+    updateMousePosition(e);
   }
 
   var pub = {};
   pub.start = function() {
+    console.warn("dnd started");
     if (!active) {
       active = true;
       $(document).bind("touchstart mousedown", touchStart);
       $(document).bind("touchend mouseup", touchEnd);
       $(document).bind("touchmove mousemove", touchMove);
+      tickleBounds();
     }
   };
   pub.stop = function() {
@@ -154,6 +157,11 @@ function DragAndDropHandler(conf) {
     }
 
     picked = undefined;
+  };
+  pub.refresh = function() {
+    if (active) {
+      tickleBounds();
+    }
   };
   return pub;
 };

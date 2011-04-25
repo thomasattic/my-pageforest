@@ -298,18 +298,7 @@
       addApp('editor', {staple: true});
     });
 
-    var dnd = new DragAndDropHandler({
-      div: "ul#appgrid > li",
-      attrid: "data-id",
-      onMove: function(id, afterid, fn) {
-        my.items.read(id, function(id, item, fn) {
-          item.after = afterid;
-          my.items.update(id, item, fn);
-        });
-      }
-    });
-
-    // Actions
+    // Logical Actions
     var editmodeTimer;
     var actions = {
       addApp: function(event, info) {
@@ -375,7 +364,18 @@
       }
     };
 
-    // Events
+    // UI Events
+    var dnd = new DragAndDropHandler({
+      container: "ul#appgrid",
+      attrid: "data-id",
+      onMove: function(id, afterid, fn) {
+        my.items.read(id, function(id, item, fn) {
+          item.after = afterid;
+          my.items.update(id, item, fn);
+        });
+      }
+    });
+
     $("#z-launcherpane").live("pagein", function() {
       caller = this;
       args = Array.prototype.slice.call(arguments);
@@ -389,6 +389,10 @@
       $("#exitedit").live("click", actions.exitEditMode, false);
       $("#randomize").live("click", actions.randomize, false);
     });
+
+    function animationEnded() {
+      dnd.refresh();
+    };
 
     function prepItem(newitem) {
       var $newitem = $(newitem);
@@ -441,7 +445,7 @@
     // Special queue mechanism to handle add/remove animation.
     // It queues up action if animation is in progress.
     var quicksandQueue = (function() {
-      // @TODO generalize this function into generic utility
+      // @TODO generalize this function into a generic utility
       var i, len, list;
       function launch(pre, fn) {
         var i, len;
@@ -476,6 +480,7 @@
               $("ul#appgrid > li").each(function(i, item) {
                 prepItem(item);
               });
+              animationEnded();
             });
           }, 100);
         }

@@ -20,7 +20,13 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         handler: {added: function() {}, removed: function() {}, updated: function() {}},
         appid: undefined,
         read: function(id, fn, err) {
-          fn(id, displayeditems[id]);
+          if (displayeditems[id] !== undefined) {
+            fn(id, displayeditems[id]);
+          } else if (!!err) {
+            err();
+          } else {
+            console.error("[" + items.name + "] Cannot find item, '" + id + "'."); 
+          }
         },
         create: function(id, item, fn, err) {
             modelReadyLatch.bind(function() {
