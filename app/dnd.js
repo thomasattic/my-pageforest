@@ -8,12 +8,13 @@ function DragAndDropHandler(conf) {
   var bounds;
   var active;
 
-  // 'conf' requires {
+  // 'conf': {
   //      container: '<<jquery-selector>>',
-  //      attrid: '<<attribute name of the item id>>',
+  //      attrid: 'optional <<attribute name of the item id>>',
   //      child: 'optional <<jquery-selector>>'
   // }
   var myconf = $.extend({
+    attrid: "data-id",
     onMove: function() {}
   }, conf);
 
@@ -119,11 +120,9 @@ function DragAndDropHandler(conf) {
     }
   }
   function touchEnd(e) {
-    var $body = $("body");
-    $body.removeClass("dragmode");
-    $(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
-    $(myconf.container).removeClass("invisible");
+    $("body").removeClass("dragmode");
     if (picked) {
+      $(myconf.container).children("[" + myconf.attrid + "='" + picked + "']").removeClass("invisible");
       e.preventDefault();
     }
     clearTimeout(moveTimer);
@@ -161,6 +160,9 @@ function DragAndDropHandler(conf) {
   pub.refresh = function() {
     if (active) {
       tickleBounds();
+    }
+    if (!picked) {
+      $(myconf.container).children(myconf.child).removeClass("invisible");
     }
   };
   return pub;

@@ -367,7 +367,6 @@
     // UI Events
     var dnd = new DragAndDropHandler({
       container: "ul#appgrid",
-      attrid: "data-id",
       onMove: function(id, afterid, fn) {
         my.items.read(id, function(id, item, fn) {
           item.after = afterid;
