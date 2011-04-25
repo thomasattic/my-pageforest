@@ -156,8 +156,8 @@
 
      API reference: http://code.google.com/p/pageforest/wiki/ClientLibrary
     -->
-
   <script src="/lib/beta/js/pf-client.js" type="application/x-javascript" charset="utf-8"></script>
+
   <script src="./jslib/lib/date.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/lib/json2.js" type="text/javascript" charset="utf-8"></script>
   <script src="./jslib/lib/jquery.jsonp-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
@@ -165,6 +165,7 @@
   <script src="./jslib/beedesk/utilities.js" type="application/x-javascript" charset="utf-8"></script>
 
   <script src="./jslib/jqtouch/jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
+  <script src="./dnd.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/jqtouch/extensions/iscroll/iscroll.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/touchlayer/src/gestures.js" type="application/x-javascript" charset="utf-8"></script>
   <script src="./jslib/beedesk/jqt.js" type="application/x-javascript" charset="utf-8"></script>
@@ -190,7 +191,7 @@
       if (loggedin) window.location.reload();
     });
 
-    // -- Add Application Logic
+    // <Application Adding>
     // Add application should wait until setDoc() is first called
     var modelReadyLatch = Threads.latchbinder();
     my.modelReady.push(modelReadyLatch.latch);
@@ -278,7 +279,7 @@
         }
       } // these method can look much simpler if we use library such as "Promise".
     }
-    // --/Add Application Logic
+    // </Application Adding>
 
     // Manage display to indicate state
     modelReadyLatch.bind(function() {
@@ -297,164 +298,16 @@
       addApp('editor', {staple: true});
     });
 
-    var dragAndDropHandler = (function() {
-      var isTouch = 'ontouchstart' in window;
-
-      var picked;
-      var moveTimer;
-      var lastClientX, lastClientY;
-      var clientX, clientY;
-      var startX, startY;
-      var bounds;
-      var active;
-      function findElement(x, y) {
-        var result;
-        var i, len;
-        var matchX, matchY, item;
-        var before = false;
-        console.warn("finding x: " + x + " y: " + y + " bounds.length " + bounds.length);
-
-        for (i=0, len=bounds.length; i<len; i++) {
-          b = bounds[i];
-          matchX = startX >= b.left && startX < b.right;
-          matchY = startY >= b.top && startY < b.bottom;
-
-          if (matchX && matchY) {
-            if (x < b.right && y > b.bottom) {
-              before = true;
-            }
-            break;
-          }
-        }
-
-        if (!before) {
-          x = x - 124;
-        }
-        for (i=0, len=bounds.length; i<len; i++) {
-          b = bounds[i];
-          matchX = x >= b.left && x < b.right;
-          matchY = y >= b.top && y < b.bottom;
-          if (matchX && matchY) {
-            result = b.appid;
-            break;
-          }
-        }
-        return result;
-      }
-      function updatePoint(e, $el) {
-        var touch = isTouch ? e.touches[0] : e;
-        var $body = $("body");
-        var offset = $body.offset();
-        var $phantom = $("#phantom");
-        var size = {height: $phantom.height(), width: $phantom.width()};
-
-        var top = touch.clientY - offset.top - Math.floor(size.height/2);
-        var left = touch.clientX - offset.left - Math.floor(size.width/2);
-
-        $phantom
-           .css('top', top + 'px')
-           .css("left", left + 'px');
-        if ($el !== undefined) {
-          $phantom.css('background-image', $el.find(".icon").css('background-image'));
-        }
-
-        clientX = touch.clientX;
-        clientY = touch.clientY;
-        clearTimeout(moveTimer);
-        moveTimer = setTimeout(function() {
-          if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
-            var id = $(picked).attr("data-launcheritemid");
-            my.items.read(id, function(id, item) {
-              var after = findElement(clientX, clientY);
-              if (after !== id) {
-                item.after = after;
-              }
-              my.items.update(id, item);
-              lastClientX = clientX;
-              lastClientY = clientY;
-              startX = clientX;
-              startY = clientY;
-              tickleBounds();
-            });
-          }
-        }, 250);
-      }
-      function tickleBounds() {
-        bounds = [];
-        $("ul#appgrid > li").each(function(i, li) {
-
-          var $li = $(li);
-          var offset = $li.offset();
-          var appid = $li.attr("data-launcheritemid");
-          var margin = 30; //@TODO -- hardcode px!
-          var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
-              bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
-          bounds.push(item);
+    var dnd = new DragAndDropHandler({
+      div: "ul#appgrid > li",
+      attrid: "data-id",
+      onMove: function(id, afterid, fn) {
+        my.items.read(id, function(id, item, fn) {
+          item.after = afterid;
+          my.items.update(id, item, fn);
         });
       }
-      function touchStart(e) {
-        var $el = $(e.target);
-        if (!$el.is("ul#appgrid > li")) {
-          $el = $(e.target).closest("ul#appgrid > li");
-        }
-        var appid = $el.attr("data-launcheritemid");
-        picked = "ul#appgrid > li[data-launcheritemid='" + appid + "']";
-
-        var $body = $("body");
-        if ($el.length > 0) {
-          //e.preventDefault();
-          $el.addClass("invisible");
-          $body.addClass("dragmode");
-
-          var touch = isTouch ? e.touches[0] : e;
-          clientX = touch.clientX;
-          clientY = touch.clientY;
-
-          updatePoint(e, $el);
-
-          tickleBounds();
-        }
-      }
-      function touchEnd(e) {
-        var $body = $("body");
-        $body.removeClass("dragmode");
-        $(picked).removeClass("invisible");
-        $("ul#appgrid > li").removeClass("invisible");
-        if (picked) {
-          e.preventDefault();
-        }
-        clearTimeout(moveTimer);
-        picked = undefined;
-      }
-      function touchMove(e) {
-        if (!picked) {
-          return;
-        }
-        e.preventDefault();
-        updatePoint(e);
-      }
-
-      var pub = {};
-      pub.start = function() {
-        if (!active) {
-          active = true;
-          $(document).bind("touchstart mousedown", touchStart);
-          $(document).bind("touchend mouseup", touchEnd);
-          $(document).bind("touchmove mousemove", touchMove);
-        }
-      };
-      pub.stop = function() {
-        if (active) {
-          active = undefined;
-          $(document).unbind("touchstart mousedown", touchStart);
-          $(document).unbind("touchend mouseup", touchEnd);
-          $(document).unbind("touchmove mousemove", touchMove);
-        }
-
-        picked = undefined;
-      };
-      return pub;
-    }());
+    });
 
     // Actions
     var editmodeTimer;
@@ -486,7 +339,7 @@
         $("ul#appgrid").addClass("editmode");
         $('body').addClass("editmode");
 
-        dragAndDropHandler.start();
+        dnd.start();
 
         clearTimeout(editmodeTimer);
         editmodeTimer = setTimeout(function() {
@@ -498,7 +351,7 @@
         $('body').removeClass("editmode dragmode");
         $("ul#appgrid > li").removeClass("invisible active");
 
-        dragAndDropHandler.stop();
+        dnd.stop();
 
         clearTimeout(editmodeTimer);
       },
