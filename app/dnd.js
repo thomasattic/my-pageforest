@@ -66,7 +66,11 @@ function DragAndDropHandler(conf) {
     result = cur >= 0? bounds[cur]: undefined;
     return result;
   }
-  function moveElement() {
+  function snapToHome() {
+    $(myconf.phantom).hide();
+    $(myconf.container).children(myconf.child).removeClass("invisible");
+  }
+  function moveElement(ended) {
     if (!picked) {
       return;
     }
@@ -79,10 +83,12 @@ function DragAndDropHandler(conf) {
           rank = newrank;
         });
       } else {
-        console.warn("no rank move: " + picked);
+        if (ended) {
+          snapToHome();
+        }
       }
     } else {
-      console.warn("no mouse move: " + picked);
+      snapToHome();
     }
   }
   function updateMousePosition(e) {
@@ -130,7 +136,7 @@ function DragAndDropHandler(conf) {
       
       clearTimeout(moveTimer);
       moveTimer = setTimeout(function() {
-        moveElement(e);
+        moveElement();
       }, 50);
 
       var $phantom = $(myconf.phantom);
@@ -144,7 +150,7 @@ function DragAndDropHandler(conf) {
       
       updateMousePosition(e.originalEvent);
       clearTimeout(moveTimer);
-      moveElement();
+      moveElement(true);
       picked = undefined;
     }
   }
@@ -156,8 +162,8 @@ function DragAndDropHandler(conf) {
     updateMousePosition(e.originalEvent);
     clearTimeout(moveTimer);
     moveTimer = setTimeout(function() {
-      moveElement(e);
-    }, 50);
+      moveElement();
+    }, 125);
   }
   function installTapholdActivator() {
     function clearTapholdTimeout() {
@@ -208,7 +214,6 @@ function DragAndDropHandler(conf) {
 
       installTapholdActivator();
     }
-
     picked = undefined;
   };
   function refresh() {
@@ -216,8 +221,7 @@ function DragAndDropHandler(conf) {
       measureBounds();
     }
     if (!picked) {
-      $(myconf.phantom).hide();
-      $(myconf.container).children(myconf.child).removeClass("invisible");
+      snapToHome();
     }
   };
 
