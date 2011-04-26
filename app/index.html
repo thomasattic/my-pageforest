@@ -453,7 +453,7 @@
           list = [];
           $("#appgrid").quicksand($("ul#replacement > li"), function() {
             launch(pre, fn);
-          });
+          }, {duration: 250});
         } else {
           fn();
           list = undefined;
