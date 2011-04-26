@@ -367,7 +367,9 @@
           item.after = afterid;
           my.items.update(id, item, fn);
         });
-      }
+      },
+      activateOnTaphold: true,
+      margin: 30
     });
 
     $("#z-launcherpane").live("pagein", function() {
@@ -390,7 +392,7 @@
 
     function prepItem(newitem) {
       var $newitem = $(newitem);
-      gt(newitem).on('taphold', actions.enterEditMode);
+      gt(newitem).on('taphold', actions.enterEditMode, { retain: 1250 });
 
       var $deleteicon = $newitem.find(".deleteicon");
       gt($deleteicon[0]).on('tap', function(event) {
@@ -432,7 +434,7 @@
             console.warn("Cannot located href.");
           }
         }
-      }, {expire: 750});
+      }, {expire: 1200});
       $newitem.bind("tap", false);
     }
 
@@ -520,7 +522,6 @@
       },
       updated: function(event) {
         function updateItem() {
-          console.warn("updating: " + event.id + " hasAfter? " + ("after" in event) + " after: " + event.after);
           var appid = event.id;
           var $item = $("ul#replacement > li[data-launcheritemid=" + appid + "]");
           if ("after" in event) {

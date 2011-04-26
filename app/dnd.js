@@ -7,27 +7,27 @@ function DragAndDropHandler(conf) {
   var CANCEL_EVENT = IS_TOUCH? 'touchcancel' : 'mouseout'; // mouseout on document
 
   var active, picked;
-  var moveTimer;
-  var lastClientX, lastClientY, clientX, clientY, startX, startY;
+  var lastClientX, lastClientY, clientX, clientY;
   var bounds;
+  var moveTimer, tapholdTimer;
 
   // 'conf': {
   //      container: '<<jquery-selector>>',
   //      phantom: 'optional <<jquery-selector for phantom dom>>'
   //      attrid: 'optional <<attribute name of the item id>>',
-  //      child: 'optional <<jquery-selector>>'
+  //      child: 'optional <<jquery-selector>>',
+  //      margin: 'optional <<number>>' //@TODO - to be rid of
   // }
   var myconf = $.extend({
     attrid: "data-id",
     phantom: "#phantom",
-    onMove: function() {}
+    onMove: function() {},
+    activateOnTaphold: false,
+    tapholdThreshold: 1000,
+    margin: 0
   }, conf);
 
-  $(document).ready(function() {
-    $(myconf.phantom).hide();
-  });
-
-  function findElement(x, y) {
+  function findElement() {
     var result;
     var i, len;
     var before, item;
@@ -35,10 +35,10 @@ function DragAndDropHandler(conf) {
     // Assume layout that flow from
     //   left to right and top to bottom, either row or column
     before = true;
-    result = bounds[bounds.length-1].appid;
+    result = bounds.length >= 1? bounds[bounds.length-1].appid: undefined;
     for (i=0, len=bounds.length; i<len; i++) {
       b = bounds[i];
-      if (x <= b.right && y <= b.bottom) {
+      if (clientX <= b.right && clientY <= b.bottom) {
         if (!before) {
           result = b.appid;
         } else if (i > 0) {
@@ -56,13 +56,11 @@ function DragAndDropHandler(conf) {
   }
   function moveElement() {
     if (picked && (lastClientX !== clientX || lastClientY !== clientY)) {
-      var after = findElement(clientX, clientY);
+      var after = findElement();
       if (after !== picked) {
         myconf.onMove(picked, after, function() {
           lastClientX = clientX;
           lastClientY = clientY;
-          startX = clientX;
-          startY = clientY;
         });
       }
     }
@@ -73,25 +71,27 @@ function DragAndDropHandler(conf) {
     var offset = $body.offset();
     var $phantom = $(myconf.phantom);
     var size = {height: $phantom.height(), width: $phantom.width()};
+    var top, left;
 
-    var top = touch.clientY - offset.top - Math.floor(size.height/2);
-    var left = touch.clientX - offset.left - Math.floor(size.width/2);
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+
+    top = clientY - offset.top - Math.floor(size.height/2);
+    left = clientX - offset.left - Math.floor(size.width/2);
 
     $phantom
       .css('top', top + 'px')
       .css("left", left + 'px');
 
-    clientX = touch.clientX;
-    clientY = touch.clientY;
   }
-  function tickleBounds() {
+  function measureBounds() {
     bounds = [];
     $(myconf.container).children(myconf.child).each(function(i, li) {
 
       var $li = $(li);
       var offset = $li.offset();
       var appid = $li.attr(myconf.attrid);
-      var margin = 30; //@TODO -- hardcode px!
+      var margin = myconf.margin;
       var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
           bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
       bounds.push(item);
@@ -125,6 +125,7 @@ function DragAndDropHandler(conf) {
       e.preventDefault();
     }
 
+    updateMousePosition(e.originalEvent);
     clearTimeout(moveTimer);
     moveElement();
 
@@ -140,6 +141,37 @@ function DragAndDropHandler(conf) {
     moveTimer = setTimeout(function() {
       moveElement(e);
     }, 50);
+  }
+  function installTapholdActivator() {
+    function clearTapholdTimeout() {
+      clearTimeout(tapholdTimer);
+      tapholdTimer = undefined;
+    }
+    function tapholdActivator(e) {
+      var evt = e.originalEvent;
+      var startEvent = {
+          target: e.target,
+          preventDefault: function() {},
+          originalEvent: {
+            target: evt.target,
+            preventDefault: function() {},
+            clientX: evt.clientX, clientY: evt.clientY,
+            changedTouches: evt.changedTouches, touches: evt.touches
+          }
+      };
+
+      $(document).unbind(START_EVENT, tapholdActivator);
+      $(document).bind(END_EVENT, clearTapholdTimeout);
+      tapholdTimer = setTimeout(function() {
+        console.error("tap hold activated!!");
+        clearTapholdTimeout();
+        $(document).unbind(END_EVENT, clearTapholdTimeout);
+        touchStart(startEvent);
+      }, myconf.tapholdThreshold);
+    }
+    if (myconf.activateOnTaphold) {
+      $(document).bind(START_EVENT, tapholdActivator);
+    }
   }
 
   var pub = {};
@@ -158,18 +190,29 @@ function DragAndDropHandler(conf) {
       $(document).unbind(START_EVENT, touchStart);
       $(document).unbind(END_EVENT, touchEnd);
       $(document).unbind(MOVE_EVENT, touchMove);
+
+      installTapholdActivator();
     }
 
     picked = undefined;
   };
   pub.refresh = function() {
     if (active) {
-      tickleBounds();
+      measureBounds();
     }
     if (!picked) {
       $(myconf.phantom).hide();
       $(myconf.container).children(myconf.child).removeClass("invisible");
     }
   };
+
+  $(document).ready(function() {
+    $(myconf.phantom).hide();
+
+    $(document).bind(END_EVENT, touchEnd);
+    $(document).bind(MOVE_EVENT, touchMove);
+    pub.refresh();
+  });
+
   return pub;
 };
