@@ -44,6 +44,32 @@
        background-color: #EEE;
     }
 
+    body #phantom {
+      display: block; position: absolute;
+      width: 64px; height: 64px;
+      background-color: rgba(255, 255, 255, 0.5);
+      -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+      -webkit-user-drag: none;
+      cursor: pointer;
+      z-index: 5; opacity: 0.7;
+      background-repeat: no-repeat;
+      -webkit-background-size: contain;
+      background-size: contain;
+      background-position: 50% 50%;
+      -webkit-background-origin: content-box;
+      -webkit-transition-duration: 250ms;
+      -webkit-transition-timing-function: linear;
+      -webkit-transition-property: width, height;
+    }
+
+    body #phantom.active {
+      width: 72px; height: 72px;
+    }
+
+    .invisible {
+      visibility: hidden;
+    }
+
     @media only screen and (min-device-width: 768px) {
       #jqt > #z-launcherpane ul.grid li .icon {
          width: 64px;
@@ -55,51 +81,6 @@
       #jqt > #z-launcherpane ul.grid li .icon .mask {
          background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
       }
-    }
-
-    #jqt:not(.initstate) .showoninit {
-       display: none;
-    }
-
-    #jqt:not(.nouserstate) .showonnouser {
-       display: none;
-    }
-
-    #pfSave,
-    .nonpage,
-    .hidden,
-    .hidden > * {
-       display: none;
-    }
-
-    #jqt .emboss {
-      display: block; position: relative;
-      -webkit-box-sizing: border-box;
-      width: 100%; line-height: 20px;
-      padding: 15px; padding-top: 20% !important;
-      border-top: 1px solid rgba(76, 86, 108, .3);
-      color: rgb(76, 76, 76);
-      font-size: 16px; font-weight: bold; text-shadow: rgba(255,255,255,.8) 0 1px 0;
-      text-align: center;
-    }
-
-    body #phantom {
-      display: block; position: absolute;
-      width: 72px; height: 72px;
-      background-color: rgba(255, 255, 255, 0.5);
-      -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
-      -webkit-user-drag: none;
-      cursor: pointer;
-      z-index: 5; opacity: 0.7;
-      background-repeat: no-repeat;
-      -webkit-background-size: contain;
-      background-size: contain;
-      background-position: 50% 50%;
-      -webkit-background-origin: content-box;
-    }
-
-    .invisible {
-      visibility: hidden;
     }
 
     .buttonbar {
@@ -137,6 +118,32 @@
 
     body:not(.editmode) .buttonbar {
       display: none;
+    }
+
+    #jqt:not(.initstate) .showoninit {
+       display: none;
+    }
+
+    #jqt:not(.nouserstate) .showonnouser {
+       display: none;
+    }
+
+    #pfSave,
+    .nonpage,
+    .hidden,
+    .hidden > * {
+       display: none;
+    }
+
+    #jqt .emboss {
+      display: block; position: relative;
+      -webkit-box-sizing: border-box;
+      width: 100%; line-height: 20px;
+      padding: 15px; padding-top: 20% !important;
+      border-top: 1px solid rgba(76, 86, 108, .3);
+      color: rgb(76, 76, 76);
+      font-size: 16px; font-weight: bold; text-shadow: rgba(255,255,255,.8) 0 1px 0;
+      text-align: center;
     }
   </style>
 
@@ -436,6 +443,10 @@
         }
       }, {expire: 1200});
       $newitem.bind("tap", false);
+
+      $newitem.css('-webkit-touch-callout', 'none');
+      $newitem.css('-webkit-user-drag', 'none');
+
     }
 
     // Special queue mechanism to handle add/remove animation.

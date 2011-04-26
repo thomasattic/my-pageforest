@@ -67,8 +67,31 @@ function DragAndDropHandler(conf) {
     return result;
   }
   function snapToHome() {
-    $(myconf.phantom).hide();
+    $(myconf.phantom).removeClass().hide();
     $(myconf.container).children(myconf.child).removeClass("invisible");
+  }
+  function snapToMouse() {
+    var $phantom = $(myconf.phantom);
+    $phantom.show().addClass("active");
+
+    var $el = $(myconf.container).children("[" + myconf.attrid + "='"+ picked + "']");
+    $phantom.css('background-image', $el.find(".icon").css('background-image'));
+  }
+  function updateMousePosition(e) {
+    var touch = IS_TOUCH? e.changedTouches[0]: e;
+    var $body = $("body");
+    var offset = $body.offset();
+    var $phantom = $(myconf.phantom);
+    var size = {height: $phantom.height(), width: $phantom.width()};
+    var top, left;
+
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+
+    top = clientY - offset.top - Math.floor(size.height/2);
+    left = clientX - offset.left - Math.floor(size.width/2);
+
+    $phantom.css('top', top + 'px').css("left", left + 'px');
   }
   function moveElement(ended) {
     if (!picked) {
@@ -90,22 +113,6 @@ function DragAndDropHandler(conf) {
     } else {
       snapToHome();
     }
-  }
-  function updateMousePosition(e) {
-    var touch = IS_TOUCH? e.changedTouches[0]: e;
-    var $body = $("body");
-    var offset = $body.offset();
-    var $phantom = $(myconf.phantom);
-    var size = {height: $phantom.height(), width: $phantom.width()};
-    var top, left;
-
-    clientX = touch.clientX;
-    clientY = touch.clientY;
-
-    top = clientY - offset.top - Math.floor(size.height/2);
-    left = clientX - offset.left - Math.floor(size.width/2);
-
-    $phantom.css('top', top + 'px').css("left", left + 'px');
   }
   function measureBounds() {
     bounds = [];
@@ -133,21 +140,19 @@ function DragAndDropHandler(conf) {
       $el.addClass("invisible");
 
       updateMousePosition(e.originalEvent);
-      
+
       clearTimeout(moveTimer);
       moveTimer = setTimeout(function() {
         moveElement();
       }, 50);
 
-      var $phantom = $(myconf.phantom);
-      $phantom.show();
-      $phantom.css('background-image', $el.find(".icon").css('background-image'));
+      snapToMouse();
     }
   }
   function touchEnd(e) {
     if (picked) {
       e.preventDefault();
-      
+
       updateMousePosition(e.originalEvent);
       clearTimeout(moveTimer);
       moveElement(true);
