@@ -1,4 +1,53 @@
 
+(function($) {
+
+  $.fn.dash = function(type, fn, options) {
+    var myoptions = {
+       end: undefined,
+       threshold: 1250
+    };
+    $.extend(myoptions, options);
+
+    var instance = this;
+
+    var dashTimer;
+    function clearDashTimeout() {
+      clearTimeout(dashTimer);
+      dashTimer = undefined;
+    }
+    function dashActivator(e) {
+      var evt = e.originalEvent;
+      var startEvent = {
+          target: e.target,
+          preventDefault: function() {},
+          originalEvent: {
+            target: evt.target,
+            preventDefault: function() {},
+            clientX: evt.clientX, clientY: evt.clientY,
+            changedTouches: evt.changedTouches, touches: evt.touches
+          }
+      };
+
+      if (!!myoptions.end) {
+        instance.one(myoptions.end, clearDashTimeout);
+      }
+      dashTimer = setTimeout(function() {
+        clearDashTimeout();
+
+        if (!!myoptions.end) {
+          instance.unbind(myoptions.end, clearDashTimeout);
+        }
+        fn(startEvent);
+      }, myoptions.threshold);
+    }
+
+    if (!!myoptions.end) {
+      instance.unbind(myoptions.end, clearDashTimeout);
+    }
+    instance.one(type, dashActivator);
+  }
+})(jQuery);
+
 function DragAndDropHandler(conf) {
   var IS_TOUCH = 'ontouchstart' in window;
   var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
@@ -170,37 +219,6 @@ function DragAndDropHandler(conf) {
       moveElement();
     }, 125);
   }
-  function installTapholdActivator() {
-    function clearTapholdTimeout() {
-      clearTimeout(tapholdTimer);
-      tapholdTimer = undefined;
-    }
-    function tapholdActivator(e) {
-      var evt = e.originalEvent;
-      var startEvent = {
-          target: e.target,
-          preventDefault: function() {},
-          originalEvent: {
-            target: evt.target,
-            preventDefault: function() {},
-            clientX: evt.clientX, clientY: evt.clientY,
-            changedTouches: evt.changedTouches, touches: evt.touches
-          }
-      };
-
-      $(document).one(END_EVENT, clearTapholdTimeout);
-      tapholdTimer = setTimeout(function() {
-        clearTapholdTimeout();
-        $(document).unbind(END_EVENT, clearTapholdTimeout);
-        measureBounds();
-        touchStart(startEvent);
-      }, myconf.tapholdThreshold);
-    }
-    if (myconf.activateOnTaphold) {
-      $(document).unbind(END_EVENT, clearTapholdTimeout);
-      $(document).one(START_EVENT, tapholdActivator);
-    }
-  }
   function start() {
     if (!active) {
       active = true;
@@ -211,13 +229,18 @@ function DragAndDropHandler(conf) {
     }
   };
   function stop() {
+    $(myconf.phantom).hide();
+    $(document).dash(START_EVENT, function(event) {
+      measureBounds();
+      touchStart(event);
+    }, {end: END_EVENT, threshold: 1250});
+
     if (active) {
       active = undefined;
       $(document).unbind(START_EVENT, touchStart);
       $(document).unbind(END_EVENT, touchEnd);
       $(document).unbind(MOVE_EVENT, touchMove);
 
-      installTapholdActivator();
     }
     picked = undefined;
   };
@@ -231,8 +254,7 @@ function DragAndDropHandler(conf) {
   };
 
   $(document).ready(function() {
-    $(myconf.phantom).hide();
-    installTapholdActivator();
+    stop();
   });
 
   var pub = {
