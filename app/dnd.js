@@ -10,6 +10,7 @@ function DragAndDropHandler(conf) {
   var lastClientX, lastClientY, clientX, clientY;
   var bounds;
   var moveTimer, tapholdTimer;
+  var bus = [];
 
   // 'conf': {
   //      container: '<<jquery-selector>>',
@@ -66,9 +67,26 @@ function DragAndDropHandler(conf) {
     result = cur >= 0? bounds[cur]: undefined;
     return result;
   }
-  function snapToHome() {
+  function snapToHome(cur) {
+    console.warn("snap to home");
     $(myconf.phantom).removeClass().hide();
     $(myconf.container).children(myconf.child).removeClass("invisible");
+    var $li = $(myconf.container).children("[" + myconf.attrid + "='"+ cur.appid + "']");
+
+    if ($li.length === 0) {
+      $li = $("ul#replacement").children("[" + myconf.attrid + "='"+ cur.appid + "']");
+    }
+    var size = {height: $li.height(), width: $li.width()};
+
+    $li.css({position: "relative", top: "", left: ""});
+    var offset = $li.offset();
+    var top, left;
+    if (offset) {
+      top  = cur.clientY - offset.top - Math.floor(size.height/2);
+      left = cur.clientX - offset.left - Math.floor(size.height/2);
+      $li.css({position: "relative", top: top, left: left});
+      $li.animate({top: "", left: ""}, 500);
+    }
   }
   function snapToMouse() {
     var $phantom = $(myconf.phantom);
@@ -100,6 +118,8 @@ function DragAndDropHandler(conf) {
     if (lastClientX !== clientX || lastClientY !== clientY) {
       var newrank = findRankFromMousePosition();
       if (newrank !== picked) {
+        bus.push({appid: picked, clientX: clientX, clientY: clientY});
+        //snapToHome({appid: picked, clientX: clientX, clientY: clientY});
         myconf.onMove(picked, newrank, function() {
           lastClientX = clientX;
           lastClientY = clientY;
@@ -107,11 +127,11 @@ function DragAndDropHandler(conf) {
         });
       } else {
         if (ended) {
-          snapToHome();
+          snapToHome({appid: picked, clientX: clientX, clientY: clientY});
         }
       }
     } else {
-      snapToHome();
+      snapToHome({appid: picked, clientX: clientX, clientY: clientY});
     }
   }
   function measureBounds() {
@@ -195,10 +215,8 @@ function DragAndDropHandler(conf) {
   function stop() {
     $(myconf.phantom).hide();
     gt(document).on('taphold', function(gesture) {
-      var startEvent = translateGestureEvent(gesture);
-
       measureBounds();
-      touchStart(startEvent);
+      touchStart(translateGestureEvent(gesture));
     }, {retain: myconf.tapholdThreshold});
 
     if (active) {
@@ -215,7 +233,12 @@ function DragAndDropHandler(conf) {
       measureBounds();
     }
     if (!picked) {
-      snapToHome();
+      var b = bus;
+      bus = [];
+      var i, len;
+      for (i=0, len=b.length; i<len; i++) {
+        snapToHome(b[i]);
+      }
     }
   };
 
