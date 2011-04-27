@@ -304,7 +304,7 @@
     var editmodeTimer;
     var actions = {
       addApp: function(event, info) {
-        var $target = $(this.el || this);
+        var $target = $(this.target || this);
         if (info.search && info.search.installapp) {
           checkReferers(info.referer, function() {
             addApp(info.search.installapp);
@@ -314,7 +314,7 @@
         }
       },
       removeApp: function(event) {
-        var $target = $(this.el || this);
+        var $target = $(this.target || this);
         var appid = $target.parents("li").attr("data-launcheritemid");
         if (appid) {
           my.items.remove(appid, function() {
@@ -403,7 +403,7 @@
 
       var $deleteicon = $newitem.find(".deleteicon");
       gt($deleteicon[0]).on('tap', function(event) {
-        var $target = $(this.el || this); // support both gt() and $()
+        var $target = $(this.target || this); // support both gt() and $()
         var $parent = $target.parents("ul.grid.editmode");
         if ($parent.length > 0) {
           if (!$target.hasClass("nodelete")) {
@@ -413,11 +413,12 @@
           }
         }
       }, false);
+      $deleteicon.bind("mousedown touchstart", false);
       $deleteicon.bind("tap", false);
 
       var $editoricon = $newitem.find(".editoricon");
       gt($editoricon[0]).on('tap', function(event) {
-        var $target = $(this.el || this); // support both gt() and $()
+        var $target = $(this.target || this); // support both gt() and $()
         var $parent = $target.parents("ul.grid.editmode");
         var href = $target.attr("href");
         var target = $target.attr("target");
@@ -428,10 +429,11 @@
           }, 500);
         }
       }, false);
+      $editoricon.bind("mousedown touchstart", false);
       $editoricon.bind("tap", false);
 
       gt(newitem).on('tap', function(event) {
-        var $target = $(this.el || this); // support both gt() and $()
+        var $target = $(this.target || this); // support both gt() and $()
         if ($target.parents("ul.grid.editmode").length === 0) {
           var href = $target.find("a").attr("href");
           var target = $target.attr("target");
