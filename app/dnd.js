@@ -118,13 +118,7 @@ function DragAndDropHandler(conf) {
     if (lastClientX !== clientX || lastClientY !== clientY) {
       var newrank = findRankFromMousePosition();
       if (newrank !== picked) {
-        for (var i=0, len=bus.length; i<len; i++) {
-          if (bus[i].appid === picked) {
-            Arrays.remove(bus, i);
-            break;
-          }
-        }
-        bus.push({appid: picked, clientX: clientX, clientY: clientY});
+        pushMove({appid: picked, clientX: clientX, clientY: clientY});
         myconf.onMove(picked, newrank, function() {
           lastClientX = clientX;
           lastClientY = clientY;
@@ -136,8 +130,17 @@ function DragAndDropHandler(conf) {
         }
       }
     } else {
-      snapToHome({appid: picked, clientX: clientX, clientY: clientY});
+      pushMove({appid: picked, clientX: clientX, clientY: clientY});
     }
+  }
+  function pushMove(cur) {
+    for (var i=0, len=bus.length; i<len; i++) {
+      if (bus[i].appid === cur.appid) {
+        Arrays.remove(bus, i);
+        break;
+      }
+    }
+    bus.push(cur);
   }
   function measureBounds() {
     bounds = [];
