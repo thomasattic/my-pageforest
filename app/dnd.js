@@ -118,8 +118,13 @@ function DragAndDropHandler(conf) {
     if (lastClientX !== clientX || lastClientY !== clientY) {
       var newrank = findRankFromMousePosition();
       if (newrank !== picked) {
+        for (var i=0, len=bus.length; i<len; i++) {
+          if (bus[i].appid === picked) {
+            Arrays.remove(bus, i);
+            break;
+          }
+        }
         bus.push({appid: picked, clientX: clientX, clientY: clientY});
-        //snapToHome({appid: picked, clientX: clientX, clientY: clientY});
         myconf.onMove(picked, newrank, function() {
           lastClientX = clientX;
           lastClientY = clientY;
