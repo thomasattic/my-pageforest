@@ -1,6 +1,6 @@
 
 (function($) {
-
+  var events = {};
   $.fn.dash = function(type, fn, options) {
     var myoptions = {
        end: undefined,
@@ -10,42 +10,68 @@
 
     var instance = this;
 
-    var dashTimer;
-    function clearDashTimeout() {
-      clearTimeout(dashTimer);
-      dashTimer = undefined;
+    if (!events[type]) {
+      events[type] = {};
     }
-    function dashActivator(e) {
-      var evt = e.originalEvent;
-      var startEvent = {
-          target: e.target,
-          preventDefault: function() {},
-          originalEvent: {
-            target: evt.target,
+    var entry = events[type][fn];
+    if (!entry) {
+      var wrapper = function(e) {
+        e.preventDefault();
+        var evt = e.originalEvent;
+        var startEvent = {
+            target: e.target,
             preventDefault: function() {},
-            clientX: evt.clientX, clientY: evt.clientY,
-            changedTouches: evt.changedTouches, touches: evt.touches
-          }
-      };
-
-      if (!!myoptions.end) {
-        instance.one(myoptions.end, clearDashTimeout);
-      }
-      dashTimer = setTimeout(function() {
-        clearDashTimeout();
-
-        if (!!myoptions.end) {
-          instance.unbind(myoptions.end, clearDashTimeout);
+            originalEvent: {
+              target: evt.target,
+              preventDefault: function() {},
+              clientX: evt.clientX, clientY: evt.clientY,
+              changedTouches: evt.changedTouches, touches: evt.touches
+            }
+        };
+        var dashTimer;
+        function clearDashTimeout() {
+          console.warn("timer clear. not activated");
+          clearTimeout(dashTimer);
+          dashTimer = undefined;
         }
-        fn(startEvent);
-      }, myoptions.threshold);
+        var finalize = function() {
+          delete events[type][fn];
+          instance.unbind(type, wrapper);
+          if (!!myoptions.end) {
+            instance.unbind(myoptions.end, clearDashTimeout);
+          }
+        };
+        if (!!myoptions.end) {
+          instance.bind(myoptions.end, clearDashTimeout);
+        }
+
+        console.warn("set timer");
+        dashTimer = setTimeout(function() {
+          console.warn("timer called. action activated");
+          clearTimeout(dashTimer);
+          dashTimer = undefined;
+          fn(startEvent);
+        }, myoptions.threshold);
+
+        events[type][fn] = {finalize: finalize};
+      };
+      instance.bind(type, wrapper);
     }
 
-    if (!!myoptions.end) {
-      instance.unbind(myoptions.end, clearDashTimeout);
+    return instance;
+  };
+
+  $.fn.undash = function(type, fn) {
+    var instance = this;
+
+    var entry = events[type]? events[type][fn]: undefined;
+    if (entry) {
+      entry.finalize();
     }
-    instance.one(type, dashActivator);
-  }
+
+    return instance;
+  };
+
 })(jQuery);
 
 function DragAndDropHandler(conf) {
@@ -209,10 +235,10 @@ function DragAndDropHandler(conf) {
     }
   }
   function touchMove(e) {
+    e.preventDefault();
     if (!picked) {
       return;
     }
-    e.preventDefault();
     updateMousePosition(e.originalEvent);
     clearTimeout(moveTimer);
     moveTimer = setTimeout(function() {
@@ -233,7 +259,7 @@ function DragAndDropHandler(conf) {
     $(document).dash(START_EVENT, function(event) {
       measureBounds();
       touchStart(event);
-    }, {end: END_EVENT, threshold: 1250});
+    }, {end: END_EVENT, threshold: myconf.tapholdThreshold});
 
     if (active) {
       active = undefined;

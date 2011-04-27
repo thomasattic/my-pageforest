@@ -399,7 +399,7 @@
 
     function prepItem(newitem) {
       var $newitem = $(newitem);
-      gt(newitem).on('taphold', actions.enterEditMode, { retain: 1250 });
+      gt(newitem).on('taphold', actions.enterEditMode, {retain: 1250});
 
       var $deleteicon = $newitem.find(".deleteicon");
       gt($deleteicon[0]).on('tap', function(event) {
