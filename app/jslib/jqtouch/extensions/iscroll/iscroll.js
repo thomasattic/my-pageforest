@@ -137,6 +137,7 @@ iScroll.prototype = {
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
+			case 'mouseout': that._out(e); break;
 			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 			case RESIZE_EV: that._resize(); break;
 			case 'gesturestart': that._gestStart(e); break;
@@ -345,6 +346,9 @@ iScroll.prototype = {
 			that._bind(MOVE_EV);
 			that._bind(END_EV);
 			that._bind(CANCEL_EV);
+			if (!hasTouch) {
+			  document.addEventListener('mouseout', this, false);
+			}
 //		}, 0);
 	},
 	
@@ -421,7 +425,18 @@ iScroll.prototype = {
 			that.startY = that.y;
 		}
 	},
-	
+
+	_out: function (e) {
+		var that = this;
+
+		// chickenSandwich @stackoverflow
+		e = e? e : window.event;
+		var from = e.relatedTarget || e.toElement;
+		if (!from || from.nodeName == "HTML") {
+			that._end(e);
+		}
+	},
+
 	_end: function (e) {
 		if (hasTouch && e.touches.length != 0) return;
 
