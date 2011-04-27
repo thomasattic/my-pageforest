@@ -1,79 +1,4 @@
 
-(function($) {
-  var events = {};
-  $.fn.dash = function(type, fn, options) {
-    var myoptions = {
-       end: undefined,
-       threshold: 1250
-    };
-    $.extend(myoptions, options);
-
-    var instance = this;
-
-    if (!events[type]) {
-      events[type] = {};
-    }
-    var entry = events[type][fn];
-    if (!entry) {
-      var wrapper = function(e) {
-        e.preventDefault();
-        var evt = e.originalEvent;
-        var startEvent = {
-            target: e.target,
-            preventDefault: function() {},
-            originalEvent: {
-              target: evt.target,
-              preventDefault: function() {},
-              clientX: evt.clientX, clientY: evt.clientY,
-              changedTouches: evt.changedTouches, touches: evt.touches
-            }
-        };
-        var dashTimer;
-        function clearDashTimeout() {
-          console.warn("timer clear. not activated");
-          clearTimeout(dashTimer);
-          dashTimer = undefined;
-        }
-        var finalize = function() {
-          delete events[type][fn];
-          instance.unbind(type, wrapper);
-          if (!!myoptions.end) {
-            instance.unbind(myoptions.end, clearDashTimeout);
-          }
-        };
-        if (!!myoptions.end) {
-          instance.bind(myoptions.end, clearDashTimeout);
-        }
-
-        console.warn("set timer");
-        dashTimer = setTimeout(function() {
-          console.warn("timer called. action activated");
-          clearTimeout(dashTimer);
-          dashTimer = undefined;
-          fn(startEvent);
-        }, myoptions.threshold);
-
-        events[type][fn] = {finalize: finalize};
-      };
-      instance.bind(type, wrapper);
-    }
-
-    return instance;
-  };
-
-  $.fn.undash = function(type, fn) {
-    var instance = this;
-
-    var entry = events[type]? events[type][fn]: undefined;
-    if (entry) {
-      entry.finalize();
-    }
-
-    return instance;
-  };
-
-})(jQuery);
-
 function DragAndDropHandler(conf) {
   var IS_TOUCH = 'ontouchstart' in window;
   var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
@@ -201,6 +126,19 @@ function DragAndDropHandler(conf) {
       bounds.push(item);
     });
   }
+  function translateGestureEvent(gesture) {
+    return {
+      target: gesture.target,
+      preventDefault: function() {},
+      originalEvent: {
+        target: gesture.target,
+        preventDefault: function() {},
+        clientX: gesture.clientX, clientY: gesture.clientY,
+        changedTouches: [{clientX: gesture.clientX, clientY: gesture.clientY}],
+        touches: [{clientX: gesture.clientX, clientY: gesture.clientY}]
+      }
+    };
+  }
   function touchStart(e) {
     e.preventDefault();
     var $el = $(e.target);
@@ -256,10 +194,12 @@ function DragAndDropHandler(conf) {
   };
   function stop() {
     $(myconf.phantom).hide();
-    $(document).dash(START_EVENT, function(event) {
+    gt(document).on('taphold', function(gesture) {
+      var startEvent = translateGestureEvent(gesture);
+
       measureBounds();
-      touchStart(event);
-    }, {end: END_EVENT, threshold: myconf.tapholdThreshold});
+      touchStart(startEvent);
+    }, {retain: myconf.tapholdThreshold});
 
     if (active) {
       active = undefined;

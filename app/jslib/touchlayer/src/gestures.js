@@ -272,6 +272,7 @@ eventFn.tap = function (el, type, fn, options) {
 				me.ns.retainTimeout = null;
 
 				me.ns.retainTimeout = setTimeout(function () {
+					me.target = e.target;
 					me.callback(me);
 				}, me.ns.retain);
 			}
@@ -306,7 +307,7 @@ eventFn.tap = function (el, type, fn, options) {
 			}
 		},
 
-		onEnd: function () {
+		onEnd: function (e) {
 			var me = this;
 
 			me.el.removeClass('active');
@@ -339,6 +340,7 @@ eventFn.tap = function (el, type, fn, options) {
 			me.ns.tapCount = 0;
 
 			if (!me.moved && !me.expired) {
+				me.target = e.target;
 				me.callback.call(me);
 			}
 		}
@@ -451,6 +453,7 @@ eventFn.gesture = function (el, type, fn, options) {
 function TouchLayer (el, type, fn, options) {
 	var that = this;
 
+	that.currentTarget = el;
 	that.el = $(el);
 	that.callback = fn;
 	that.type = type;
@@ -520,7 +523,8 @@ TouchLayer.prototype = {
 			return;
 		}
 
-/*		that.target = e.target;
+		that.target = e.target;
+		/*
 		while (that.target.nodeType != 1) {
 			that.target = that.target.parentNode;
 		}*/
@@ -532,6 +536,9 @@ TouchLayer.prototype = {
 		// Start position
 		that.startX = point.pageX;
 		that.startY = point.pageY;
+
+		that.clientX = point.clientX;
+		that.clientY = point.clientY;
 
 		// Init angle
 //		that.angle = 0;
