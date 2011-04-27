@@ -8,32 +8,34 @@
  *
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
- * 
+ *
  * BeeDesk:
  * - Added:
  * -   1) Made it a non-singleton
  * -   2) Added desktop support
  * - Broke:
- * -   1) No longer inserts required element 
+ * -   1) No longer inserts required element
  * -   2) Does not have Okay, Cancel button (should put back as an option)
  */
 $(document).ready(function() {
-  var wheel;
-
   $("#jqt .datewheelpane").bind("pagein", function(event, info) {
+    var defaultAllday = false;
     var target = this, $target = $(this);
     var dateobject;
 
-    console.warn("pagein: " + JSON.stringify(info.search));
-
     var search = info.search;
-    if (search.starts !== undefined && search.starts !== null) {
+    if (!!search.starts) {
       selected = null;
       dateobject = DateFormats.getDateObject(search.starts, search.ends, search.format);
+    } else {
+      dateobject = DateFormats.convertDateToObject(new Date(), !defaultAllday);
+      dateobject.hours++;
+      dateobject.minutes = 30;
+      dateobject.duration = 60;
     }
 
-    if (!$target.hasClass("wheeladded")) {
-      $target.addClass("wheeladded");
+    var wheel = $target.data("spinningwheel");
+    if (!wheel) {
       wheel = new DateTimeSpinningWheel(target, {
         onValueUpdated: function(dateobject) {
           var values = DateFormats.getStartEndFormat(dateobject);
@@ -56,38 +58,29 @@ $(document).ready(function() {
           $formatfield.val(values.format);
         }
       }, dateobject);
-      /*
-      var checked = $target.find(".sw-allday").attr("checked");
-      if (checked !== undefined && checked !== false) {
-        wheel.setAlldayMode(true);
-      } else {
-        wheel.setAlldayMode(false);
-      }*/
+      $target.data("spinningwheel", wheel);
     } else {
       wheel.reset(dateobject);
     }
-    $target.find(".sw-allday").attr("checked", false);
+    $target.find(".sw-allday").attr("checked", !!dateobject.hours);
     $target.find("input[name='starts']").click();
   });
   $("#jqt .datewheelpane .sw-allday").bind("change", function() {
-    var checked = $(this).attr("checked"); 
-    if (checked !== undefined && checked !== false) {
-      wheel.setAlldayMode(true);
-    } else {
-      wheel.setAlldayMode(false);
-    }
+    var $target = $(this);
+    var checked = $target.attr("checked");
+    $target.parents(".datewheelpane").data("spinningwheel").setAlldayMode(!checked);
   });
   $("#jqt .datewheelpane .sw-starts").bind("click", function() {
-    console.warn('start tapped');
-    $(this).siblings().removeClass("selected");
-    $(this).addClass("selected");
-    wheel.setDurationMode(false);
+    var $target = $(this);
+    $target.siblings().removeClass("selected");
+    $target.addClass("selected");
+    $target.parents(".datewheelpane").data("spinningwheel").setDurationMode(false);
   });
   $("#jqt .datewheelpane .sw-ends").bind("click", function() {
-    console.warn('end tapped');
-    $(this).siblings().removeClass("selected");
-    $(this).addClass("selected");
-    wheel.setDurationMode(true);
+    var $target = $(this);
+    $target.siblings().removeClass("selected");
+    $target.addClass("selected");
+    $target.parents(".datewheelpane").data("spinningwheel").setDurationMode(true);
   });
   $("#jqt .datewheelpane").bind('pageAnimationEnd', function(event, info) {
     if (info.direction == 'in') {
@@ -106,10 +99,9 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
   var strategy = null;
   var slots;
   var wheeladjuster;
-  var allday = true;
+  var allday;
   var duration = false;
   var selected;
-  var nowday;
 
   /* const */
   var wkdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -124,8 +116,9 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
 
     var i, len;
     var days = [], years = [], months = [];
+    var nowday = DateFormats.convertDateToObject(new Date(), true);
 
-    if (!allday) {
+    if (allday) {
       for(i = 1; i <= 31; i ++) {
         days.push({value: i, label: i+''});
       }
@@ -136,7 +129,7 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
       }
       var yearslot = {values: years, defaultValue: selected.year, highlightValue: nowday.year, style: ''};
 
-      for(var i = 0, len = monthlabels.length; i < len; i++) {
+      for(i = 0, len = monthlabels.length; i < len; i++) {
         months.push({value: i, label: monthlabels[i]});
       }
       var monthslot = {values: months, defaultValue: selected.month, highlightValue: nowday.month, style: 'right'};
@@ -199,7 +192,7 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
       var middledate = new Date(selected.year, selected.month, selected.date);
       for(var i = -60; i <= 180; i++) {
         var date = DateFormats.getOffsetDay(middledate, i);
-        var value = (date.getFullYear() * 100000) + (date.getMonth() * 100) + date.getDate(); 
+        var value = (date.getFullYear() * 100000) + (date.getMonth() * 100) + date.getDate();
         if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()) {
           days.push({value: value, label: "Today"});
           today = value;
@@ -225,9 +218,9 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
         }
       });
 
-      var timeformat = DateFormats.getLocaleTimeFormat();      
+      var timeformat = DateFormats.getLocaleTimeFormat();
       var twentyfour = /HH/.test(timeformat);
-      
+
       // @TODO -- workaround: http://code.google.com/p/chromium/issues/detail?id=3607
       twentyfour = false;
 
@@ -240,7 +233,7 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
         for(var i = 0; i <= 23; i++) {
           hours.push({label: (i!==0? i: 12)+'', value: i});
         }
-        defaultHours = selected.hours; 
+        defaultHours = selected.hours;
       } else {
         for(var i = 0; i < 12; i++) {
           hours.push({label: (i!==0? i: 12)+'', value: i});
@@ -259,10 +252,10 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
 
       var mins = [];
       for(var i = 0; i < 60; i += 5) {
-        var label = (i<10? '0': '') + i;  
+        var label = (i<10? '0': '') + i;
         mins.push({value: i, label: label});
       }
-      newslots.push({values: mins, defaultValue: 0, style: ''});
+      newslots.push({values: mins, defaultValue: selected.minutes, style: ''});
       newslotshandler.push({
         set: function(date, value) {
           date.minutes = value;
@@ -283,7 +276,7 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
             }
           },
           get: function(date) {
-            return date.hours < 12? 0: 1; 
+            return date.hours < 12? 0: 1;
           }
         });
       }
@@ -312,11 +305,11 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
           var value = keyvalues.values[i];
           slotshandler[i].set(endjso, value);
         }
-        var starts = DateFormats.convertObjectToDate(selected, allday);
-        var ends = DateFormats.convertObjectToDate(endjso, allday);
+        var starts = DateFormats.convertObjectToDate(selected, !allday);
+        var ends = DateFormats.convertObjectToDate(endjso, !allday);
         var dura = Math.floor((ends.getTime() - starts.getTime()) / (60 * 1000));
         selected.duration = dura;
-        parts = DateFormats.cloneDateObject(selected, allday, true);
+        parts = DateFormats.cloneDateObject(selected, !allday, true);
       }
       if (!wheeladjuster(parts)) {
         clientcallbacks.onValueUpdated(parts);
@@ -326,13 +319,11 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
 
   instance.setAlldayMode = function(newallday) {
     if (allday !== newallday) {
-      allday = newallday;
       instance.reset(selected, newallday);
     }
   };
-  
+
   instance.setDurationMode = function(durationmode) {
-    console.warn("duration mode set: " + durationmode);
     if (duration !== durationmode) {
       duration = durationmode;
       instance.position();
@@ -340,17 +331,15 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
   };
 
   instance.position = function() {
-    console.warn("position(): " + JSON.stringify(selected));
     if (duration !== true && duration !== "true") {
       for (var i=0, len=slotshandler.length; i < len; i++) {
         var value = slotshandler[i].get(selected);
         strategy.scrollToValue(i, value, '500ms');
       }
     } else {
-      var enddate = DateFormats.convertObjectToDate(selected, allday);
+      var enddate = DateFormats.convertObjectToDate(selected, !allday);
       enddate = DateFormats.getOffsetMinute(enddate, selected.duration);
-      console.warn("duration: " + selected.duration);
-      var jso = DateFormats.convertDateToObject(enddate, allday);
+      var jso = DateFormats.convertDateToObject(enddate, !allday);
       for (var i=0, len=slotshandler.length; i < len; i++) {
         var value = slotshandler[i].get(jso);
         strategy.scrollToValue(i, value, '500ms');
@@ -359,41 +348,39 @@ function DateTimeSpinningWheel(container, clientcallbacks, dateobject) {
   };
 
   instance.reset = function(setdate, setallday) {
-    if (!!setdate) {
-      selected = null;
-      allday = null; 
-    } else {
-      var now = new Date();
-      setdate = {year: now.getFullYear(), month: now.getMonth(), date: now.getDate(), duration: 60};
+    if (!setdate) {
+      console.error("Expect reset date.");
+      return;
     }
+
+    selected = null;
+    allday = null;
     if (!selected) {
       selected = setdate;
       allday = null;
     }
     if (setallday !== undefined && setallday !== null) {
       allday = setallday;
-    } else if (allday === null) {
-      allday = selected.hours;
+    } else {
+      allday = !selected.hours;
     }
     if (!!strategy) {
       strategy.destroy();
       strategy = null;
     }
-    setSlots(allday);
+    setSlots();
     strategy = new SpinningWheel(container, slots, callback);
-    
-    var date = DateFormats.cloneDateObject(selected, allday, true);
+
+    var date = DateFormats.cloneDateObject(selected, !allday, true);
     clientcallbacks.onValueUpdated(date);
   };
 
-  nowday = DateFormats.convertDateToObject(new Date(), allday);
   instance.reset(dateobject);
-
   return instance;
 }
 
 function SpinningWheel(container, slots, callbacks) {
-var 
+var
   isTouch = ('ontouchstart' in window),
   // Event sniffing
   START_EVENT = isTouch ? 'touchstart' : 'mousedown',
@@ -422,7 +409,7 @@ function addClass(el, className) {
 function removeClass(el, className) {
   var updated = false;
   var className = Array.prototype.slice.call(arguments).splice(1);
-  
+
   for (var i=0, l=className.length; i<l; i++) {
     if (hasClass(el, className)) {
       updated = true;
@@ -431,6 +418,18 @@ function removeClass(el, className) {
   }
   return updated;
 };
+
+// http://www.quirksmode.org/js/findpos.html
+function findPos(obj) {
+  var curleft = curtop = 0;
+  if (obj.offsetParent) {
+    do {
+      curleft += obj.offsetLeft;
+      curtop += obj.offsetTop;
+    } while (obj = obj.offsetParent);
+    return {left: curleft, top: curtop};
+  }
+}
 
 var instance = {
 	cellHeight: 44,
@@ -446,7 +445,7 @@ var instance = {
 			instance.lockScreen(e);
 			instance.scrollStart(e);
 		} else if (e.type == MOVE_EVENT) {
-			instance.lockScreen(e);			
+			instance.lockScreen(e);
 			instance.scrollMove(e);
 		} else if (e.type == END_EVENT || e.type == CANCEL_EVENT) {
 			instance.scrollEnd(e);
@@ -492,7 +491,7 @@ var instance = {
 		instance.slotEl = [];
 
 		instance.activeSlot = 0;
-		
+
 		instance.swWrapper = undefined;
 		instance.swSlotWrapper = undefined;
 		instance.swSlots = undefined;
@@ -548,22 +547,21 @@ var instance = {
 			div = document.createElement('div');		// Create slot container
 			div.className = instance.slotData[l].style;		// Add styles to the container
 			div.appendChild(ul);
-	
+
 			// Append the slot to the wrapper
 			instance.swSlots.appendChild(div);
-			
+
 			ul.slotPosition = l;			// Save the slot position inside the wrapper
 			ul.slotYPosition = 0;
 			ul.slotWidth = 0;
 			ul.slotMaxScroll = instance.swSlotWrapper.clientHeight - ul.clientHeight - 86;
 			ul.style.webkitTransitionTimingFunction = 'cubic-bezier(0, 0, 0.2, 1)';		// Add default transition
-			
+
 			instance.slotEl.push(ul);			// Save the slot for later use
 
 			// Place the slot to its default position (if other than 0)
 			if (instance.slotData[l].defaultValue) {
-			  console.warn("scroll: " + l + " to: " + instance.slotData[l].defaultValue);
-				instance.scrollToValue(l, instance.slotData[l].defaultValue);	
+				instance.scrollToValue(l, instance.slotData[l].defaultValue);
 			}
 		}
 
@@ -587,8 +585,8 @@ var instance = {
 		instance.swWrapper.style.webkitTransform = 'translate3d(0, -260px, 0)';
 		 */
 	},
-	
-	
+
+
 	/**
 	 *
 	 * Unload
@@ -607,24 +605,24 @@ var instance = {
 		document.removeEventListener(MOVE_EVENT, instance, false);
 		window.removeEventListener('orientationchange', instance, true);
 		window.removeEventListener('scroll', instance, true);
-		
+
 		while (instance.swSlots.childNodes.length >= 1) {
-		  instance.swSlots.removeChild(instance.swSlots.firstChild);       
-    } 
+		  instance.swSlots.removeChild(instance.swSlots.firstChild);
+    }
 		instance.slotData = [];
-		
+
 		instance.reset();
-		
+
 		//document.body.removeChild(document.getElementById('sw-wrapper'));
 	},
-	
+
 	close: function () {
 	  /*
 		instance.swWrapper.style.webkitTransitionTimingFunction = 'ease-in';
 		instance.swWrapper.style.webkitTransitionDuration = '400ms';
 		instance.swWrapper.style.webkitTransform = 'translate3d(0, 0, 0)';
 		 */
-		
+
 		instance.swWrapper.addEventListener('webkitTransitionEnd', instance, false);
 	},
 
@@ -637,15 +635,15 @@ var instance = {
 		if (!style) {
 			style = '';
 		}
-		
+
 		style = style.split(' ');
-		
+
 		for (var i = 0; i < style.length; i += 1) {
 			style[i] = 'sw-' + style[i];
 		}
-		
+
 		style = style.join(' ');
-		
+
 		var obj = { 'values': values, 'style': style, 'defaultValue': defaultValue, 'highlightValue': highlightValue };
 		instance.slotData.push(obj);
 	},
@@ -690,16 +688,17 @@ var instance = {
 		instance.slotEl[slot].slotYPosition = pos;
 		instance.slotEl[slot].style.webkitTransform = 'translate3d(0, ' + pos + 'px, 0)';
 	},
-	
+
 	scrollStart: function (e) {
 		// Find the clicked slot
-		var xPos = (isTouch? e.targetTouches[0].clientX: e.clientX) - instance.swSlots.offsetLeft;	// Clicked position minus left offset (should be 11px)
+		var origin = findPos(instance.swSlots);
+		var xPos = (isTouch? e.targetTouches[0].clientX: e.clientX) - origin.left;	// Clicked position minus left offset (should be 11px)
 
 		// Find tapped slot
 		var slot = 0;
 		for (var i = 0; i < instance.slotEl.length; i += 1) {
 			slot += instance.slotEl[i].slotWidth;
-			
+
 			if (xPos < slot) {
 				instance.activeSlot = i;
 				break;
@@ -718,7 +717,7 @@ var instance = {
 
 		instance.slotEl[instance.activeSlot].removeEventListener('webkitTransitionEnd', instance, false);	// Remove transition event (if any)
 		instance.slotEl[instance.activeSlot].style.webkitTransitionDuration = '0';		// Remove any residual transition
-		
+
 		// Stop and hold slot position
 		var theTransform = window.getComputedStyle(instance.slotEl[instance.activeSlot]).webkitTransform;
 		if (theTransform !== 'none') {
@@ -727,7 +726,7 @@ var instance = {
   			instance.setPosition(instance.activeSlot, theTransform);
   		}
 		}
-		
+
 		instance.startY = (isTouch? e.targetTouches[0].clientY: e.clientY);
 		instance.scrollStartY = instance.slotEl[instance.activeSlot].slotYPosition;
 		instance.scrollStartTime = e.timeStamp;
@@ -737,7 +736,7 @@ var instance = {
     if (isTouch) {
       instance.swFrame.removeEventListener(CANCEL_EVENT, instance, false);
     }
-		
+
 		return true;
 	},
 
@@ -747,7 +746,7 @@ var instance = {
 		if (instance.slotEl[instance.activeSlot].slotYPosition > 0 || instance.slotEl[instance.activeSlot].slotYPosition < instance.slotEl[instance.activeSlot].slotMaxScroll) {
 			topDelta /= 2;
 		}
-		
+
 		instance.setPosition(instance.activeSlot, instance.slotEl[instance.activeSlot].slotYPosition + topDelta);
 		instance.startY = (isTouch? e.targetTouches[0].clientY: e.clientY);
 
@@ -757,7 +756,7 @@ var instance = {
 			instance.scrollStartTime = e.timeStamp;
 		}
 	},
-	
+
 	scrollEnd: function (e) {
 		instance.swFrame.removeEventListener(MOVE_EVENT, instance, false);
 		instance.swFrame.removeEventListener(END_EVENT, instance, false);
@@ -787,7 +786,7 @@ var instance = {
 
 		var newDuration = (2 * scrollDistance / scrollDuration) / instance.friction;
 		var newScrollDistance = (instance.friction / 2) * (newDuration * newDuration);
-		
+
 		if (newDuration < 0) {
 			newDuration = -newDuration;
 			newScrollDistance = -newScrollDistance;
@@ -807,7 +806,7 @@ var instance = {
 			// Prevent the slot to be dragged outside the visible area (bottom margin)
 			newPosition = (newPosition - instance.slotEl[instance.activeSlot].slotMaxScroll) / 2 + instance.slotEl[instance.activeSlot].slotMaxScroll;
 			newDuration /= 3;
-			
+
 			if (newPosition < instance.slotEl[instance.activeSlot].slotMaxScroll - instance.swSlotWrapper.clientHeight / 4) {
 				newPosition = instance.slotEl[instance.activeSlot].slotMaxScroll - instance.swSlotWrapper.clientHeight / 4;
 			}
@@ -816,7 +815,7 @@ var instance = {
 		}
 
 		instance.scrollTo(instance.activeSlot, Math.round(newPosition), Math.round(newDuration) + 'ms');
- 
+
 		return true;
 	},
 
@@ -860,7 +859,7 @@ var instance = {
 			}
 		}
 	},
-	
+
   disableValue: function (slot, value) {
     var yPos, i, m, mlen, updated;
 
@@ -971,7 +970,7 @@ var DateFormats = new function() {
     }
     return 'MDY';
   };
-  // -- Mike Koss 
+  // -- Mike Koss
 
   instance.convertObjectToDate = function(obj, includetime) {
     var enddate = new Date(2000, 5, 15); // use middle day to avoid roll over when individual value is set
@@ -987,8 +986,8 @@ var DateFormats = new function() {
 
   instance.convertDateToObject = function(enddate,  includetime) {
     var jso = {
-        year: enddate.getFullYear(), 
-        month: enddate.getMonth(), 
+        year: enddate.getFullYear(),
+        month: enddate.getMonth(),
         date: enddate.getDate()
     };
     if (includetime) {
@@ -1000,8 +999,8 @@ var DateFormats = new function() {
 
   instance.cloneDateObject = function(obj, includetime, includeduration) {
     var jso = {
-        year: obj.year, 
-        month: obj.month, 
+        year: obj.year,
+        month: obj.month,
         date: obj.date
     };
     if (includetime) {
@@ -1055,14 +1054,20 @@ var DateFormats = new function() {
     return result;
   };
 
+  instance.isSameDay = function(left, right) {
+    return left.getFullYear() === right.getFullYear()
+        && left.getMonth() === right.getMonth()
+        && left.getDate() === right.getDate();
+  };
+
   instance.getStartEndFormat = function(dateobject) {
-    var startdate, enddate, format;
+    var startdate, enddate, enddateString, format;
 
     startdate = new Date(2000, 5, 15); // use middle day to avoid roll over when individual value is set
     startdate.setFullYear(dateobject.year);
     startdate.setMonth(dateobject.month);
     startdate.setDate(dateobject.date);
-    if (dateobject.hours !== undefined && dateobject.hours !== null) { 
+    if (dateobject.hours !== undefined && dateobject.hours !== null) {
       startdate.setHours(dateobject.hours);
       startdate.setMinutes(dateobject.minutes);
       format = "ddd, MMM dd yyyy hh:mm tt";
@@ -1071,16 +1076,20 @@ var DateFormats = new function() {
     }
 
     enddate = new Date(startdate.getTime() + dateobject.duration * 60 * 1000);
-    console.warn("end date: " + enddate.toString(format));
+    if (instance.isSameDay(startdate, enddate) && !!dateobject.hours) {
+      enddateString = enddate.toString("hh:mm tt");
+    } else {
+      enddateString = enddate.toString(format);
+    }
 
-    return {startdate: startdate.toString(format), enddate: enddate.toString(format), format: format}; 
+    return {startdate: startdate.toString(format), enddate: enddateString, format: format};
   };
 
   instance.getDateObject = function(startdate, enddate, format) {
     var result;
 
     var start, end, duration, hastime;
-    hastime = /mm/.test(start);
+    hastime = /mm/.test(format);
 
     if (!!startdate) {
       start = Date.parse(startdate);
