@@ -973,7 +973,7 @@
             }
 
             // Prevent default if we found an internal link (relative or absolute)
-            if ($el && $el.attr('href') /* && !$el.isExternalLink()*/) {
+            if ($el && $el.attr('href') && !$el.isExternalLink()) {
                 _debug('Need to prevent default click behavior');
                 e.preventDefault();
             } else {
@@ -1114,7 +1114,7 @@
                     pageback,
                     search = parseSearch($el.attr('search'));
 
-                if (hash && hash !== '#') {
+                if (hash && hash !== '#' && !$el.isExternalLink()) {
                     // Branch on internal or external href
                     e.stopPropagation();
 
@@ -1166,23 +1166,27 @@
                     fn();
                 }
             }},
-            {name: "external", fn: function($el, e, fn) {
-                // Figure out the animation to use
-                var animation = findAnimation(function(candidate) {
-                    return $el.is(candidate.selector);
-                });
-                var reverse = $el.hasClass('reverse');
+            {name: "dynamic", fn: function($el, e, fn) {
+                if (!$el.isExternalLink()) { // let external link handled by default
+                  // Figure out the animation to use
+                  var animation = findAnimation(function(candidate) {
+                      return $el.is(candidate.selector);
+                  });
+                  var reverse = $el.hasClass('reverse');
 
-                // External href
-                $el.addClass('loading');
-                e.stopPropagation();
-                showPageByHref($el.attr('href'), {
-                    animation: animation,
-                    callback: function() {
-                        $el.removeClass('loading'); setTimeout($.fn.unselect, 250, $el);
-                    },
-                    $referrer: $el
-                });
+                  // External href
+                  $el.addClass('loading');
+                  e.stopPropagation();
+                  showPageByHref($el.attr('href'), {
+                      animation: animation,
+                      callback: function() {
+                          $el.removeClass('loading'); setTimeout($.fn.unselect, 250, $el);
+                      },
+                      $referrer: $el
+                  });
+                } else {
+                  fn();
+                }
             }}
         ];
 
@@ -1233,6 +1237,7 @@
 
         function touchstartHandler(e) {
             var $oel, $el, $marked;
+            var elX, elY;
 
             if (isRightClick(e)) {
               return;
@@ -1250,6 +1255,8 @@
                     return;
                 }
             }
+            elStartY = $el.offset().top;
+            elStartX = $el.offset().left;
 
             var hovertimeout = null;
             var presstimeout = null;
@@ -1281,6 +1288,9 @@
                 deltaX = first.pageX - startX;
                 deltaY = first.pageY - startY;
                 deltaT = (new Date).getTime() - startTime;
+                var absElOffset = $el.offset();
+                elX = absElOffset.left - elStartX;
+                elY = absElOffset.top - elStartY;
             }
 
             function handlestart(e) {
@@ -1324,10 +1334,10 @@
                 var absX = Math.abs(deltaX);
                 var absY = Math.abs(deltaY);
 
-                if (absX >= 1 || absY >= 1) {
+                if (absX > 1 || absY > 1) {
                     moved = true;
                 }
-                if (absY <= 5) {
+                if (absY <= 5 && elX === 0 && elY === 0) {
                     if (absX > (3 * absY) && (absX > 10) && deltaT < 1000) {
                         inprogress = false;
                         if ($marked) $marked.removeClass('active');
@@ -1351,7 +1361,7 @@
 
                 inprogress = false;
                 unbindEvents($el);
-                if (!tapped && (absX <= 1 && absY <= 1)) {
+                if (!tapped && (absX <= 1 && absY <= 1) && (elX === 0 && elY === 0)) {
                     tapped = true;
                     $oel.trigger('tap');
                     setTimeout(function() {
