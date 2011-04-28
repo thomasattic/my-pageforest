@@ -103,16 +103,16 @@ function DragAndDropHandler(conf) {
     }
     var size = {height: $li.height(), width: $li.width()};
 
-    $li.css({position: "relative", top: "", left: ""});
+    $li.css({position: "relative", top: "0", left: "0"});
     var offset = $li.offset();
     var top, left;
     if (offset) {
-      top  = cur.clientY - offset.top - size.height;
-      left = cur.clientX - offset.left - size.width;
+      top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
+      left = cur.clientX - offset.left - Math.floor(size.width / 2);
       $li.css({position: "relative", top: top, left: left});
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
-      $li.animate({top: "", left: ""}, 250);
+      $li.stop().animate({top: "0", left: "0"}, 250);
     }
     if (bus.length === 0) {
       myconf.onDragEnded();
@@ -151,6 +151,7 @@ function DragAndDropHandler(conf) {
       if (newrank !== picked) {
         var withinBound = checkBound(picked);
         if (!withinBound) {
+          //snapToHome({appid: picked, clientX: clientX, clientY: clientY});
           pushMove({appid: picked, clientX: clientX, clientY: clientY});
           myconf.onMove(picked, newrank, function() {
             lastClientX = clientX;
@@ -216,6 +217,10 @@ function DragAndDropHandler(conf) {
     };
   }
   function touchStart(e) {
+    if (picked) {
+      moveElement(true);
+      picked = undefined;
+    }
     e.preventDefault();
     var $el = $(e.target);
     var item = myconf.container + " > " + (myconf.child || "*");
@@ -233,7 +238,9 @@ function DragAndDropHandler(conf) {
 
       clearTimeout(moveTimer);
       moveTimer = setTimeout(function() {
-        moveElement();
+        if (!IS_TOUCH) {
+          moveElement();
+        }
       }, 50);
 
       snapToMouse();
@@ -258,7 +265,9 @@ function DragAndDropHandler(conf) {
     updateMousePosition(e.originalEvent);
     clearTimeout(moveTimer);
     moveTimer = setTimeout(function() {
-      moveElement();
+      if (!IS_TOUCH) {
+          moveElement();
+      }
     }, 125);
   }
   function start() {
