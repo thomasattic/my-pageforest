@@ -63,7 +63,7 @@
     }
 
     body #phantom.active, body .phantom.active {
-      width: 72px; height: 72px;
+      width: 68px; height: 68px;
     }
 
     .invisible {
@@ -375,6 +375,14 @@
           my.items.update(id, item, fn);
         });
       },
+      onDragStarted: function() {
+        $("ul#appgrid").addClass("noshake");
+        $("ul#replacement").addClass("noshake");
+      },
+      onDragEnded: function() {
+        $("ul#appgrid").removeClass("noshake");
+        $("ul#replacement").removeClass("noshake");
+      },
       activateOnTaphold: true,
       margin: 30
     });
@@ -466,7 +474,7 @@
           list = [];
           $("#appgrid").quicksand($("ul#replacement > li"), function() {
             launch(pre, fn);
-          }, {duration: 250});
+          }, {duration: 50});
         } else {
           fn();
           list = undefined;

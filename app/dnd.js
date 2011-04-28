@@ -24,10 +24,12 @@ function DragAndDropHandler(conf) {
     attrid: "data-id",
     phantomContainer: "body",
     phantom: ".phantom",
-    onMove: function() {},
     activateOnTaphold: false,
     tapholdThreshold: 1250,
-    margin: 0
+    margin: 0,
+    onMove: function() {},
+    onDragStarted: function() {},
+    onDragEnded: function() {}
   }, conf);
 
   function findRankFromMousePosition() {
@@ -66,7 +68,6 @@ function DragAndDropHandler(conf) {
       b = bounds[i];
       if (clientX <= b.right && clientY <= b.bottom) {
         slot = b.appid;
-        console.warn("slot: " + b.appid);
         break;
       }
     }
@@ -94,7 +95,6 @@ function DragAndDropHandler(conf) {
     return $div;
   }
   function snapToHome(cur) {
-    console.warn("snap to home");
     var $phantom = getPhantom(cur.appid);
     var $li = $(myconf.container).children("[" + myconf.attrid + "='"+ cur.appid + "']");
     if ($li.length === 0) {
@@ -106,13 +106,16 @@ function DragAndDropHandler(conf) {
     var offset = $li.offset();
     var top, left;
     if (offset) {
-      top  = cur.clientY - offset.top - Math.floor(size.height/2);
-      left = cur.clientX - offset.left - Math.floor(size.height/2);
+      top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
+      left = cur.clientX - offset.left - Math.floor(size.height / 2);
       $li.css({position: "relative", top: top, left: left});
 
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
       $li.animate({top: "", left: ""}, 250);
+    }
+    if (bus.length === 0) {
+      myconf.onDragEnded();
     }
   }
   function snapToMouse() {
@@ -133,8 +136,8 @@ function DragAndDropHandler(conf) {
     clientX = touch.clientX;
     clientY = touch.clientY;
 
-    top = clientY - offset.top - Math.floor(size.height/2);
-    left = clientX - offset.left - Math.floor(size.width/2);
+    top = clientY - offset.top - Math.floor(size.height * 0.75);
+    left = clientX - offset.left - Math.floor(size.width / 2);
 
     $phantom.css('top', top + 'px').css("left", left + 'px');
   }
@@ -234,6 +237,7 @@ function DragAndDropHandler(conf) {
       }, 50);
 
       snapToMouse();
+      myconf.onDragStarted();
     }
   }
   function touchEnd(e) {
@@ -297,6 +301,7 @@ function DragAndDropHandler(conf) {
       for (i=0, len=b.length; i<len; i++) {
         snapToHome(b[i]);
       }
+      myconf.onDragEnded();
     }
   };
 
