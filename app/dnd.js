@@ -57,6 +57,21 @@ function DragAndDropHandler(conf) {
     }
     return result;
   }
+  function checkBound() {
+    var i, len;
+    var before, item;
+
+    var slot;
+    for (i=0, len=bounds.length; i<len; i++) {
+      b = bounds[i];
+      if (clientX <= b.right && clientY <= b.bottom) {
+        slot = b.appid;
+        console.warn("slot: " + b.appid);
+        break;
+      }
+    }
+    return slot === picked;
+  }
   function findRankInBounds() {
     var result;
     var i, len, cur;
@@ -97,7 +112,7 @@ function DragAndDropHandler(conf) {
 
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
-      $li.animate({top: "", left: ""}, 500);
+      $li.animate({top: "", left: ""}, 250);
     }
   }
   function snapToMouse() {
@@ -127,22 +142,32 @@ function DragAndDropHandler(conf) {
     if (!picked) {
       return;
     }
+    //@TODO -- detect no move and snap right back.
     if (lastClientX !== clientX || lastClientY !== clientY) {
       var newrank = findRankFromMousePosition();
       if (newrank !== picked) {
-        pushMove({appid: picked, clientX: clientX, clientY: clientY});
-        myconf.onMove(picked, newrank, function() {
-          lastClientX = clientX;
-          lastClientY = clientY;
-          rank = newrank;
-        });
+        var withinBound = checkBound(picked);
+        if (!withinBound) {
+          pushMove({appid: picked, clientX: clientX, clientY: clientY});
+          myconf.onMove(picked, newrank, function() {
+            lastClientX = clientX;
+            lastClientY = clientY;
+            rank = newrank;
+          });
+        } else {
+          if (ended) {
+            snapToHome({appid: picked, clientX: clientX, clientY: clientY});
+          }
+        }
       } else {
         if (ended) {
           snapToHome({appid: picked, clientX: clientX, clientY: clientY});
         }
       }
     } else {
-      pushMove({appid: picked, clientX: clientX, clientY: clientY});
+      if (ended) {
+        snapToHome({appid: picked, clientX: clientX, clientY: clientY});
+      }
     }
   }
   function pushMove(cur) {
