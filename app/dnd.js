@@ -27,6 +27,7 @@ function DragAndDropHandler(conf) {
     activateOnTaphold: false,
     tapholdThreshold: 1250,
     margin: 0,
+    webkit: true,
     onMove: function() {},
     onDragStarted: function() {},
     onDragEnded: function() {}
@@ -106,10 +107,9 @@ function DragAndDropHandler(conf) {
     var offset = $li.offset();
     var top, left;
     if (offset) {
-      top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
-      left = cur.clientX - offset.left - Math.floor(size.height / 2);
+      top  = cur.clientY - offset.top - size.height;
+      left = cur.clientX - offset.left - size.width;
       $li.css({position: "relative", top: top, left: left});
-
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
       $li.animate({top: "", left: ""}, 250);
