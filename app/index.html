@@ -44,7 +44,7 @@
        background-color: #EEE;
     }
 
-    body #phantom {
+    body #phantom, body .phantom {
       display: block; position: absolute;
       width: 64px; height: 64px;
       background-color: rgba(255, 255, 255, 0.5);
@@ -62,7 +62,7 @@
       -webkit-transition-property: width, height;
     }
 
-    body #phantom.active {
+    body #phantom.active, body .phantom.active {
       width: 72px; height: 72px;
     }
 
@@ -483,7 +483,6 @@
               $("ul#appgrid > li").each(function(i, item) {
                 var $cloneitem = $(item).clone();
                 $cloneitem.appendTo($("ul#replacement"));
-                //$cloneitem.removeClass("invisible");
               });
             }, function() {
               $("ul#appgrid > li").each(function(i, item) {
@@ -569,7 +568,6 @@
   </script>
   </head>
   <body>
-    <div id="phantom"></div>
     <div id="jqt" class="initstate unfixed">
     <div id="z-launcherpane" class="pane form" section="aside">
       <ul id="appgrid" class="grid">

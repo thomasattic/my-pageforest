@@ -72,6 +72,16 @@ Github site: http://github.com/razorjack/quicksand
                 if (!postCallbackPerformed) {
                     postCallbackPerformed = 1;
                     
+                    // @TODO -- remove me. Do it in callback in your own code!!
+                    // to get pageforest dnd working...
+                    $sourceParent.find('> *').each(function(i, item) {
+                      var $item = $(item);
+                      if ($item.hasClass("invisible")) {
+                        $dest.find("[" + options.attribute + "='"+ $item.attr(options.attribute) + "']")
+                            .addClass("invisible");
+                      }
+                    });
+
                     // hack: 
                     // used to be: $sourceParent.html($dest.html()); // put target HTML into visible source container
                     // but new webkit builds cause flickering when replacing the collections

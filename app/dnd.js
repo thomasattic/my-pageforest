@@ -8,12 +8,13 @@ function DragAndDropHandler(conf) {
 
   var active, picked, rank;
   var lastClientX, lastClientY, clientX, clientY;
-  var bounds;
+  var bounds, phantoms = {};
   var moveTimer, tapholdTimer;
   var bus = [];
 
   // 'conf': {
   //      container: '<<jquery-selector>>',
+  //      phantomContainer: 'optional <<jquery-selector for phantom dom>>',
   //      phantom: 'optional <<jquery-selector for phantom dom>>'
   //      attrid: 'optional <<attribute name of the item id>>',
   //      child: 'optional <<jquery-selector>>',
@@ -21,7 +22,8 @@ function DragAndDropHandler(conf) {
   // }
   var myconf = $.extend({
     attrid: "data-id",
-    phantom: "#phantom",
+    phantomContainer: "body",
+    phantom: ".phantom",
     onMove: function() {},
     activateOnTaphold: false,
     tapholdThreshold: 1250,
@@ -67,12 +69,19 @@ function DragAndDropHandler(conf) {
     result = cur >= 0? bounds[cur]: undefined;
     return result;
   }
+  function getPhantom(appid) {
+    var $div = phantoms[appid];
+    if (!$div) {
+      $div = $("<div>").addClass("phantom");
+      $(myconf.phantomContainer).append($div);
+      phantoms[appid] = $div;
+    }
+    return $div;
+  }
   function snapToHome(cur) {
     console.warn("snap to home");
-    $(myconf.phantom).removeClass().hide();
-    $(myconf.container).children(myconf.child).removeClass("invisible");
+    var $phantom = getPhantom(cur.appid);
     var $li = $(myconf.container).children("[" + myconf.attrid + "='"+ cur.appid + "']");
-
     if ($li.length === 0) {
       $li = $("ul#replacement").children("[" + myconf.attrid + "='"+ cur.appid + "']");
     }
@@ -85,11 +94,14 @@ function DragAndDropHandler(conf) {
       top  = cur.clientY - offset.top - Math.floor(size.height/2);
       left = cur.clientX - offset.left - Math.floor(size.height/2);
       $li.css({position: "relative", top: top, left: left});
+
+      $li.removeClass("invisible");
+      $phantom.removeClass("active").hide();
       $li.animate({top: "", left: ""}, 500);
     }
   }
   function snapToMouse() {
-    var $phantom = $(myconf.phantom);
+    var $phantom = getPhantom(picked);
     $phantom.show().addClass("active");
 
     var $el = $(myconf.container).children("[" + myconf.attrid + "='"+ picked + "']");
@@ -99,7 +111,7 @@ function DragAndDropHandler(conf) {
     var touch = IS_TOUCH? e.changedTouches[0]: e;
     var $body = $("body");
     var offset = $body.offset();
-    var $phantom = $(myconf.phantom);
+    var $phantom = getPhantom(picked);
     var size = {height: $phantom.height(), width: $phantom.width()};
     var top, left;
 
@@ -143,7 +155,9 @@ function DragAndDropHandler(conf) {
     bus.push(cur);
   }
   function measureBounds() {
+    var oldPhantoms = phantoms;
     bounds = [];
+    phantoms = {};
     $(myconf.container).children(myconf.child).each(function(i, li) {
       var $li = $(li);
       var offset = $li.offset();
@@ -152,7 +166,13 @@ function DragAndDropHandler(conf) {
       var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
           bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
       bounds.push(item);
+      phantoms[appid] = oldPhantoms[appid];
+      delete oldPhantoms[appid];
     });
+    for (var cur in oldPhantoms) {
+      $(oldPhantoms[cur]).remove();
+      delete oldPhantoms[cur];
+    }
   }
   function translateGestureEvent(gesture) {
     return {
@@ -179,6 +199,7 @@ function DragAndDropHandler(conf) {
       picked = $el.attr(myconf.attrid);
       rank = findRankInBounds();
       $el.addClass("invisible");
+      $("ul#replacement").children("[" + myconf.attrid + "='"+ picked + "']")
 
       updateMousePosition(e.originalEvent);
 
@@ -221,7 +242,11 @@ function DragAndDropHandler(conf) {
     }
   };
   function stop() {
-    $(myconf.phantom).hide();
+    for (var cur in phantoms) {
+      $(phantoms[cur]).remove();
+      delete phantoms[cur];
+    }
+
     gt(document).on('taphold', function(gesture) {
       measureBounds();
       touchStart(translateGestureEvent(gesture));
