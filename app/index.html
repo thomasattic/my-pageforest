@@ -370,7 +370,7 @@
     var dnd = new DragAndDropHandler({
       container: "ul#appgrid",
       onMove: function(id, afterid, fn) {
-        my.items.read(id, function(id, item, fn) {
+        my.items.read(id, function(id, item) {
           item.after = afterid;
           my.items.update(id, item, fn);
         });
@@ -384,6 +384,7 @@
         $("ul#replacement").removeClass("noshake");
       },
       activateOnTaphold: true,
+      duration: 500,
       margin: 30
     });
 
@@ -402,6 +403,8 @@
     });
 
     function animationEnded() {
+    };
+    function animationStarted() {
       dnd.refresh();
     };
 
@@ -456,7 +459,6 @@
 
       $newitem.css('-webkit-touch-callout', 'none');
       $newitem.css('-webkit-user-drag', 'none');
-
     }
 
     // Special queue mechanism to handle add/remove animation.
@@ -472,9 +474,12 @@
             list[i]();
           }
           list = [];
-          $("#appgrid").quicksand($("ul#replacement > li"), function() {
-            launch(pre, fn);
-          }, {duration: 50, atomic: true});
+          $("#appgrid").quicksand($("ul#replacement > li"), {duration: 500, atomic: true}, 
+            function() {
+              launch(pre, fn);
+            }
+          );
+          animationStarted();
         } else {
           fn();
           list = undefined;
@@ -511,7 +516,6 @@
     // Items handler listens to CRUD events from model
     my.items.handler = {
       added: function(event) {
-        console.warn("added (" + event.id + "): " + event.after);
         function addItem() {
           var $newitem = $("#launcheritem-template").tmpl(event.item);
           if ("after" in event) {
@@ -533,7 +537,6 @@
         quicksandQueue.queue(addItem);
       },
       removed: function(event) {
-        console.warn("removed (" + event.id + ")");
         function removeItem() {
           var appid = event.id;
           $("ul#replacement > li[data-launcheritemid=" + appid + "]").remove();
@@ -557,7 +560,7 @@
               $("ul#replacement").prepend($item);
             }
           } else {
-            console.warn("No change in position for '" + appid + "'");
+            console.log("No change in position for '" + appid + "'");
           }
         }
         quicksandQueue.queue(updateItem);
@@ -570,7 +573,7 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
-      <a href="${url}" target="_blank" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
+      <a href="${url}" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
       <div class="deleteicon">X</div><div class="editoricon" href="${editorurl}">E</div>
     </li>
   </script>

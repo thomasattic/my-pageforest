@@ -26,6 +26,7 @@ function DragAndDropHandler(conf) {
     phantom: ".phantom",
     activateOnTaphold: false,
     tapholdThreshold: 1250,
+    duration: 250,
     margin: 0,
     webkit: true,
     onMove: function() {},
@@ -112,7 +113,7 @@ function DragAndDropHandler(conf) {
       $li.css({position: "relative", top: top, left: left});
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
-      $li.stop().animate({top: "0", left: "0"}, 250);
+      $li.stop().animate({top: "0", left: "0"}, myconf.duration);
     }
     if (bus.length === 0) {
       myconf.onDragEnded();
@@ -151,7 +152,6 @@ function DragAndDropHandler(conf) {
       if (newrank !== picked) {
         var withinBound = checkBound(picked);
         if (!withinBound) {
-          //snapToHome({appid: picked, clientX: clientX, clientY: clientY});
           pushMove({appid: picked, clientX: clientX, clientY: clientY});
           myconf.onMove(picked, newrank, function() {
             lastClientX = clientX;
