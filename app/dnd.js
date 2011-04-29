@@ -50,7 +50,7 @@ function DragAndDropHandler(conf) {
           result = b.appid;
         } else if (i > 0) {
           if (b.appid === picked) {
-            result = bounds[i+1].appid;
+            result = bounds[i+1]? bounds[i+1].appid: undefined;
           } else {
             result = bounds[i-1].appid;
           }
