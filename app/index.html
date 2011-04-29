@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html >
+<html manifest="app.manifest" >
   <head>
   <title>Pageforest</title>
   <link rel="icon" type="image/png" href="/images/icon.png" />
   <link rel="apple-touch-icon" href="/images/touch.png" />
-
   <link rel="stylesheet" type="text/css" href="/lib/beta/css/client.css" />
   <style type="text/css" media="screen">@import "./jslib/jqtouch/jqtouch/jqtouch.css";</style>
   <style type="text/css" media="screen">@import "./jslib/jqtouch/themes/apple/theme.css";</style>
@@ -151,6 +150,20 @@
     }
   </style>
 
+  <script>
+    // For offline - capable applications
+    function handleAppCache() {
+      if (typeof applicationCache == 'undefined') {
+          return;
+      }
+      if (applicationCache.status == applicationCache.UPDATEREADY) {
+          applicationCache.swapCache();
+          location.reload();
+          return;
+      }
+      applicationCache.addEventListener('updateready', handleAppCache, false);
+    }
+  </script>
   <!--
      These scripts provide access to the standard Client library
      for Pageforest apps.  jQuery and JSON, are also required
