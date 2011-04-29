@@ -98,7 +98,8 @@ function DragAndDropHandler(conf) {
     }
     var size = {height: $li.height(), width: $li.width()};
 
-    $li.css({position: "relative", top: "0", left: "0"});
+    $li.css({position: "relative", top: "0", left: "0"})
+       .removeClass("active");
     var offset = $li.offset();
     var top, left;
     if (offset) {
