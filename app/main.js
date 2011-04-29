@@ -76,6 +76,10 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
         },
         update: function(id, item, olditem, fn, err) {
             var event;
+            if (typeof olditem === "function") {
+              err = fn;
+              fn = olditem;
+            }
             modelReadyLatch.bind(function() {
                 event = {id: id, item: item, olditem: olditem};
                 if ("after" in item) {
@@ -88,18 +92,17 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                   }
                   delete item.after;
 
-                  //console.warn("== instruction   : item: " + id + " .after: " + after);
-                  //console.warn("== order (before): " + JSON.stringify(displayedorder));
                   Arrays.remove(displayedorder, displayedorder.indexOf(id));
                   displayedorder.splice(displayedorder.indexOf(after) + 1, 0, id);
-                  //console.warn("== order (after) : " + JSON.stringify(displayedorder));
-
                   event.after = after;
                 }
 
                 //ns.client.setDirty();
                 //ns.client.save();
 
+                if (fn) {
+                  fn();
+                }
                 items.handler.updated(event);
             });
         }
