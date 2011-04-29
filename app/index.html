@@ -102,6 +102,10 @@
       left: 60px;
     }
 
+    body:not(.debug) .buttonbar.shifted {
+      display: none;
+    }
+
     .buttonbar span {
       box-sizing: border-box;
       margin: 4px;
@@ -181,6 +185,10 @@
     var IS_TOUCH = 'ontouchstart' in window;
 
     var my = namespace.lookup("com.pageforest.my");
+
+    var conf = {
+      tapholdThreshold: 1000
+    }
 
     // Call the onReady function of the application when the page is loaded.
     $(document).ready(my.onReady);
@@ -389,6 +397,7 @@
           $("ul#replacement").removeClass("noshake");
         //}
       },
+      tapholdThreshold: conf.tapholdThreshold,
       activateOnTaphold: true,
       duration: 500,
       margin: 30
@@ -404,8 +413,8 @@
 
     $(document).ready(function() {
       gt(document).on('doubletap', actions.exitEditMode);
-      $("#exitedit").live("click", actions.exitEditMode, false);
-      $("#randomize").live("click", actions.randomize, false);
+      gt("#exitedit").on("tap", actions.exitEditMode, false);
+      gt("#randomize").on("tap", actions.randomize, false);
     });
 
     function animationEnded() {
@@ -417,7 +426,7 @@
 
     function prepItem(newitem) {
       var $newitem = $(newitem);
-      gt(newitem).on('taphold', actions.enterEditMode, {retain: 1250});
+      gt(newitem).on('taphold', actions.enterEditMode, {retain: conf.tapholdThreshold});
 
       var $deleteicon = $newitem.find(".deleteicon");
       gt($deleteicon[0]).on('tap', function(event) {
@@ -461,7 +470,7 @@
             console.warn("Cannot located href.");
           }
         }
-      }, {expire: 1200});
+      }, {expire: (conf.tapholdThreshold - 25)});
       $newitem.bind("tap", false);
 
       $newitem.css('-webkit-touch-callout', 'none');

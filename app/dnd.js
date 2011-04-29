@@ -25,7 +25,7 @@ function DragAndDropHandler(conf) {
     phantomContainer: "body",
     phantom: ".phantom",
     activateOnTaphold: false,
-    tapholdThreshold: 1250,
+    tapholdThreshold: 1000,
     duration: 250,
     margin: 0,
     webkit: true,
@@ -102,10 +102,10 @@ function DragAndDropHandler(conf) {
     if (offset) {
       top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
       left = cur.clientX - offset.left - Math.floor(size.width / 2);
-      $li.css({position: "relative", top: top, left: left});
+      $li.css({position: "relative", top: top, left: left, "z-index": 5});
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
-      $li.stop().animate({top: "0", left: "0"}, myconf.duration);
+      $li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
     }
     if (bus.length === 0) {
       myconf.onDragEnded();
