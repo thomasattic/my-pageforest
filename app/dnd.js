@@ -49,7 +49,11 @@ function DragAndDropHandler(conf) {
         if (!before) {
           result = b.appid;
         } else if (i > 0) {
-          result = bounds[i-1].appid;
+          if (b.appid === picked) {
+            result = bounds[i+1].appid;
+          } else {
+            result = bounds[i-1].appid;
+          }
         } else {
           result = undefined;
         }
@@ -74,18 +78,6 @@ function DragAndDropHandler(conf) {
       }
     }
     return slot === picked;
-  }
-  function findRankInBounds() {
-    var result;
-    var i, len, cur;
-    for (i=0, len=bounds.length; i<len; i++) {
-      if (bounds[i].appid === picked) {
-        cur = i-1;
-        break;
-      }
-    }
-    result = cur >= 0? bounds[cur]: undefined;
-    return result;
   }
   function getPhantom(appid) {
     var $div = phantoms[appid];
@@ -192,8 +184,11 @@ function DragAndDropHandler(conf) {
       var offset = $li.offset();
       var appid = $li.attr(myconf.attrid);
       var margin = myconf.margin;
-      var item = {appid: appid, top: offset.top - margin, left: offset.left - margin,
-          bottom: offset.top + $li.height() + margin, right: offset.left + $li.width() + margin};
+      var item = {appid: appid,
+            top: offset.top - margin,
+            left: offset.left - margin,
+            bottom: offset.top + $li.height() + margin,
+            right: offset.left + $li.width() + margin};
       bounds.push(item);
       phantoms[appid] = oldPhantoms[appid];
       delete oldPhantoms[appid];
@@ -230,9 +225,7 @@ function DragAndDropHandler(conf) {
 
     if ($el.length > 0) {
       picked = $el.attr(myconf.attrid);
-      rank = findRankInBounds();
       $el.addClass("invisible");
-      $("ul#replacement").children("[" + myconf.attrid + "='"+ picked + "']")
 
       updateMousePosition(e.originalEvent);
 
@@ -299,10 +292,12 @@ function DragAndDropHandler(conf) {
     }
     picked = undefined;
   };
-  function refresh() {
+  function notifyAnimationEnded() {
     if (active) {
       measureBounds();
     }
+  };
+  function notifyAnimationStarted() {
     if (!picked) {
       var b = bus;
       bus = [];
@@ -313,7 +308,6 @@ function DragAndDropHandler(conf) {
       myconf.onDragEnded();
     }
   };
-
   $(document).ready(function() {
     stop();
   });
@@ -321,7 +315,8 @@ function DragAndDropHandler(conf) {
   var pub = {
       start: start,
       stop: stop,
-      refresh: refresh
+      notifyAnimationStarted: notifyAnimationStarted,
+      notifyAnimationEnded: notifyAnimationEnded
   };
   return pub;
 };

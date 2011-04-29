@@ -403,9 +403,10 @@
     });
 
     function animationEnded() {
+      dnd.notifyAnimationEnded();
     };
     function animationStarted() {
-      dnd.refresh();
+      dnd.notifyAnimationStarted();
     };
 
     function prepItem(newitem) {
@@ -474,7 +475,7 @@
             list[i]();
           }
           list = [];
-          $("#appgrid").quicksand($("ul#replacement > li"), {duration: 500, atomic: true}, 
+          $("#appgrid").quicksand($("ul#replacement > li"), {duration: 500, atomic: true},
             function() {
               launch(pre, fn);
             }
