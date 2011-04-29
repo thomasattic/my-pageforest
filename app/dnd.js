@@ -110,10 +110,6 @@ function DragAndDropHandler(conf) {
       $phantom.removeClass("active").hide();
       $li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
     }
-    if (bus.length === 0) {
-      myconf.onDragEnded();
-      busy();
-    }
   }
   function snapToMouse() {
     var $phantom = getPhantom(picked);
@@ -253,6 +249,8 @@ function DragAndDropHandler(conf) {
       moveElement(true);
       picked = undefined;
     }
+    myconf.onDragEnded();
+    busy();
   }
   function touchMove(e) {
     e.preventDefault();
