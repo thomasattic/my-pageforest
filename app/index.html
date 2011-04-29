@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html >
   <head>
-  <title>Welcome to Pageforest</title>
+  <title>Pageforest</title>
   <link rel="icon" type="image/png" href="/images/icon.png" />
   <link rel="apple-touch-icon" href="/images/touch.png" />
 
@@ -313,7 +313,6 @@
     // Logical Actions
     var actions = {
       addApp: function(event, info) {
-        var $target = $(this.target || this);
         if (info.search && info.search.installapp) {
           checkReferers(info.referer, function() {
             addApp(info.search.installapp);
@@ -323,7 +322,7 @@
         }
       },
       removeApp: function(event) {
-        var $target = $(this.target || this);
+        var $target = $(this.currentTarget || this);
         var appid = $target.parents("li").attr("data-launcheritemid");
         if (appid) {
           my.items.remove(appid, function() {
@@ -397,6 +396,13 @@
       duration: 500,
       margin: 30
     });
+    /*
+    var dnd = {
+        notifyAnimationStarted: function() {},
+        notifyAnimationEnded: function() {},
+        start: function() {},
+        stop: function() {}
+    }*/
 
     $("#z-launcherpane").live("pagein", function() {
       caller = this;
@@ -425,7 +431,7 @@
 
       var $deleteicon = $newitem.find(".deleteicon");
       gt($deleteicon[0]).on('tap', function(event) {
-        var $target = $(this.target || this); // support both gt() and $()
+        var $target = $(this.currentTarget || this); // support both gt() and $()
         var $parent = $target.parents("ul.grid.editmode");
         if ($parent.length > 0) {
           if (!$target.hasClass("nodelete")) {
@@ -439,34 +445,38 @@
       $deleteicon.bind("tap", false);
 
       var $editoricon = $newitem.find(".editoricon");
-      gt($editoricon[0]).on('tap', function(event) {
-        var $target = $(this.target || this); // support both gt() and $()
-        var $parent = $target.parents("ul.grid.editmode");
-        var href = $target.attr("href");
-        var target = $target.attr("target");
-        if (href) {
-          window.open(href, target);
-          setTimeout(function() {
-            actions.exitEditMode();
-          }, 500);
-        }
-      }, false);
-      $editoricon.bind("mousedown touchstart", false);
-      $editoricon.bind("tap", false);
+      $editoricon.bind("mousedown touchstart", function(e) {
+        // important! prevent the icon and dnd code picking the event up
+        e.stopPropagation();
+      });
+      $editoricon.bind("click", function(e) {
+        // important! prevent the icon and dnd code picking the event up
+        e.stopPropagation();
+        actions.exitEditMode();
+      });
 
-      gt(newitem).on('tap', function(event) {
-        var $target = $(this.target || this); // support both gt() and $()
-        if ($target.parents("ul.grid.editmode").length === 0) {
-          var href = $target.find("a").attr("href");
-          var target = $target.attr("target");
-          if (href) {
-            window.open(href, "_blank");
-          } else {
-            console.warn("Cannot located href.");
+      if (("standalone" in window.navigator) && window.navigator.standalone) {
+        // let the default handler do the job. the only way to launch
+        // a browser externa.
+      } else {
+        // use our own handler that is not launching the browser if your user
+        // flick. Help avoid accidential launch when user intent to enter edit mode
+        gt(newitem).on('tap', function(event) {
+          var $target = $(this.currentTarget || this); // support both gt() and $()
+          if ($target.parents("ul.grid.editmode").length === 0) {
+            console.warn("a? " + $target.find("a").length);
+            var href = $target.find("a").attr("href");
+            var target = $target.attr("target");
+            if (href) {
+              window.open(href, "_blank");
+            } else {
+              console.warn("Cannot located href.");
+            }
           }
-        }
-      }, {expire: (conf.tapholdThreshold - 25)});
-      $newitem.bind("tap", false);
+        }, {expire: (conf.tapholdThreshold - 25)});
+        $newitem.bind("tap", false);
+        $newitem.bind("click", false);
+      }
 
       $newitem.css('-webkit-touch-callout', 'none');
       $newitem.css('-webkit-user-drag', 'none');
@@ -584,8 +594,8 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
-      <a href="${url}" title="${title}"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
-      <div class="deleteicon">X</div><div class="editoricon" href="${editorurl}">E</div>
+      <a href="${url}" title="${title}" target="_blank"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
+      <div class="deleteicon">X</div><div><a class="editoricon" href="${editorurl}" target="_blank">E</a></div>
     </li>
   </script>
   </head>
@@ -604,12 +614,7 @@
     </div>
     </div>
     <div>
-      <ul class="hidden" id="replacement">
-        <li data-id="beedesk-test" data-launcheritemid="beedesk-test" class=" "><a href="http://beedesk-test.pageforest.com/" target="_blank" title="BeeDesk"><div class="icon" style="background-image: url(/mirror/beedesk-test/images/BeeDesk_final_72px.png);"><div class="mask"></div></div></a><div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#beedesk-test">E</div>     </li>
-        <li data-id="editor" data-launcheritemid="editor" class=" nodelete  noeditor">       <a href="http://editor.pageforest.com/" target="_blank" title="Pageforest Application Editor"><div class="icon" style="background-image: url(/mirror/editor/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#editor">E</div>     </li>
-        <li data-id="pawnpwn" data-launcheritemid="pawnpwn" class="  noeditor">       <a href="http://pawnpwn.pageforest.com/" target="_blank" title="Pawn Pwn"><div class="icon" style="background-image: url(/mirror/pawnpwn/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#pawnpwn">E</div>     </li>
-        <li data-id="wiki" data-launcheritemid="wiki" class="  noeditor"><a href="http://wiki.pageforest.com/" target="_blank" title="Pageforest Wiki"><div class="icon" style="background-image: url(/mirror/wiki/images/icon.png);"><div class="mask"></div></div></a>       <div class="deleteicon">X</div><div class="editoricon" href="http://editor.pageforest.com/#wiki">E</div></li>
-      </ul>
+      <ul class="hidden" id="replacement"></ul>
     </div>
     <div class="nonpage">
       <!--

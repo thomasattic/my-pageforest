@@ -9,7 +9,7 @@ function DragAndDropHandler(conf) {
   var active, picked, rank;
   var lastClientX, lastClientY, clientX, clientY;
   var bounds, phantoms = {};
-  var moveTimer, tapholdTimer, idleTimer;
+  var moveTimer, idleTimer;
   var bus = [];
 
   // 'conf': {
@@ -290,10 +290,12 @@ function DragAndDropHandler(conf) {
       delete phantoms[cur];
     }
 
-    gt(document).on('taphold', function(gesture) {
-      measureBounds();
-      touchStart(translateGestureEvent(gesture));
-    }, {retain: myconf.tapholdThreshold});
+    if (myconf.activateOnTaphold) {
+      gt(document).on('taphold', function(gesture) {
+        measureBounds();
+        touchStart(translateGestureEvent(gesture));
+      }, {retain: myconf.tapholdThreshold});
+    }
 
     if (active) {
       active = undefined;
