@@ -9,7 +9,7 @@ function DragAndDropHandler(conf) {
   var active, picked, rank;
   var lastClientX, lastClientY, clientX, clientY;
   var bounds, phantoms = {};
-  var moveTimer, tapholdTimer;
+  var moveTimer, tapholdTimer, idleTimer;
   var bus = [];
 
   // 'conf': {
@@ -26,12 +26,14 @@ function DragAndDropHandler(conf) {
     phantom: ".phantom",
     activateOnTaphold: false,
     tapholdThreshold: 1000,
+    idleThreshold: 60000,
     duration: 250,
     margin: 0,
     webkit: true,
     onMove: function() {},
     onDragStarted: function() {},
-    onDragEnded: function() {}
+    onDragEnded: function() {},
+    onIdle: function() {}
   }, conf);
 
   function findRankFromMousePosition() {
@@ -109,6 +111,7 @@ function DragAndDropHandler(conf) {
     }
     if (bus.length === 0) {
       myconf.onDragEnded();
+      busy();
     }
   }
   function snapToMouse() {
@@ -263,6 +266,12 @@ function DragAndDropHandler(conf) {
       }
     }, 125);
   }
+  function busy() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function() {
+      myconf.onIdle();
+    }, 60000);
+  }
   function start() {
     if (!active) {
       active = true;
@@ -272,8 +281,11 @@ function DragAndDropHandler(conf) {
       measureBounds();
       myconf.onDragEnded();
     }
+    busy();
   };
   function stop() {
+    clearTimeout(idleTimer);
+
     for (var cur in phantoms) {
       $(phantoms[cur]).remove();
       delete phantoms[cur];
@@ -307,6 +319,7 @@ function DragAndDropHandler(conf) {
         snapToHome(b[i]);
       }
       myconf.onDragEnded();
+      busy();
     }
   };
   $(document).ready(function() {

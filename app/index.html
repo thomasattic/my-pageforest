@@ -311,7 +311,6 @@
     });
 
     // Logical Actions
-    var editmodeTimer;
     var actions = {
       addApp: function(event, info) {
         var $target = $(this.target || this);
@@ -341,11 +340,6 @@
         $('body').addClass("editmode");
 
         dnd.start();
-
-        clearTimeout(editmodeTimer);
-        editmodeTimer = setTimeout(function() {
-          actions.exitEditMode();
-        }, 60000);
       },
       exitEditMode: function() {
         $("ul#appgrid.editmode").removeClass("editmode");
@@ -353,8 +347,6 @@
         $("ul#appgrid > li").removeClass("invisible active");
 
         dnd.stop();
-
-        clearTimeout(editmodeTimer);
       },
       randomize: function() {
         var list = [];
@@ -396,6 +388,9 @@
           $("ul#appgrid").removeClass("noshake");
           $("ul#replacement").removeClass("noshake");
         //}
+      },
+      onIdle: function() {
+        actions.exitEditMode();
       },
       tapholdThreshold: conf.tapholdThreshold,
       activateOnTaphold: true,
