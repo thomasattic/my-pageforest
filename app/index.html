@@ -178,6 +178,8 @@
 
   <script type="text/javascript">
   namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
+    var IS_TOUCH = 'ontouchstart' in window;
+
     var my = namespace.lookup("com.pageforest.my");
 
     // Call the onReady function of the application when the page is loaded.
@@ -376,12 +378,16 @@
         });
       },
       onDragStarted: function() {
-        $("ul#appgrid").addClass("noshake");
-        $("ul#replacement").addClass("noshake");
+        //if (IS_TOUCH) {
+          $("ul#appgrid").addClass("noshake");
+          $("ul#replacement").addClass("noshake");
+        //}
       },
       onDragEnded: function() {
-        $("ul#appgrid").removeClass("noshake");
-        $("ul#replacement").removeClass("noshake");
+        //if (IS_TOUCH) {
+          $("ul#appgrid").removeClass("noshake");
+          $("ul#replacement").removeClass("noshake");
+        //}
       },
       activateOnTaphold: true,
       duration: 500,

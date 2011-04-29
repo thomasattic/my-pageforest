@@ -269,7 +269,8 @@ function DragAndDropHandler(conf) {
       $(document).bind(START_EVENT, touchStart);
       $(document).bind(END_EVENT, touchEnd);
       $(document).bind(MOVE_EVENT, touchMove);
-      refresh();
+      measureBounds();
+      myconf.onDragEnded();
     }
   };
   function stop() {
