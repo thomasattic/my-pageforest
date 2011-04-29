@@ -481,6 +481,7 @@ function TouchLayer (el, type, fn, options) {
 };
 
 TouchLayer.prototype = {
+	tapMoveThreshold: 0,
 	moveThreshold: 2,		// 2 pixels minimum, default=10
 	neededTouches: 1,
 
@@ -630,7 +631,7 @@ TouchLayer.prototype = {
 		that.absDirY = that.distY > 0 ? 1 : -1;
 
 		// Intended direction
-		if (that.absDistX > that.moveThreshold || that.absDistY > that.moveThreshold && !that.startDir) {
+		if (that.absDistX > that.tapMoveThreshold || that.absDistY > that.tapMoveThreshold && !that.startDir) {
 			// Moved with threshold
 			that.moved = true;
 
