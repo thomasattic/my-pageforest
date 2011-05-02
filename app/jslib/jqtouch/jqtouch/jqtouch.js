@@ -1283,8 +1283,9 @@
                 }
             }
 
-            function updateChanges() {
-                var first = $.support.touch? event.changedTouches[0]: event;
+            function updateChanges(e) {
+                var point = e.originalEvent;
+                var first = $.support.touch? point.changedTouches[0]: point;
                 deltaX = first.pageX - startX;
                 deltaY = first.pageY - startY;
                 deltaT = (new Date).getTime() - startTime;
@@ -1294,10 +1295,13 @@
             }
 
             function handlestart(e) {
+                var point;
+
                 inprogress = true, swipped = false, tapped = false,
                 moved = false, timed = false, pressed = false;
-                startX = $.support.touch? event.changedTouches[0].clientX: event.clientX;
-                startY = $.support.touch? event.changedTouches[0].clientY: event.clientY;
+                point = e.originalEvent;
+                startX = $.support.touch? point.changedTouches[0].clientX: point.clientX;
+                startY = $.support.touch? point.changedTouches[0].clientY: point.clientY;
                 startTime = (new Date).getTime();
                 endX = null, endY = null, endTime = null;
                 deltaX = 0;
@@ -1326,7 +1330,7 @@
             };
 
             function handlemove(e) {
-                updateChanges();
+                updateChanges(e);
 
                 if (!inprogress)
                   return;
@@ -1355,7 +1359,7 @@
             };
 
             function handleend(e) {
-                updateChanges();
+                updateChanges(e);
                 var absX = Math.abs(deltaX);
                 var absY = Math.abs(deltaY);
 
