@@ -555,6 +555,7 @@
       added: function(event) {
         function addItem() {
           var $newitem = $("#launcheritem-template").tmpl(event.item);
+          console.warn("adding item: " + event.id);
           if ("after" in event) {
             if (event.after !== undefined) {
               var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
@@ -618,8 +619,7 @@
   <body>
     <div id="jqt" class="initstate unfixed">
     <div id="z-launcherpane" class="pane form" section="aside">
-      <ul id="appgrid" class="grid">
-      </ul>
+      <ul id="appgrid" class="grid"></ul>
       <div class="showoninit emboss">
           <div class="spinner animate" style="width: 26px; height: 26px; margin: -8px 0;">
               <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div>
