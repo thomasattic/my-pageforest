@@ -478,7 +478,7 @@
         // let the default handler do the job. the only way to launch
         // a browser externa.
       } else {
-        // use our own handler that is not launching the browser if your user
+        // use our own handler to avoid launching the href page if your user
         // flick. Help avoid accidential launch when user intent to enter edit mode
         gt(newitem).on('tap', function(event) {
           var $target = $(this.currentTarget || this); // support both gt() and $()
@@ -493,6 +493,9 @@
             }
           }
         }, {expire: (conf.tapholdThreshold - 25)});
+        $newitem.bind("mousedown touchstart", function(event) {
+          event.preventDefault();
+        });
         $newitem.bind("tap", false);
         $newitem.bind("click", false);
       }
@@ -558,7 +561,6 @@
       added: function(event) {
         function addItem() {
           var $newitem = $("#launcheritem-template").tmpl(event.item);
-          console.warn("adding item: " + event.id);
           if ("after" in event) {
             if (event.after !== undefined) {
               var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
@@ -613,8 +615,8 @@
     <ul id="${id}" class="grid"></ul>
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
-    <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}">
-      <a href="${url}" title="${title}" target="_blank"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
+    <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}" draggable="false">
+      <a href="${url}" title="${title}" target="_blank" draggable="false"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div></a>
       <div class="deleteicon">X</div><div><a class="editoricon" href="${editorurl}" target="_blank">E</a></div>
     </li>
   </script>
