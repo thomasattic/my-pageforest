@@ -34,11 +34,14 @@
     #jqt > #z-launcherpane ul.grid li {
        display: block;
        float: left;
+       -moz-user-select: none;
+       -moz-user-select: -moz-none;
+       -webkit-user-drag: none;
     }
     #jqt > #z-launcherpane ul.grid li > a {
       display: block;
-      -moz-user-select: -moz-none;
       -moz-user-select: none;
+      -moz-user-select: -moz-none;
       -webkit-user-drag: none;
     }
 
@@ -89,10 +92,11 @@
       position: fixed;
       top: 0; left: 0;
       height: 35px;
-      -webkit-border-radius: 0 0 6px 6px; -moz-border-radius: 0 0 6px 6px;
+      -webkit-border-radius: 0 0 6px 6px; -moz-border-radius: 0 0 6px 6px; border-radius: 0 0 6px 6px;
       background-image: -webkit-gradient(linear, left top, left bottom,
         from(#EEFDE9), color-stop(0.05, #EEFDE9), color-stop(0.5, #BAF2A8), color-stop(0.5, #B3E8A0), to(#AAEE95));
       background-image: -moz-linear-gradient(top, #EEFDE9, #E4FBDD 5%, #BAF2A8 50%, #B3E8A0 50%, #AAEE95);
+      background-color: #AAEE95;
       font-family: Verdana, Arial, san-serif;
       font-size: 14px;
       margin-left: 16px;
