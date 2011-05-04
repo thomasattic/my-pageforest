@@ -272,6 +272,8 @@
       });
     };
 
+
+
     // Map Pageforest URL's to be relative to current domain (for non-pageforest.com hosting).
     function normalizeHost(url) {
         var appHost = window.location.host;
@@ -292,34 +294,6 @@
       }
       return false;
     }
-    function checkReferers(referer, fn, err) {
-      var appid = my.items.appid;
-      if (!referers) {
-        // ajax on that:
-        var apppath = '/mirror/' + appid + '/app.json';
-        $.ajax({
-          type: 'GET', url: apppath, dataType: 'json', async: false,
-          success: function(appjson) {
-            referers = appjson.referers;
-            if (check(referers, referer)) {
-              fn();
-            } else {
-              err();
-            }
-          },
-          error: function(request, textStatus, errorThrown) {
-            err();
-          }
-        });
-      } else {
-        if (check(referers, referer)) {
-          fn();
-        } else {
-          err();
-        }
-      } // these method can look much simpler if we use library such as "Promise".
-    }
-    // </Application Adding>
 
     // Manage display to indicate state
     modelReadyLatch.bind(function() {
@@ -338,17 +312,18 @@
       addApp('editor', {staple: true});
     });
 
+    function checkInstall() {
+      var hash = window.location.hash.substr(1);
+      window.location.hash = '';
+      hash = hash.replace(/installapp=(.+)$/, "$1");
+      if (hash) {
+        addApp(hash);
+      }
+    }
+    setInterval(checkInstall, 1000);
+
     // Logical Actions
     var actions = {
-      addApp: function(event, info) {
-        if (info.search && info.search.installapp) {
-          checkReferers(info.referer, function() {
-            addApp(info.search.installapp);
-          }, function() {
-            console.error("referer doesn't pass.");
-          });
-        }
-      },
       removeApp: function(event) {
         var $target = $(this.currentTarget || this);
         var appid = $target.parents("li").attr("data-launcheritemid");
@@ -431,14 +406,6 @@
         start: function() {},
         stop: function() {}
     }*/
-
-    $("#z-launcherpane").live("pagein", function() {
-      caller = this;
-      args = Array.prototype.slice.call(arguments);
-      modelReadyLatch.bind(function() {
-        actions.addApp.apply(caller, args);
-      });
-    });
 
     $(document).ready(function() {
       gt(document).on('doubletap', actions.exitEditMode);
