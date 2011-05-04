@@ -9,7 +9,9 @@
   "referers": ["http://my.pageforest.com/",
                "http://my-dev.pageforest.com/",
                "http://www.pageforest.com/",
-               "http://www.pageforest:8080"],
+               "http://www.pageforest:8080",
+               "http://www.dev.latest.pageforest.appspot.com"
+              ],
   "secureData": false,
   "tags": [
     "launcher"
