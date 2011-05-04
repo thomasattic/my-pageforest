@@ -103,8 +103,10 @@ only screen and (min-device-width: 1024px) {
 }
 
 #jqt > .current, #jqt > .smokedglass, #jqt > .clearglass {
+    display: block;
     display: -webkit-box;
     display: -moz-box;
+    display: box;
 }
 
 #jqt > .current.alphapage .hideonalpha,

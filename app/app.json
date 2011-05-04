@@ -13,6 +13,7 @@
   "readers": [
     "public"
   ],
+  "icon": "images/icon.png",
   "referers": [ "http://my.pageforest.com/", "http://my-dev.pageforest.com/", "http://www.pageforest.com/"],
   "secureData": false,
   "sha1": "203d9c19891cde3ef49e2e6b2deef641751a2745",
