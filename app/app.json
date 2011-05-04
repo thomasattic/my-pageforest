@@ -1,23 +1,16 @@
 {
   "application": "my",
   "cloneable": false,
-  "created": {
-    "__class__": "Date",
-    "isoformat": "2011-04-01T20:46:39.434459Z"
-  },
-  "modified": {
-    "__class__": "Date",
-    "isoformat": "2011-04-01T20:46:39.434580Z"
-  },
   "owner": "beedesk",
   "readers": [
     "public"
   ],
   "icon": "images/icon.png",
-  "referers": [ "http://my.pageforest.com/", "http://my-dev.pageforest.com/", "http://www.pageforest.com/", "http://my.pageforest:8080"],
+  "referers": ["http://my.pageforest.com/",
+               "http://my-dev.pageforest.com/",
+               "http://www.pageforest.com/",
+               "http://www.pageforest:8080"],
   "secureData": false,
-  "sha1": "203d9c19891cde3ef49e2e6b2deef641751a2745",
-  "size": 275,
   "tags": [
     "launcher"
   ],
