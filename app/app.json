@@ -14,11 +14,8 @@
   "readers": [
     "public"
   ],
-  "referers": [
-    "http://my.pageforest.com/",
-    "http://my-dev.pageforest.com/",
-    "http://www.pageforest.com/"
-  ],
+  "icon": "images/icon.png",
+  "referers": [ "http://my.pageforest.com/", "http://my-dev.pageforest.com/", "http://www.pageforest.com/", "http://my.pageforest:8080"],
   "secureData": false,
   "sha1": "a33564856e5285baf4779299fd377401b4051fd7",
   "size": 396,

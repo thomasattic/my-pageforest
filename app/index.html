@@ -170,6 +170,8 @@
       }
       applicationCache.addEventListener('updateready', handleAppCache, false);
     }
+
+    handleAppCache();
   </script>
   <!--
      These scripts provide access to the standard Client library
@@ -201,9 +203,9 @@
 
   <script type="text/javascript">
   namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
-    var IS_TOUCH = 'ontouchstart' in window;
-
     var my = namespace.lookup("com.pageforest.my");
+
+    var IS_TOUCH = 'ontouchstart' in window;
 
     var conf = {
       tapholdThreshold: 1000
@@ -269,6 +271,13 @@
         }
       });
     };
+
+    // Map Pageforest URL's to be relative to current domain (for non-pageforest.com hosting).
+    function normalizeHost(url) {
+        var appHost = window.location.host;
+        url = url.replace(/\.pageforest\.com/, appHost.substr(appHost.indexOf('.')));
+        return url;
+    }
 
     // reference: http://code.google.com/p/pageforest/source/browse/appengine/auth/middleware.py::referer_is_trusted
     var referers;
@@ -476,7 +485,7 @@
 
       if (("standalone" in window.navigator) && window.navigator.standalone) {
         // let the default handler do the job. the only way to launch
-        // a browser externa.
+        // a browser external.
       } else {
         // use our own handler to avoid launching the href page if your user
         // flick. Help avoid accidential launch when user intent to enter edit mode
@@ -560,7 +569,9 @@
     my.items.handler = {
       added: function(event) {
         function addItem() {
-          var $newitem = $("#launcheritem-template").tmpl(event.item);
+          var $newitem = $("#launcheritem-template").tmpl(
+            $.extend({}, event.item, {url: normalizeHost(event.item.url),
+                                      editorurl: normalizeHost(event.item.editorurl)}));
           if ("after" in event) {
             if (event.after !== undefined) {
               var $leader = $("ul#replacement").find("li[data-launcheritemid=" + event.after + "]");
