@@ -24,7 +24,8 @@
 (function() {
   jqt = $.jQTouch({
     updatehash: false,
-    hashquery: true
+    hashquery: true,
+    clearInitHash: false
   });
 
   $(document).ready(function(){
