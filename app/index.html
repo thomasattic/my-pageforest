@@ -211,6 +211,13 @@
       tapholdThreshold: 1000
     }
 
+    // Setup jQTouch with options
+    jqt = $.jQTouch({
+      updatehash: false,
+      hashquery: true,
+      clearInitHash: false
+    });
+
     // Call the onReady function of the application when the page is loaded.
     $(document).ready(my.onReady);
 

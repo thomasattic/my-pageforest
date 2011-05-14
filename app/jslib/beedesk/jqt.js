@@ -22,13 +22,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 (function() {
-  jqt = $.jQTouch({
-    updatehash: false,
-    hashquery: true,
-    clearInitHash: false
-  });
-
   $(document).ready(function(){
+    var jqt = $("#jqt").data("jqt");
     // initialize iscroll
     var KEY_ISCROLL_OBJ = 'iscroll_object';
     function refreshScroll($pane) {
