@@ -22,8 +22,8 @@ NETWORK:
 #! EXCLUDE: jslib/jqtouch/themes/jqt
 #! EXCLUDE: jslib/touchlayer/examples
 #! EXCLUDE: test
-# TOTAL FILES: 50 (575,341 bytes)
-# SIGNATURE: f4cf897eabd4a9501a098c92dc1fc1f3ebf85124
+# TOTAL FILES: 44 (411,589 bytes)
+# SIGNATURE: a2840574c409ee85cc07c669adc42a0c80f20a49
 CACHE:
 dnd.js
 images/gradient.jpg
@@ -35,7 +35,6 @@ jslib/beedesk/jqt.js
 jslib/beedesk/utilities.js
 jslib/jqtouch/jqtouch/jqtouch.css
 jslib/jqtouch/jqtouch/jqtouch.js
-jslib/jqtouch/jqtouch/jquery-1.5.1.min.js
 jslib/jqtouch/themes/apple/img/activeButton.png
 jslib/jqtouch/themes/apple/img/backButton.png
 jslib/jqtouch/themes/apple/img/backButton_clicked.png
@@ -64,13 +63,8 @@ jslib/jqtouch/themes/apple/img/toolButton_clicked.png
 jslib/jqtouch/themes/apple/img/toolbar.png
 jslib/jqtouch/themes/apple/img/whiteButton.png
 jslib/jqtouch/themes/apple/theme.css
-jslib/lib/date.js
-jslib/lib/jquery.jsonp-2.1.4.js
-jslib/lib/jquery.jsonp-2.1.4.min.js
 jslib/lib/jquery.quicksand.js
-jslib/lib/jquery.tmpl.js
 jslib/lib/jquery.tmpl.min.js
-jslib/lib/json2.js
 jslib/touchlayer/README
 jslib/touchlayer/license.txt
 jslib/touchlayer/src/gestures.js
