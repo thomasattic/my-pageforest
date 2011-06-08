@@ -92,6 +92,7 @@ function DragAndDropHandler(conf) {
     return $div;
   }
   function snapToHome(cur) {
+    var values;
     var $phantom = getPhantom(cur.appid);
     var $li = $(myconf.container).children("[" + myconf.attrid + "='"+ cur.appid + "']");
     if ($li.length === 0) {
@@ -101,14 +102,32 @@ function DragAndDropHandler(conf) {
 
     $li.css({position: "relative", top: "0", left: "0"})
        .removeClass("active");
+    /*$li.css({
+      '-webkit-transition-property': '-webkit-transform',
+      '-webkit-transition-duration': '0',
+      '-webkit-transition-timing-function': 'linear'});
+     */
+
+    //$li.css({'-webkit-transform': '', '-moz-transform': '', 'z-index': '', '-webkit-transition-duration': '0'});
+    $li.removeClass("active");
+
     var offset = $li.offset();
     var top, left;
     if (offset) {
       top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
       left = cur.clientX - offset.left - Math.floor(size.width / 2);
+      //values = "translate(" + left + "px, "+ top + "px)";
+      //$li.css({'-webkit-transform': values, '-moz-transform': values, 'z-index': 5, '-webkit-transition-duration': ''});
       $li.css({position: "relative", top: top, left: left, "z-index": 5});
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
+
+      /*
+      setTimeout(function() {
+        //$li.css({'-webkit-transform': values, '-moz-transform': values, 'z-index': 5, '-webkit-transition-duration': ''});
+        $li.css({'-webkit-transform': '(0,0)', '-moz-transform': '(0,0)'});
+      }, 500);
+      */
       $li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
     }
   }
@@ -124,22 +143,23 @@ function DragAndDropHandler(conf) {
 
     phantom.jquery = getPhantom(picked);
     phantom.offset = $("body").offset();
-    phantom.height = phantom.jquery.height();
-    phantom.width = phantom.jquery.width();
+    phantom.height = Math.floor(phantom.jquery.height() * 0.75);
+    phantom.width = Math.floor(phantom.jquery.width() / 2);
 
     updateMousePosition(e);
   }
   function updateMousePosition(e) {
-    var touch, top, left;
+    var touch, top, left, values;
 
     touch = IS_TOUCH? e.changedTouches[0]: e;
     clientX = touch.clientX;
     clientY = touch.clientY;
 
-    top = clientY - phantom.offset.top - Math.floor(phantom.height * 0.75);
-    left = clientX - phantom.offset.left - Math.floor(phantom.width / 2);
+    top = clientY - phantom.offset.top - phantom.height;
+    left = clientX - phantom.offset.left - phantom.width;
 
-    phantom.jquery.css('top', top + 'px').css("left", left + 'px');
+    values = "translate(" + left + "px, "+ top + "px)";
+    phantom.jquery.css({'-webkit-transform': values, '-moz-transform': values});
   }
   function moveElement(ended) {
     if (!picked) {
@@ -234,15 +254,14 @@ function DragAndDropHandler(conf) {
       picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
 
-      initMousePosition(e.originalEvent);
+      initMousePosition(e.originalEvent? e.originalEvent: e);
 
-      clearTimeout(moveTimer);
-      moveTimer = setTimeout(function() {
-        if (!IS_TOUCH) {
+      if (!IS_TOUCH) {
+        clearTimeout(moveTimer);
+        moveTimer = setTimeout(function() {
           moveElement();
-        }
-      }, 50);
-
+        }, 50);
+      }
       snapToMouse();
       myconf.onDragStarted();
     }
@@ -251,8 +270,10 @@ function DragAndDropHandler(conf) {
     if (picked) {
       e.preventDefault();
 
-      updateMousePosition(e.originalEvent);
-      clearTimeout(moveTimer);
+      updateMousePosition(e.originalEvent? e.originalEvent: e);
+      if (!IS_TOUCH) {
+        clearTimeout(moveTimer);
+      }
       moveElement(true);
       picked = undefined;
     }
@@ -264,13 +285,13 @@ function DragAndDropHandler(conf) {
     if (!picked) {
       return;
     }
-    updateMousePosition(e.originalEvent);
-    clearTimeout(moveTimer);
-    moveTimer = setTimeout(function() {
-      if (!IS_TOUCH) {
-          moveElement();
-      }
-    }, 125);
+    updateMousePosition(e.originalEvent? e.originalEvent: e);
+    if (!IS_TOUCH) {
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(function() {
+        moveElement();
+      }, 125);
+    }
   }
   function busy() {
     clearTimeout(idleTimer);
@@ -281,9 +302,9 @@ function DragAndDropHandler(conf) {
   function start() {
     if (!active) {
       active = true;
-      $(document).bind(START_EVENT, touchStart);
-      $(document).bind(END_EVENT, touchEnd);
-      $(document).bind(MOVE_EVENT, touchMove);
+      document.addEventListener(START_EVENT, touchStart);
+      document.addEventListener(END_EVENT, touchEnd);
+      document.addEventListener(MOVE_EVENT, touchMove);
       measureBounds();
       myconf.onDragEnded();
     }
@@ -306,9 +327,9 @@ function DragAndDropHandler(conf) {
 
     if (active) {
       active = undefined;
-      $(document).unbind(START_EVENT, touchStart);
-      $(document).unbind(END_EVENT, touchEnd);
-      $(document).unbind(MOVE_EVENT, touchMove);
+      document.removeEventListener(START_EVENT, touchStart);
+      document.removeEventListener(END_EVENT, touchEnd);
+      document.removeEventListener(MOVE_EVENT, touchMove);
 
     }
     picked = undefined;

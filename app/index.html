@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html manifest="app.manifest" >
+<html>
+<!--<html manifest="app.manifest">-->
   <head>
   <title>Pageforest</title>
   <link rel="icon" type="image/png" href="/images/icon.png" />
@@ -37,6 +38,10 @@
        -moz-user-select: none;
        -moz-user-select: -moz-none;
        -webkit-user-drag: none;
+       -webkit-transform: translate(0,0);
+       -webkit-transition-property: -webkit-transform;
+       -webkit-transition-duration: 500ms;
+       -webkit-transition-timing-function: linear;
     }
     #jqt > #z-launcherpane ul.grid li > a {
       display: block;
@@ -171,7 +176,7 @@
       applicationCache.addEventListener('updateready', handleAppCache, false);
     }
 
-    handleAppCache();
+    //handleAppCache();
   </script>
   <!--
      These scripts provide access to the standard Client library
@@ -400,13 +405,6 @@
       duration: 500,
       margin: 30
     });
-    /*
-    var dnd = {
-        notifyAnimationStarted: function() {},
-        notifyAnimationEnded: function() {},
-        start: function() {},
-        stop: function() {}
-    }*/
 
     $(document).ready(function() {
       gt(document).on('doubletap', actions.exitEditMode);
