@@ -22,8 +22,8 @@ NETWORK:
 #! EXCLUDE: jslib/jqtouch/themes/jqt
 #! EXCLUDE: jslib/touchlayer/examples
 #! EXCLUDE: test
-# TOTAL FILES: 44 (411,491 bytes)
-# SIGNATURE: 8ed5a1057c5a8239be33c6e2b4648bd90615f79c
+# TOTAL FILES: 43 (406,169 bytes)
+# SIGNATURE: 1d6a042a4deae3774250803af6289d627ccb2e37
 CACHE:
 dnd.js
 images/gradient.jpg
@@ -31,7 +31,6 @@ images/icon.png
 images/logo.png
 images/touch.png
 index.html
-jslib/beedesk/jqt.js
 jslib/beedesk/utilities.js
 jslib/jqtouch/jqtouch/jqtouch.css
 jslib/jqtouch/jqtouch/jqtouch.js

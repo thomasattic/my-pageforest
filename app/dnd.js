@@ -7,6 +7,7 @@ function DragAndDropHandler(conf) {
   var CANCEL_EVENT = IS_TOUCH? 'touchcancel' : 'mouseout'; // mouseout on document
 
   var active, picked, rank;
+  var phantom = {};
   var lastClientX, lastClientY, clientX, clientY;
   var bounds, phantoms = {};
   var moveTimer, idleTimer;
@@ -118,21 +119,27 @@ function DragAndDropHandler(conf) {
     var $el = $(myconf.container).children("[" + myconf.attrid + "='"+ picked + "']");
     $phantom.css('background-image', $el.find(".icon").css('background-image'));
   }
-  function updateMousePosition(e) {
-    var touch = IS_TOUCH? e.changedTouches[0]: e;
-    var $body = $("body");
-    var offset = $body.offset();
-    var $phantom = getPhantom(picked);
-    var size = {height: $phantom.height(), width: $phantom.width()};
-    var top, left;
+  function initMousePosition(e) {
+    var $body, $phantom;
 
+    phantom.jquery = getPhantom(picked);
+    phantom.offset = $("body").offset();
+    phantom.height = phantom.jquery.height();
+    phantom.width = phantom.jquery.width();
+
+    updateMousePosition(e);
+  }
+  function updateMousePosition(e) {
+    var touch, top, left;
+
+    touch = IS_TOUCH? e.changedTouches[0]: e;
     clientX = touch.clientX;
     clientY = touch.clientY;
 
-    top = clientY - offset.top - Math.floor(size.height * 0.75);
-    left = clientX - offset.left - Math.floor(size.width / 2);
+    top = clientY - phantom.offset.top - Math.floor(phantom.height * 0.75);
+    left = clientX - phantom.offset.left - Math.floor(phantom.width / 2);
 
-    $phantom.css('top', top + 'px').css("left", left + 'px');
+    phantom.jquery.css('top', top + 'px').css("left", left + 'px');
   }
   function moveElement(ended) {
     if (!picked) {
@@ -227,7 +234,7 @@ function DragAndDropHandler(conf) {
       picked = $el.attr(myconf.attrid);
       $el.addClass("invisible");
 
-      updateMousePosition(e.originalEvent);
+      initMousePosition(e.originalEvent);
 
       clearTimeout(moveTimer);
       moveTimer = setTimeout(function() {

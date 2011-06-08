@@ -1123,8 +1123,6 @@
 
                     if ($el.is(jQTSettings.dialogSelector) || $el.find(jQTSettings.dialogSelector).length > 0) {
                       pageback = function(returns) {
-                        console.warn("pageback is called. returns: " + JSON.stringify(returns));
-
                         var $page = $(this);
                         if (returns) {
                           for (var i=0, len=returns.length; i<len; i++) {
@@ -1134,7 +1132,6 @@
                               // sloppy workaround for the simpliest
                               var $item = $el.find('input[value]').eq(i);
                             }
-                            console.warn("setting value for item: " + $item.attr("id"));
                             $item.val(item.value);
                             if ($item.attr('type') === 'radio' || $item.attr('type') === 'checkbox') {
                               $item.attr('checked', true);
