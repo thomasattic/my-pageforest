@@ -22,8 +22,8 @@ NETWORK:
 #! EXCLUDE: jslib/jqtouch/themes/jqt
 #! EXCLUDE: jslib/touchlayer/examples
 #! EXCLUDE: test
-# TOTAL FILES: 44 (411,589 bytes)
-# SIGNATURE: a2840574c409ee85cc07c669adc42a0c80f20a49
+# TOTAL FILES: 44 (411,491 bytes)
+# SIGNATURE: 8ed5a1057c5a8239be33c6e2b4648bd90615f79c
 CACHE:
 dnd.js
 images/gradient.jpg
