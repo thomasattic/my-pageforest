@@ -595,9 +595,11 @@
   </script>
   <script id="launcheritem-template" type="text/x-jquery-tmpl">
     <li data-id="${appid}" data-launcheritemid="${appid}" class="{{if staple}} nodelete{{/if}} {{if editable}}{{else}} noeditor{{/if}}" draggable="false">
-      <a href="${url}" title="${title}" target="_blank" draggable="false"><div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>
-        <div class="deleteicon">X</div><div><a class="editoricon" href="${editorurl}" target="_blank">E</a></div>
+      <a href="${url}" title="${title}" target="_blank" draggable="false">
+        <div class="icon" style="background-image: url(${icon});"><div class="mask"></div></div>
       </a>
+      <div class="deleteicon">X</div>
+      <div><a class="editoricon" href="${editorurl}" target="_blank">E</a></div>
     </li>
   </script>
   </head>

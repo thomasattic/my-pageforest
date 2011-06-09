@@ -358,11 +358,7 @@ Github site: http://github.com/razorjack/quicksand
                           destElement.animate({top: "0", left: "0"}, options.duration, options.easing, postCallback);
                         }
                     } else {
-                        if (options.useTransform) {
-                            current.element.animate(current.animation, options.duration, options.easing, postCallback);
-                        } else {
-                            current.element.animate(current.animation, options.duration, options.easing, postCallback);
-                        }
+                        current.element.animate(current.animation, options.duration, options.easing, postCallback);
                     }
                 });
                 $toDelete.remove();
