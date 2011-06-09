@@ -101,22 +101,30 @@ function DragAndDropHandler(conf) {
     var size = {height: $li.height(), width: $li.width()};
 
     $li.removeClass("active").removeClass('start').css({position: "relative", top: "0", left: "0"});
-    $li.css({'-webkit-transform': 'translate(0,0)'});
-
+    $li.css({
+      '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
+      '-o-transform': 'translate(0,0)'
+    });
     var offset = $li.offset();
     var top, left;
     if (offset) {
       top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
       left = cur.clientX - offset.left - Math.floor(size.width / 2);
       values = "translate(" + left + "px, "+ top + "px)";
-      $li.css({'-webkit-transform': values, 'z-index': 5});
+      $li.css({
+        '-webkit-transform': values, '-moz-transform': values, '-o-transform': values,
+        'z-index': 5
+      });
       //$li.css({position: "relative", top: top, left: left, "z-index": 5});
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
 
       //$li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
       setTimeout(function() {
-        $li.css({'-webkit-transform': 'translate(0,0)', "z-index": ""}).addClass('start');
+        $li.css({
+          '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
+          '-o-transform': 'translate(0,0)', "z-index": ""
+        }).addClass('start');
       }, 25);
     }
   }
@@ -291,9 +299,9 @@ function DragAndDropHandler(conf) {
   function start() {
     if (!active) {
       active = true;
-      document.addEventListener(START_EVENT, touchStart);
-      document.addEventListener(END_EVENT, touchEnd);
-      document.addEventListener(MOVE_EVENT, touchMove);
+      document.addEventListener(START_EVENT, touchStart, false);
+      document.addEventListener(END_EVENT, touchEnd, false);
+      document.addEventListener(MOVE_EVENT, touchMove, false);
       measureBounds();
       myconf.onDragEnded();
     }
@@ -316,9 +324,9 @@ function DragAndDropHandler(conf) {
 
     if (active) {
       active = undefined;
-      document.removeEventListener(START_EVENT, touchStart);
-      document.removeEventListener(END_EVENT, touchEnd);
-      document.removeEventListener(MOVE_EVENT, touchMove);
+      document.removeEventListener(START_EVENT, touchStart, false);
+      document.removeEventListener(END_EVENT, touchEnd, false);
+      document.removeEventListener(MOVE_EVENT, touchMove, false);
 
     }
     picked = undefined;
