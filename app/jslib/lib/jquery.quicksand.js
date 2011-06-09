@@ -338,7 +338,7 @@ Github site: http://github.com/razorjack/quicksand
                         left = current.style.left - offset.left;
                         top  = current.style.top - offset.top;
 
-                        if (options.useTransform) {
+                        if (options.useTransform && ('WebKitCSSMatrix' in window)) {
                           var values = "translate(" + left + "px, "+ top + "px)";
                           destElement.removeClass('start').css({
                             'top': '', 'left': '',
@@ -351,7 +351,7 @@ Github site: http://github.com/razorjack/quicksand
                               }).addClass('start');
                           }, 0);
 
-                          destElement.one('webkitTransitionEnd mozTransitionEnd oTransitionEnd', postCallback);
+                          destElement.one('webkitTransitionEnd transitionend oTransitionEnd', postCallback);
                         } else {
                           destElement.css({position: 'relative', top: top, left: left});
 

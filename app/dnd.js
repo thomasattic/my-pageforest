@@ -1,6 +1,7 @@
 
 function DragAndDropHandler(conf) {
   var IS_TOUCH = 'ontouchstart' in window;
+  var IS_WEBKIT = 'WebKitCSSMatrix' in window;
   var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
   var MOVE_EVENT = IS_TOUCH? 'touchmove' : 'mousemove';
   var END_EVENT = IS_TOUCH? 'touchend' : 'mouseup';
@@ -101,31 +102,39 @@ function DragAndDropHandler(conf) {
     var size = {height: $li.height(), width: $li.width()};
 
     $li.removeClass("active").removeClass('start').css({position: "relative", top: "0", left: "0"});
-    $li.css({
-      '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
-      '-o-transform': 'translate(0,0)'
-    });
+    if (IS_WEBKIT) {
+      $li.css({
+        '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
+        '-o-transform': 'translate(0,0)'
+      });
+    }
     var offset = $li.offset();
     var top, left;
     if (offset) {
       top  = cur.clientY - offset.top - Math.floor(size.height * 0.75);
       left = cur.clientX - offset.left - Math.floor(size.width / 2);
       values = "translate(" + left + "px, "+ top + "px)";
-      $li.css({
-        '-webkit-transform': values, '-moz-transform': values, '-o-transform': values,
-        'z-index': 5
-      });
-      //$li.css({position: "relative", top: top, left: left, "z-index": 5});
+      if (IS_WEBKIT) {
+        $li.css({
+          '-webkit-transform': values, '-moz-transform': values, '-o-transform': values,
+          'z-index': 5
+        });
+      } else {
+        $li.css({position: "relative", top: top, left: left, "z-index": 5});
+      }
       $li.removeClass("invisible");
       $phantom.removeClass("active").hide();
 
-      //$li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
-      setTimeout(function() {
-        $li.css({
-          '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
-          '-o-transform': 'translate(0,0)', "z-index": ""
-        }).addClass('start');
-      }, 25);
+      if (IS_WEBKIT) {
+        setTimeout(function() {
+          $li.css({
+            '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
+            '-o-transform': 'translate(0,0)', "z-index": ""
+          }).addClass('start');
+        }, 25);
+      } else {
+        $li.stop().animate({top: "0", left: "0", "z-index": ""}, myconf.duration);
+      }
     }
   }
   function snapToMouse() {
@@ -156,7 +165,7 @@ function DragAndDropHandler(conf) {
     left = clientX - phantom.offset.left - phantom.width;
 
     values = "translate(" + left + "px, "+ top + "px)";
-    phantom.jquery.css({'-webkit-transform': values, '-moz-transform': values});
+    phantom.jquery.css({'-webkit-transform': values, '-moz-transform': values, '-o-transform': values});
   }
   function moveElement(ended) {
     if (!picked) {
