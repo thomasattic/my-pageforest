@@ -27,6 +27,7 @@ Github site: http://github.com/razorjack/quicksand
             enhancement: function(c) {}, // Visual enhacement (eg. font replacement) function for cloned elements
             selector: '> *',
             atomic: false,
+            useTransform: true, // only effective when atomic: true
             dx: 0,
             dy: 0
         };
@@ -326,6 +327,15 @@ Github site: http://github.com/razorjack/quicksand
                     animationQueue[i].element.animate(animationQueue[i].animation, options.duration, options.easing, postCallback);
                 }
             } else {
+                function queue(destElement) {
+                    setTimeout(function() {
+                        console.warn('setting ' + destElement.attr('data-id') + ': translate(0,0).');
+                        destElement.css({
+                          '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)', '-o-transform': 'translate(0,0)'
+                        }).addClass('start');
+                    }, 0);
+                };
+
                 $toDelete = $sourceParent.find('> *');
                 $sourceParent.prepend($dest.find('> *'));
                 for (i = 0; i < animationQueue.length; i++) {
@@ -333,11 +343,32 @@ Github site: http://github.com/razorjack/quicksand
                         var destElement = animationQueue[i].dest;
                         var offset = destElement.offset();
 
-                        destElement.css({
-                          position: 'relative', top: (animationQueue[i].style.top - offset.top),
-                          left: (animationQueue[i].style.left - offset.left)});
+                        var left, top;
+                        left = animationQueue[i].style.left - offset.left;
+                        top  = animationQueue[i].style.top - offset.top;
 
-                        destElement.animate({top: "0", left: "0"}, options.duration, options.easing, postCallback);
+                        if (options.useTransform) {
+                          var values = "translate(" + left + "px, "+ top + "px)";
+                          console.warn('setting ' + destElement.attr('data-id') + ': ' + values);
+                          destElement.removeClass('start').css({
+                            'top': '', 'left': '',
+                            '-webkit-transform': values, '-moz-transform': values, '-o-transform': values /*,
+                            '-webkit-transition-property': '-webkit-transform', '-moz-transition-property': '-moz-transform', '-o-transition-property': '-o-transform',
+                            '-webkit-transition-duration': '500ms', '-moz-transition-duration': '500ms', '-o-transition-duration': '500ms',
+                            '-webkit-transition-timing-function': 'linear', '-moz-transition-timing-function': 'linear', '-o-transition-timing-function': 'linear'
+                            */
+
+                          });
+
+                          queue(destElement);
+
+                          // should listen to event end...
+                          setTimeout(postCallback, 500);
+                        } else {
+                          destElement.css({position: 'relative', top: top, left: left});
+
+                          destElement.animate({top: "0", left: "0"}, options.duration, options.easing, postCallback);
+                        }
                     } else {
                         animationQueue[i].element.animate(animationQueue[i].animation, options.duration, options.easing, postCallback);
                     }
