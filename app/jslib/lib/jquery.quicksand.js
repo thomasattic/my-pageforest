@@ -327,19 +327,9 @@ Github site: http://github.com/razorjack/quicksand
                     animationQueue[i].element.animate(animationQueue[i].animation, options.duration, options.easing, postCallback);
                 }
             } else {
-                function queue(destElement) {
-                    setTimeout(function() {
-                        console.warn('setting ' + destElement.attr('data-id') + ': translate(0,0).');
-                        destElement.css({
-                          '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)', '-o-transform': 'translate(0,0)'
-                        }).addClass('start');
-                    }, 0);
-                };
-
                 $toDelete = $sourceParent.find('> *');
                 $sourceParent.prepend($dest.find('> *'));
-                for (i = 0; i < animationQueue.length; i++) {
-                    var current = animationQueue[i];
+                $.each(animationQueue, function(i, current) {
                     if (current.dest && current.style) {
                         var destElement = current.dest;
                         var offset = destElement.offset();
@@ -350,13 +340,17 @@ Github site: http://github.com/razorjack/quicksand
 
                         if (options.useTransform) {
                           var values = "translate(" + left + "px, "+ top + "px)";
-                          console.warn('setting ' + destElement.attr('data-id') + ': ' + values);
                           destElement.removeClass('start').css({
                             'top': '', 'left': '',
                             '-webkit-transform': values, '-moz-transform': values, '-o-transform': values
                           });
 
-                          queue(destElement);
+                          setTimeout(function() {
+                              destElement.css({
+                                '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)', '-o-transform': 'translate(0,0)'
+                              }).addClass('start');
+                          }, 0);
+
                           destElement.one('webkitTransitionEnd mozTransitionEnd oTransitionEnd', postCallback);
                         } else {
                           destElement.css({position: 'relative', top: top, left: left});
@@ -364,9 +358,13 @@ Github site: http://github.com/razorjack/quicksand
                           destElement.animate({top: "0", left: "0"}, options.duration, options.easing, postCallback);
                         }
                     } else {
-                        current.element.animate(current.animation, options.duration, options.easing, postCallback);
+                        if (options.useTransform) {
+                            current.element.animate(current.animation, options.duration, options.easing, postCallback);
+                        } else {
+                            current.element.animate(current.animation, options.duration, options.easing, postCallback);
+                        }
                     }
-                }
+                });
                 $toDelete.remove();
             }
         });
