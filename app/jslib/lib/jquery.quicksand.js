@@ -339,38 +339,32 @@ Github site: http://github.com/razorjack/quicksand
                 $toDelete = $sourceParent.find('> *');
                 $sourceParent.prepend($dest.find('> *'));
                 for (i = 0; i < animationQueue.length; i++) {
-                    if (animationQueue[i].dest && animationQueue[i].style) {
-                        var destElement = animationQueue[i].dest;
+                    var current = animationQueue[i];
+                    if (current.dest && current.style) {
+                        var destElement = current.dest;
                         var offset = destElement.offset();
 
                         var left, top;
-                        left = animationQueue[i].style.left - offset.left;
-                        top  = animationQueue[i].style.top - offset.top;
+                        left = current.style.left - offset.left;
+                        top  = current.style.top - offset.top;
 
                         if (options.useTransform) {
                           var values = "translate(" + left + "px, "+ top + "px)";
                           console.warn('setting ' + destElement.attr('data-id') + ': ' + values);
                           destElement.removeClass('start').css({
                             'top': '', 'left': '',
-                            '-webkit-transform': values, '-moz-transform': values, '-o-transform': values /*,
-                            '-webkit-transition-property': '-webkit-transform', '-moz-transition-property': '-moz-transform', '-o-transition-property': '-o-transform',
-                            '-webkit-transition-duration': '500ms', '-moz-transition-duration': '500ms', '-o-transition-duration': '500ms',
-                            '-webkit-transition-timing-function': 'linear', '-moz-transition-timing-function': 'linear', '-o-transition-timing-function': 'linear'
-                            */
-
+                            '-webkit-transform': values, '-moz-transform': values, '-o-transform': values
                           });
 
                           queue(destElement);
-
-                          // should listen to event end...
-                          setTimeout(postCallback, 500);
+                          destElement.one('webkitTransitionEnd mozTransitionEnd oTransitionEnd', postCallback);
                         } else {
                           destElement.css({position: 'relative', top: top, left: left});
 
                           destElement.animate({top: "0", left: "0"}, options.duration, options.easing, postCallback);
                         }
                     } else {
-                        animationQueue[i].element.animate(animationQueue[i].animation, options.duration, options.easing, postCallback);
+                        current.element.animate(current.animation, options.duration, options.easing, postCallback);
                     }
                 }
                 $toDelete.remove();
