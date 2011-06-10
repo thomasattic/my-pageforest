@@ -10,40 +10,40 @@
   <style type="text/css" media="screen">@import "./jslib/jqtouch/themes/apple/theme.css";</style>
   <style type="text/css" media="screen">
     html, body {
-       min-height: 100%;
+      min-height: 100%;
     }
 
     body {
-       -webkit-box-shadow: inset 1px 1px 10px rgba(127, 127, 127, 0.75);
-       background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
-       background-image: -moz-linear-gradient(top, #AAA, #999 50%, #999 50%, #666);
-       background-repeat: repeat-x;
-       background-color: darkgrey;
+      -webkit-box-shadow: inset 1px 1px 10px rgba(127, 127, 127, 0.75);
+      background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AAA), color-stop(0.5, #999), color-stop(0.5, #999), color-stop(1, #666));
+      background-image: -moz-linear-gradient(top, #AAA, #999 50%, #999 50%, #666);
+      background-repeat: repeat-x;
+      background-color: darkgrey;
     }
 
     #jqt > div#z-launcherpane, #jqt > form, #jqt > div {
-       background-image: none;
-       background-color: transparent;
+      background-image: none;
+      background-color: transparent;
     }
 
     #jqt > #z-launcherpane ul.grid {
-       display: block;
-       background-image: none;
-       background-colo: transparent;
+      display: block;
+      background-image: none;
+      background-colo: transparent;
     }
 
     #jqt > #z-launcherpane ul.grid li {
-       display: block;
-       float: left;
-       -moz-user-select: none;
-       -moz-user-select: -moz-none;
-       -webkit-user-drag: none;
-       -webkit-transform: translate(0,0); -moz-transform: translate(0,0); -o-transform: translate(0,0);
+      display: block;
+      float: left;
+      -moz-user-select: none;
+      -moz-user-select: -moz-none;
+      -webkit-user-drag: none;
+      -webkit-transform: translate(0,0); -moz-transform: translate(0,0); -o-transform: translate(0,0);
     }
     #jqt > #z-launcherpane ul.grid li.start {
-       -webkit-transition-property: -webkit-transform; -moz-transition-property: -moz-transform; -o-transition-property: -o-transform;
-       -webkit-transition-duration: 500ms; -moz-transition-duration: 500ms; -o-transition-duration: 500ms;
-       -webkit-transition-timing-function: linear; -moz-transition-timing-function: linear; -o-transition-timing-function: linear;
+      -webkit-transition-property: -webkit-transform; -moz-transition-property: -moz-transform; -o-transition-property: -o-transform;
+      -webkit-transition-duration: 500ms; -moz-transition-duration: 500ms; -o-transition-duration: 500ms;
+      -webkit-transition-timing-function: linear; -moz-transition-timing-function: linear; -o-transition-timing-function: linear;
     }
     #jqt > #z-launcherpane ul.grid li > a {
       display: block;
@@ -53,7 +53,7 @@
     }
 
     #jqt > #z-launcherpane ul.grid li .icon {
-       background-color: #EEE;
+      background-color: #EEE;
     }
 
     body #phantom, body .phantom {
@@ -84,14 +84,14 @@
 
     @media only screen and (min-device-width: 768px) {
       #jqt > #z-launcherpane ul.grid li .icon {
-         width: 64px;
-         height: 64px;
+        width: 64px;
+        height: 64px;
       }
       #jqt > #z-launcherpane ul.grid li {
-         margin: 30px;
+        margin: 30px;
       }
       #jqt > #z-launcherpane ul.grid li .icon .mask {
-         background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
+        background-image: -webkit-gradient(radial, 50% -58%, 35, 50% -35%, 190, from(rgba(255, 255, 255, 0.347656)), color-stop(0.03, rgba(255, 255, 255, 0.296875)), color-stop(0.22, rgba(239, 239, 239, 0)), color-stop(0.22, rgba(31, 31, 31, 0.199219)), color-stop(0.35, rgba(127, 127, 127, 0.0976563)), color-stop(0.38, rgba(239, 239, 239, 0.0976563)), to(rgba(255, 255, 255, 0)));
       }
     }
 
@@ -138,18 +138,18 @@
     }
 
     #jqt:not(.initstate) .showoninit {
-       display: none;
+      display: none;
     }
 
     #jqt:not(.nouserstate) .showonnouser {
-       display: none;
+      display: none;
     }
 
     #pfSave,
     .nonpage,
     .hidden,
     .hidden > * {
-       display: none;
+      display: none;
     }
 
     #jqt .emboss {
@@ -167,15 +167,15 @@
   <script>
     // For offline - capable applications
     function handleAppCache() {
-      if (typeof applicationCache == 'undefined') {
-          return;
-      }
-      if (applicationCache.status == applicationCache.UPDATEREADY) {
-          applicationCache.swapCache();
-          location.reload();
-          return;
-      }
-      applicationCache.addEventListener('updateready', handleAppCache, false);
+        if (typeof applicationCache == 'undefined') {
+            return;
+        }
+        if (applicationCache.status == applicationCache.UPDATEREADY) {
+            applicationCache.swapCache();
+            location.reload();
+            return;
+        }
+        applicationCache.addEventListener('updateready', handleAppCache, false);
     }
 
     //handleAppCache();
@@ -222,11 +222,11 @@
     <div id="z-launcherpane" class="pane form" section="aside">
       <ul id="appgrid" class="grid"></ul>
       <div class="showoninit emboss">
-          <div class="spinner animate" style="width: 26px; height: 26px; margin: -8px 0;">
-              <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div>
-              <div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div>
-              <div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div>
-          </div>Loading</div>
+        <div class="spinner animate" style="width: 26px; height: 26px; margin: -8px 0;">
+          <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div>
+          <div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div>
+          <div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div>
+        </div>Loading</div>
       <div class="showonnouser emboss">Please sign in</div>
     </div>
     </div>
