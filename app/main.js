@@ -23,6 +23,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     my.loggedin.push(function() {
         loggedin = true;
     });
+
     my.loggedout.push(function() {
         if (loggedin) window.location.reload();
     });
@@ -31,50 +32,54 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     // Add application should wait until setDoc() is first called
     var modelReadyLatch = Threads.latchbinder();
     my.modelReady.push(modelReadyLatch.latch);
+
     function addApp(appid, options, fn, err) {
         // ajax on that:
         var itemjson = {};
         var apppath = '/mirror/' + appid + '/app.json';
         $.ajax({
-          type: 'GET',
-          url: apppath,
-          dataType: 'json',
-          beforeSend: function(xhr) {},
-          success: function(appjson) {
-              var iconurl = '/static/images/icon.png';
-              if (appjson.icon) {
-                  iconurl = '/mirror/' + appid + '/' + appjson.icon;
-              }
+            type: 'GET',
+            url: apppath,
+            dataType: 'json',
+            beforeSend: function(xhr) {},
+            success: function(appjson) {
+                var iconurl = '/static/images/icon.png';
+                if (appjson.icon) {
+                    iconurl = '/mirror/' + appid + '/' + appjson.icon;
+                }
 
-              itemjson.icon = iconurl;
-              itemjson.url = appjson.url;
-              itemjson.appid = appid;
-              itemjson.title = appjson.title;
-              itemjson.editable = (
-                  appjson.owner === my.items.username
-                  || appjson.writers.indexOf(my.items.username) >= 0
-              );
-              itemjson.app = appjson;
-              itemjson.editorurl = "http://editor.pageforest.com/#" + appid;
+                itemjson.icon = iconurl;
+                itemjson.url = appjson.url;
+                itemjson.appid = appid;
+                itemjson.title = appjson.title;
+                itemjson.editable = (
+                    appjson.owner === my.items.username
+                    || appjson.writers.indexOf(my.items.username) >= 0
+                );
+                itemjson.app = appjson;
+                itemjson.editorurl = "http://editor.pageforest.com/#" + appid;
 
-              if (options && options.staple) {
-                  itemjson.staple = true;
-              }
+                if (options && options.staple) {
+                    itemjson.staple = true;
+                }
 
-              // itemjson: {<appid>: {icon: '', url: '', title: ''}
-              my.items.create(appid, itemjson, function() {
-                  if (fn) {
-                      fn(appid, itemjson);
-                  }
-              }, err);
-          },
-          error: function(request, textStatus, errorThrown) {
-              var exception = {datasetname: 'my.pageforest', status: request.status, message: request.statusText, url: apppath, method: "read", kind: textStatus};
-              exception.nested = {request: request, status: textStatus, exception: errorThrown};
-              if (err) {
-                  err(exception);
-              }
-          }
+                // itemjson: {<appid>: {icon: '', url: '', title: ''}
+                my.items.create(appid, itemjson, function() {
+                    if (fn) {
+                        fn(appid, itemjson);
+                    }
+                }, err);
+            },
+            error: function(request, textStatus, errorThrown) {
+                var exception = {
+                      datasetname: 'my.pageforest', status: request.status,
+                      essage: request.statusText, url: apppath, method: "read", kind: textStatus
+                };
+                exception.nested = {request: request, status: textStatus, exception: errorThrown};
+                if (err) {
+                    err(exception);
+                }
+            }
         });
     };
 
@@ -213,6 +218,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     function animationEnded() {
         dnd.notifyAnimationEnded();
     };
+
     function animationStarted() {
         dnd.notifyAnimationStarted();
     };
@@ -283,6 +289,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     var quicksandQueue = (function() {
         // @TODO generalize this function into a generic utility
         var i, len, list;
+
         function launch(pre, fn) {
             var i, len;
             if (list.length > 0) {
@@ -302,6 +309,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
                 list = undefined;
             }
         };
+
         function tickle() {
             if (list === undefined) {
                 list = [];
@@ -323,47 +331,51 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
                 }, 10);
             }
         };
+
         function queue(fn) {
             tickle();
             list.push(fn);
         };
+
         return {queue: queue};
     }());
 
     // Items handler listens to CRUD events from model
     my.items.handler = {
         added: function(event) {
-          function addItem() {
-              var $newitem = $("#launcheritem-template").tmpl(
-                  $.extend({}, event.item, {
-                      url: normalizeHost(event.item.url),
-                      editorurl: normalizeHost(event.item.editorurl)
-              }));
-              if ("after" in event) {
-                  if (event.after !== undefined) {
-                    var $leader = $("ul#replacement")
-                          .find("li[data-launcheritemid=" + event.after + "]");
+            function addItem() {
+                var $newitem = $("#launcheritem-template").tmpl(
+                    $.extend({}, event.item, {
+                        url: normalizeHost(event.item.url),
+                        editorurl: normalizeHost(event.item.editorurl)
+                }));
+                if ("after" in event) {
+                    if (event.after !== undefined) {
+                      var $leader = $("ul#replacement")
+                            .find("li[data-launcheritemid=" + event.after + "]");
 
-                    if ($leader.length > 0) {
-                        $leader.after($newitem);
+                      if ($leader.length > 0) {
+                          $leader.after($newitem);
+                      } else {
+                          console.error("Could not find peer, '" + event.after + "'");
+                          $("ul#replacement").append($newitem);
+                      }
                     } else {
-                        console.error("Could not find peer, '" + event.after + "'");
-                        $("ul#replacement").append($newitem);
+                        $("ul#replacement").prepend($newitem);
                     }
-                  } else {
-                      $("ul#replacement").prepend($newitem);
-                  }
-              } else {
-                  $("ul#replacement").append($newitem);
-              }
-          };
-          quicksandQueue.queue(addItem);
+                } else {
+                    $("ul#replacement").append($newitem);
+                }
+            };
+
+            quicksandQueue.queue(addItem);
         },
         removed: function(event) {
             function removeItem() {
                 var appid = event.id;
                 $("ul#replacement > li[data-launcheritemid=" + appid + "]").remove();
             }
+
             quicksandQueue.queue(removeItem);
         },
         updated: function(event) {
@@ -388,6 +400,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
                     console.log("No change in position for '" + appid + "'");
                 }
             }
+
             quicksandQueue.queue(updateItem);
         }
     };
