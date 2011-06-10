@@ -40,9 +40,10 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                         err(exception);
                     }
                 } else if (!displayeditems[id]) {
-                    if ("after" in item) {
+                    if (item.after) {
                         after = item.after;
-                        if (displayedorder.indexOf(after) < 0) {
+                        if (after !== '<ROOT>' && displayedorder.indexOf(after) < 0) {
+                            console.error("item '" + id + "' should go after '" + after + "' but, it cannot be found.");
                             after = displayedorder[displayedorder.length - 1];
                         }
                         delete item.after;
@@ -85,9 +86,10 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
             }
             modelReadyLatch.bind(function() {
                 event = {id: id, item: item, olditem: olditem};
-                if ("after" in item) {
+                if (item.after) {
                     var after = item.after;
-                    if (after !== undefined && displayedorder.indexOf(after) < 0) {
+                    if (after !== '<ROOT>' && displayedorder.indexOf(after) < 0) {
+                        console.error("item '" + id + "' should go after '" + after + "' but, it cannot be found.");
                         after = displayedorder[displayedorder.length - 1];
                         if (after === id) {
                             after = undefined;
@@ -231,7 +233,7 @@ namespace.lookup('com.pageforest.my').defineOnce(function (ns) {
                 theirPrev = null;
                 cur = commonMyOrder.indexOf(id);
                 if (cur !== 0) {
-                    event.after = null;
+                    event.after = "<ROOT>";
                 }
             }
             if (!Hashs.isEquals(item, olditem) || after === undefined) {

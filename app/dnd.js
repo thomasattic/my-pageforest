@@ -59,7 +59,7 @@ function DragAndDropHandler(conf) {
             result = bounds[i-1].appid;
           }
         } else {
-          result = undefined;
+          result = '<ROOT>';
         }
         break;
       }

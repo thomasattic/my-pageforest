@@ -349,22 +349,21 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
                         url: normalizeHost(event.item.url),
                         editorurl: normalizeHost(event.item.editorurl)
                 }));
-                if ("after" in event) {
-                    if (event.after !== undefined) {
-                      var $leader = $("ul#replacement")
-                            .find("li[data-launcheritemid=" + event.after + "]");
-
-                      if ($leader.length > 0) {
-                          $leader.after($newitem);
-                      } else {
-                          console.error("Could not find peer, '" + event.after + "'");
-                          $("ul#replacement").append($newitem);
-                      }
-                    } else {
-                        $("ul#replacement").prepend($newitem);
-                    }
-                } else {
+                if (event.after === undefined) {
                     $("ul#replacement").append($newitem);
+                } else if (event.after === '<ROOT>') {
+                    console.error("Peer is 'string(null)'");
+                    $("ul#replacement").prepend($newitem);
+                } else {
+                    var $leader = $("ul#replacement")
+                          .find("li[data-launcheritemid=" + event.after + "]");
+
+                    if ($leader.length > 0) {
+                        $leader.after($newitem);
+                    } else {
+                        console.error("Could not find peer, '" + event.after + "'");
+                        $("ul#replacement").append($newitem);
+                    }
                 }
             };
 
@@ -381,23 +380,22 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
         updated: function(event) {
             function updateItem() {
                 var appid = event.id;
-                var $item = $("ul#replacement > li[data-launcheritemid=" + appid + "]");
-                if ("after" in event) {
-                    if (event.after !== undefined) {
-                        var $leader = $("ul#replacement")
-                              .find("li[data-launcheritemid=" + event.after + "]");
 
-                        if ($leader.length > 0) {
-                            $leader.after($item);
-                        } else {
-                            console.error("Could not find peer, '" + event.after + "'");
-                            $("ul#replacement").append($item);
-                        }
-                    } else {
-                        $("ul#replacement").prepend($item);
-                    }
+                var $item = $("ul#replacement > li[data-launcheritemid=" + appid + "]");
+                if (event.after === undefined) {
+                    $("ul#replacement").append($item);
+                } else if (event.after === '<ROOT>') {
+                    $("ul#replacement").prepend($item);
                 } else {
-                    console.log("No change in position for '" + appid + "'");
+                    var $leader = $("ul#replacement")
+                          .find("li[data-launcheritemid=" + event.after + "]");
+
+                    if ($leader.length > 0) {
+                        $leader.after($item);
+                    } else {
+                        console.error("Could not find peer, '" + event.after + "'");
+                        $("ul#replacement").append($item);
+                    }
                 }
             }
 
