@@ -2,6 +2,9 @@
 function DragAndDropHandler(conf) {
     var IS_TOUCH = 'ontouchstart' in window;
     var IS_WEBKIT = 'WebKitCSSMatrix' in window;
+    var IS_IOS = navigator.userAgent.match(/like Mac OS X/i);
+    var USE_TRANSFORM = IS_WEBKIT && !IS_IOS; /* disable IOS because of a bug */
+
     var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
     var MOVE_EVENT = IS_TOUCH? 'touchmove' : 'mousemove';
     var END_EVENT = IS_TOUCH? 'touchend' : 'mouseup';
@@ -107,7 +110,7 @@ function DragAndDropHandler(conf) {
         $li.removeClass("active").removeClass('start').css({
             position: "relative", top: "0", left: "0"
         });
-        if (IS_WEBKIT) {
+        if (USE_TRANSFORM) {
             $li.css({
                 '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
                 '-o-transform': 'translate(0,0)'
@@ -119,7 +122,7 @@ function DragAndDropHandler(conf) {
             top    = cur.clientY - offset.top - Math.floor(size.height * 0.75);
             left = cur.clientX - offset.left - Math.floor(size.width / 2);
             values = "translate(" + left + "px, "+ top + "px)";
-            if (IS_WEBKIT) {
+            if (USE_TRANSFORM) {
                 $li.css({
                     '-webkit-transform': values, '-moz-transform': values, '-o-transform': values,
                     'z-index': 5
@@ -130,7 +133,7 @@ function DragAndDropHandler(conf) {
             $li.removeClass("invisible");
             $phantom.removeClass("active").hide();
 
-            if (IS_WEBKIT) {
+            if (USE_TRANSFORM) {
                 setTimeout(function() {
                     $li.css({
                         '-webkit-transform': 'translate(0,0)', '-moz-transform': 'translate(0,0)',
@@ -182,7 +185,6 @@ function DragAndDropHandler(conf) {
         if (!picked) {
             return;
         }
-        //@TODO -- detect no move and snap right back.
         if (lastClientX !== clientX || lastClientY !== clientY) {
             var newrank = findRankFromMousePosition();
             if (newrank !== picked) {
