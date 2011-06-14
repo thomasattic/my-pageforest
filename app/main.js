@@ -266,7 +266,6 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
             gt(newitem).on('tap', function(event) {
                 var $target = $(this.currentTarget || this); // support both gt() and $()
                 if ($target.parents("ul.grid.editmode").length === 0) {
-                    console.warn("a? " + $target.find("a").length);
                     var href = $target.find("a").attr("href");
                     var target = $target.attr("target");
                     if (href) {

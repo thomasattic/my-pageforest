@@ -10,7 +10,7 @@ function DragAndDropHandler(conf) {
     var END_EVENT = IS_TOUCH? 'touchend' : 'mouseup';
     var CANCEL_EVENT = IS_TOUCH? 'touchcancel' : 'mouseout'; // mouseout on document
 
-    var active, picked, rank;
+    var active, picked;
     var phantom = {};
     var lastClientX, lastClientY, clientX, clientY;
     var bounds, phantoms = {};
@@ -190,12 +190,13 @@ function DragAndDropHandler(conf) {
             if (newrank !== picked) {
                 var withinBound = checkBound(picked);
                 if (!withinBound) {
-                    pushMove({appid: picked, clientX: clientX, clientY: clientY});
-                    myconf.onMove(picked, newrank, function() {
-                        lastClientX = clientX;
-                        lastClientY = clientY;
-                        rank = newrank;
-                    });
+                    var changed = pushMove({appid: picked, clientX: clientX, clientY: clientY, rank: newrank});
+                    if (changed) {
+                        myconf.onMove(picked, newrank, function() {
+                            lastClientX = clientX;
+                            lastClientY = clientY;
+                        });
+                    }
                 } else {
                     if (ended) {
                         snapToHome({appid: picked, clientX: clientX, clientY: clientY});
@@ -214,13 +215,20 @@ function DragAndDropHandler(conf) {
     }
 
     function pushMove(cur) {
+        var item, changed = true;
         for (var i=0, len=bus.length; i<len; i++) {
             if (bus[i].appid === cur.appid) {
+                item = bus[i];
                 Arrays.remove(bus, i);
                 break;
             }
         }
         bus.push(cur);
+
+        if (item && item.rank === cur.rank) {
+            changed = false;
+        }
+        return changed;
     }
 
     function measureBounds() {
