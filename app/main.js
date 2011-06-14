@@ -5,6 +5,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     var IS_WEBKIT = 'WebKitCSSMatrix' in window;
     var IS_IOS = navigator.userAgent.match(/like Mac OS X/i);
     var USE_TRANSFORM = IS_WEBKIT;
+    var DURATION = 250;
 
     var conf = {
         tapholdThreshold: 1000
@@ -208,7 +209,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
         },
         tapholdThreshold: conf.tapholdThreshold,
         activateOnTaphold: true,
-        duration: 500,
+        duration: DURATION,
         margin: 30
     });
 
@@ -301,7 +302,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
                 }
                 list = [];
                 $("#appgrid").quicksand($("ul#replacement > li"), {
-                      duration: 500, atomic: true, useTransform: USE_TRANSFORM
+                      duration: DURATION, atomic: true, useTransform: USE_TRANSFORM
                     },
                     function() {
                         launch(pre, fn);
