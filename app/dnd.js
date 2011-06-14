@@ -3,7 +3,7 @@ function DragAndDropHandler(conf) {
     var IS_TOUCH = 'ontouchstart' in window;
     var IS_WEBKIT = 'WebKitCSSMatrix' in window;
     var IS_IOS = navigator.userAgent.match(/like Mac OS X/i);
-    var USE_TRANSFORM = IS_WEBKIT && !IS_IOS; /* disable IOS because of a bug */
+    var USE_TRANSFORM = IS_WEBKIT;
 
     var START_EVENT = IS_TOUCH? 'touchstart' : 'mousedown';
     var MOVE_EVENT = IS_TOUCH? 'touchmove' : 'mousemove';

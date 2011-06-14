@@ -4,7 +4,7 @@ namespace.lookup('com.pageforest.my.controller').defineOnce(function (ns) {
     var IS_TOUCH = 'ontouchstart' in window;
     var IS_WEBKIT = 'WebKitCSSMatrix' in window;
     var IS_IOS = navigator.userAgent.match(/like Mac OS X/i);
-    var USE_TRANSFORM = IS_WEBKIT && !IS_IOS; /* disable IOS because of a bug */
+    var USE_TRANSFORM = IS_WEBKIT;
 
     var conf = {
         tapholdThreshold: 1000
